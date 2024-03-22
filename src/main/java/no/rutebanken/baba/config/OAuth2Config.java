@@ -16,14 +16,18 @@
 
 package no.rutebanken.baba.config;
 
+import org.entur.oauth2.AuthorizedWebClientBuilder;
 import org.entur.oauth2.JwtRoleAssignmentExtractor;
 import org.entur.oauth2.multiissuer.MultiIssuerAuthenticationManagerResolver;
 import org.entur.oauth2.multiissuer.MultiIssuerAuthenticationManagerResolverBuilder;
 import org.rutebanken.helper.organisation.RoleAssignmentExtractor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * Configure Spring Beans for OAuth2 resource server and OAuth2 client security.
@@ -38,6 +42,27 @@ public class OAuth2Config {
     @Bean
     public RoleAssignmentExtractor roleAssignmentExtractor() {
         return new JwtRoleAssignmentExtractor();
+    }
+
+    @Bean("permissionStoreWebClient")
+    @Profile("!test")
+    WebClient permissionStoreWebClient(
+            WebClient.Builder webClientBuilder,
+            OAuth2ClientProperties properties,
+            @Value("${baba.permissionstore.oauth2.client.audience}") String audience,
+            ClientHttpConnector clientHttpConnector,
+            @Value("${baba.permissionstore.url}") String organisationRegistryUrl
+    ) {
+        return new AuthorizedWebClientBuilder(webClientBuilder)
+                .withOAuth2ClientProperties(properties)
+                .withAudience(audience)
+                .withClientRegistrationId("permissionstore")
+                .build()
+                .mutate()
+                .clientConnector(clientHttpConnector)
+                .defaultHeader("Et-Client-Name", "entur-baba")
+                .baseUrl(organisationRegistryUrl)
+                .build();
     }
 
 
