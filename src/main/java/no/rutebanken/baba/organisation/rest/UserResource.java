@@ -18,9 +18,15 @@ package no.rutebanken.baba.organisation.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import no.rutebanken.baba.organisation.email.NewUserEmailSender;
 import no.rutebanken.baba.organisation.model.OrganisationException;
+import no.rutebanken.baba.organisation.model.responsibility.Role;
 import no.rutebanken.baba.organisation.model.user.User;
+import no.rutebanken.baba.organisation.repository.RoleRepository;
 import no.rutebanken.baba.organisation.repository.UserRepository;
 import no.rutebanken.baba.organisation.repository.VersionedEntityRepository;
 import no.rutebanken.baba.organisation.rest.dto.user.UserDTO;
@@ -36,17 +42,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import java.util.List;
 
 @Component
@@ -55,22 +50,26 @@ import java.util.List;
 @Transactional
 @PreAuthorize("@authorizationService.isOrganisationAdmin()")
 @Tags(value = {
-        @Tag(name = "UserResource", description ="User resource")
+        @Tag(name = "UserResource", description = "User resource")
 })
 public class UserResource extends BaseResource<User, UserDTO> {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserResource.class);
     private final UserRepository repository;
+
+    private final RoleRepository roleRepository;
     private final UserMapper mapper;
     private final UserValidator validator;
     private final IamService iamService;
+
     private final NewUserEmailSender newUserEmailSender;
 
-    public UserResource(UserRepository repository,
+    public UserResource(UserRepository repository, RoleRepository roleRepository,
                         UserMapper mapper,
                         UserValidator validator,
                         IamService iamService,
                         NewUserEmailSender newUserEmailSender) {
         this.repository = repository;
+        this.roleRepository = roleRepository;
         this.mapper = mapper;
         this.validator = validator;
         this.iamService = iamService;
@@ -85,52 +84,93 @@ public class UserResource extends BaseResource<User, UserDTO> {
     }
 
     /**
+     * Create a new user.
+     * If the user account is not a personal account, it is created only in the local database (baba) and not inserted in the Auth0 tenant.
      * Do not wrap method in a single transaction. Need to commit local storage before creating user in IAM, to avoid having users in IAM that does not exist in local storage.
      */
     @Transactional(propagation = Propagation.NEVER)
     @POST
     public Response create(UserDTO dto, @Context UriInfo uriInfo) {
         User user = createEntity(dto);
-        if(user.isPersonalAccount()) {
+        if (user.isPersonalAccount()) {
+            boolean created;
             try {
-                iamService.createUser(user);
+                created = iamService.createOrUpdate(user);
             } catch (RuntimeException e) {
                 LOGGER.warn("Creation of new user in IAM failed. Removing user from local storage. Exception: {}", e.getMessage(), e);
                 deleteEntity(user.getId());
                 throw new OrganisationException("Creation of new user in IAM failed", e);
             }
-            newUserEmailSender.sendEmail(user);
+            if (created) {
+                newUserEmailSender.sendEmail(user);
+            }
         }
-
         return buildCreatedResponse(uriInfo, user);
     }
+
 
     @PUT
     @Path("{id}")
     public void update(@PathParam("id") String id, UserDTO dto) {
         User user = updateEntity(id, dto);
-        if(user.isPersonalAccount()) {
-            iamService.updateUser(user);
+        if (user.isPersonalAccount()) {
+            iamService.createOrUpdate(user);
         }
     }
+
+    // TODO temporary service to migrate accounts to Auth0
+// to be removed after the migration is complete
+    @POST
+    @Path("migrate")
+    public void migrate() throws InterruptedException {
+        LOGGER.info("Migrating user accounts to Auth0");
+        for (UserDTO userDTO : listAllEntities()) {
+            User user = getExisting(userDTO.id);
+
+            // Notification accounts do not need to be migrated
+            if (!user.isPersonalAccount()) {
+                continue;
+            }
+            LOGGER.info("Migrating user {}", user.getUsername());
+            boolean created = iamService.createOrUpdate(user);
+            if (created) {
+                LOGGER.info("Sending email to user {}", user.getUsername());
+                newUserEmailSender.sendEmail(user);
+            } else {
+                LOGGER.info("The user {} was already migrated", user.getUsername());
+            }
+            // slow down migration to prevent rate limiting
+            Thread.sleep(10000);
+        }
+        LOGGER.info("Migration to Auth0 complete");
+    }
+
+
+    // TODO temporary service to migrate accounts to Auth0
+// to be removed after the migration is complete
+    @POST
+    @Path("migrate_roles")
+    public void migrateRoles() throws InterruptedException {
+        LOGGER.info("Migrating roles to Auth0");
+        for (Role role : roleRepository.findAll()) {
+            LOGGER.info("Migrating role {}", role.getName());
+            // TODO skip when role exists already
+            iamService.createRole(role);
+            // slow down migration to prevent rate limiting
+            Thread.sleep(10000);
+        }
+        //TODO retrieve default role
+        iamService.createRole(new Role("rutebanken", "Default Role"));
+        LOGGER.info("Migration of roles to Auth0 complete");
+    }
+
 
     @DELETE
     @Path("{id}")
     public void delete(@PathParam("id") String id) {
         User user = deleteEntity(id);
-        if(user.isPersonalAccount()) {
+        if (user.isPersonalAccount()) {
             iamService.removeUser(user);
-        }
-    }
-
-
-    @POST
-    @Path("{id}/resetPassword")
-    public void resetPassword(@PathParam("id") String id) {
-        User user = getExisting(id);
-        if(user.isPersonalAccount()) {
-            iamService.resetPassword(user);
-            newUserEmailSender.sendEmail(user);
         }
     }
 
