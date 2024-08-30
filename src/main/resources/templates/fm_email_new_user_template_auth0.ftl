@@ -34,7 +34,7 @@
 
 <p>${message("new.user.email.introduction")}:</p>
 
-${message("new.user.email.username")}: ${user.username}
+${message("new.user.email.username")}: ${user.contactDetails.email}
 <br>
 <p>
 ${message("new.user.email.password.text")}${message("new.user.email.password.forgot.text")}
