@@ -46,7 +46,7 @@ class NewUserEmailFormatterTest {
 
         Assertions.assertTrue(msg.startsWith("<html>"));
         Assertions.assertTrue(msg.contains(contactDetails.getFirstName() + " " + contactDetails.getLastName()));
-        Assertions.assertTrue(msg.contains(user.getUsername()));
+        Assertions.assertTrue(msg.contains(user.getContactDetails().getEmail()));
 
         System.out.println(msg);
     }
