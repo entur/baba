@@ -15,18 +15,9 @@ public class NoAuthenticationIamService implements IamService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void createUser(User user) {
-        logger.info("Authentication disabled! Ignored createUser: {}", user.getUsername());
-    }
-
-    @Override
-    public void updateUser(User user) {
-        logger.info("Authentication disabled! Ignored updateUser: {}", user.getUsername());
-    }
-
-    @Override
-    public void resetPassword(User user) {
-        logger.info("Authentication disabled! Ignored resetPassword: {}", user.getUsername());
+    public boolean createOrUpdate(User user) {
+        logger.info("Authentication disabled! Ignored createOrUpdate: {}", user.getUsername());
+        return false;
     }
 
     @Override

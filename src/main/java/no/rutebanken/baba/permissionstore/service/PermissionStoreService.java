@@ -14,28 +14,8 @@
  *
  */
 
-package no.rutebanken.baba.organisation.service;
+package no.rutebanken.baba.permissionstore.service;
 
-import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
-import no.rutebanken.baba.organisation.model.responsibility.Role;
-import no.rutebanken.baba.organisation.model.user.User;
-
-public interface IamService {
-
-	/**
-	 * Create a user in the tenant.
-	 * Return true if the user account was created and false if it was updated.
-	 */
-	boolean createOrUpdate(User user);
-
-	void removeUser(User user);
-
-	void createRole(Role role);
-
-	void removeRole(Role role);
-
-	void updateResponsibilitySet(ResponsibilitySet responsibilitySet);
-
-
-
+public interface PermissionStoreService {
+    boolean isFederated(String email);
 }
