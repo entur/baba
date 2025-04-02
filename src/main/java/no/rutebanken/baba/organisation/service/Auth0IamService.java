@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 
 import static no.rutebanken.baba.organisation.service.IamUtils.generatePassword;
-import static no.rutebanken.baba.organisation.service.IamUtils.toAtr;
+import static no.rutebanken.baba.organisation.util.RoleAssignmentMapper.toAtr;
 
 @Service
 @Profile("auth0")

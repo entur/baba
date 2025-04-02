@@ -18,8 +18,10 @@ package no.rutebanken.baba.organisation.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
+import jakarta.ws.rs.NotFoundException;
 import no.rutebanken.baba.organisation.email.NewUserEmailSender;
 import no.rutebanken.baba.organisation.model.OrganisationException;
+import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.user.User;
 import no.rutebanken.baba.organisation.repository.UserRepository;
 import no.rutebanken.baba.organisation.repository.VersionedEntityRepository;
@@ -29,8 +31,11 @@ import no.rutebanken.baba.organisation.rest.mapper.UserMapper;
 import no.rutebanken.baba.organisation.rest.validation.DTOValidator;
 import no.rutebanken.baba.organisation.rest.validation.UserValidator;
 import no.rutebanken.baba.organisation.service.IamService;
+import no.rutebanken.baba.organisation.util.RoleAssignmentMapper;
+import org.rutebanken.helper.organisation.RoleAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -47,6 +52,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+
+import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -82,6 +89,30 @@ public class UserResource extends BaseResource<User, UserDTO> {
     public UserDTO get(@PathParam("id") String id, @QueryParam("full") boolean fullObject) {
         User entity = getExisting(id);
         return getMapper().toDTO(entity, fullObject);
+    }
+
+    @GET
+    @Path("{userName}/roleAssignments")
+    public List<RoleAssignment> getRoleAssignments(@PathParam("userName") String userName) {
+        User user;
+        // A token coming from the Entur Partner Tenant maps the preferred user name to the user email.
+        // A token coming from the RoR Partner Tenant maps the preferred user name to the Baba user name.
+        // The character "@" is forbidden in Baba user names.
+        if (userName.contains("@")) {
+            user = repository.getUserByEmail(userName);
+        } else {
+            user = repository.getUserByUsername(userName);
+        }
+
+        if (user == null) {
+            throw new NotFoundException("User with user name: [" + userName + "] not found");
+        }
+
+        return user.getResponsibilitySets().stream()
+                .map(ResponsibilitySet::getRoles)
+                .flatMap(Collection::stream)
+                .map(RoleAssignmentMapper::toRoleAssignment)
+                .toList();
     }
 
     /**
