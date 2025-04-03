@@ -42,4 +42,23 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         return query.getResultList();
     }
+
+    @Override
+    public User getUserByEmail(String email) {
+
+        TypedQuery<User> query = entityManager.createQuery("select u from User u where u.contactDetails.email = :email", User.class);
+
+        query.setParameter("email", email);
+
+        List<User> resultList = query.getResultList();
+        if (resultList.isEmpty()) {
+            return null;
+        }
+        if(resultList.size() > 1) {
+            throw new IllegalStateException("More than one user found for email " + email);
+        }
+        return resultList.getFirst();
+    }
+
+
 }
