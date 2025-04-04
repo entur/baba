@@ -16,6 +16,7 @@
 
 package no.rutebanken.baba.config;
 
+import no.rutebanken.baba.organisation.user.UserService;
 import org.entur.oauth2.JwtRoleAssignmentExtractor;
 import org.entur.oauth2.user.JwtUserInfoExtractor;
 import org.rutebanken.helper.organisation.RoleAssignmentExtractor;
@@ -33,9 +34,23 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AuthorizationConfig {
 
+    @ConditionalOnProperty(
+            value = "baba.security.role.assignment.extractor",
+            havingValue = "jwt",
+            matchIfMissing = true
+    )
     @Bean
-    public RoleAssignmentExtractor roleAssignmentExtractor() {
+    public RoleAssignmentExtractor jwtRoleAssignmentExtractor() {
         return new JwtRoleAssignmentExtractor();
+    }
+
+    @ConditionalOnProperty(
+            value = "baba.security.role.assignment.extractor",
+            havingValue = "baba"
+    )
+    @Bean
+    public RoleAssignmentExtractor babaRoleAssignmentExtractor(UserService userService) {
+        return new LocalBabaRoleAssignmentExtractor(userService);
     }
 
     @Bean
