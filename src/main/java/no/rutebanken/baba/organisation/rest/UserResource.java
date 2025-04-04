@@ -18,29 +18,6 @@ package no.rutebanken.baba.organisation.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
-import jakarta.ws.rs.NotFoundException;
-import no.rutebanken.baba.organisation.email.NewUserEmailSender;
-import no.rutebanken.baba.organisation.model.OrganisationException;
-import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
-import no.rutebanken.baba.organisation.model.user.User;
-import no.rutebanken.baba.organisation.repository.UserRepository;
-import no.rutebanken.baba.organisation.repository.VersionedEntityRepository;
-import no.rutebanken.baba.organisation.rest.dto.user.UserDTO;
-import no.rutebanken.baba.organisation.rest.mapper.DTOMapper;
-import no.rutebanken.baba.organisation.rest.mapper.UserMapper;
-import no.rutebanken.baba.organisation.rest.validation.DTOValidator;
-import no.rutebanken.baba.organisation.rest.validation.UserValidator;
-import no.rutebanken.baba.organisation.service.IamService;
-import no.rutebanken.baba.organisation.util.RoleAssignmentMapper;
-import org.rutebanken.helper.organisation.RoleAssignment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -52,8 +29,26 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import no.rutebanken.baba.organisation.email.NewUserEmailSender;
+import no.rutebanken.baba.organisation.model.OrganisationException;
+import no.rutebanken.baba.organisation.model.user.User;
+import no.rutebanken.baba.organisation.repository.UserRepository;
+import no.rutebanken.baba.organisation.repository.VersionedEntityRepository;
+import no.rutebanken.baba.organisation.rest.dto.user.UserDTO;
+import no.rutebanken.baba.organisation.rest.mapper.DTOMapper;
+import no.rutebanken.baba.organisation.rest.mapper.UserMapper;
+import no.rutebanken.baba.organisation.rest.validation.DTOValidator;
+import no.rutebanken.baba.organisation.rest.validation.UserValidator;
+import no.rutebanken.baba.organisation.service.IamService;
+import no.rutebanken.baba.organisation.user.UserService;
+import org.rutebanken.helper.organisation.RoleAssignment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -71,10 +66,12 @@ public class UserResource extends BaseResource<User, UserDTO> {
     private final UserValidator validator;
     private final IamService iamService;
     private final NewUserEmailSender newUserEmailSender;
+    private final UserService userService;
 
     public UserResource(UserRepository repository,
                         UserMapper mapper,
                         UserValidator validator,
+                        UserService userService,
                         IamService iamService,
                         NewUserEmailSender newUserEmailSender) {
         this.repository = repository;
@@ -82,6 +79,7 @@ public class UserResource extends BaseResource<User, UserDTO> {
         this.validator = validator;
         this.iamService = iamService;
         this.newUserEmailSender = newUserEmailSender;
+        this.userService = userService;
     }
 
     @GET
@@ -94,26 +92,10 @@ public class UserResource extends BaseResource<User, UserDTO> {
     @GET
     @Path("{userName}/roleAssignments")
     public List<RoleAssignment> getRoleAssignments(@PathParam("userName") String userName) {
-        User user;
-        // A token coming from the Entur Partner Tenant maps the preferred user name to the user email.
-        // A token coming from the RoR Partner Tenant maps the preferred user name to the Baba user name.
-        // The character "@" is forbidden in Baba user names.
-        if (userName.contains("@")) {
-            user = repository.getUserByEmail(userName);
-        } else {
-            user = repository.getUserByUsername(userName);
-        }
-
-        if (user == null) {
-            throw new NotFoundException("User with user name: [" + userName + "] not found");
-        }
-
-        return user.getResponsibilitySets().stream()
-                .map(ResponsibilitySet::getRoles)
-                .flatMap(Collection::stream)
-                .map(RoleAssignmentMapper::toRoleAssignment)
-                .toList();
+        return userService.roleAssignments(userName);
     }
+
+
 
     /**
      * Do not wrap method in a single transaction. Need to commit local storage before creating user in IAM, to avoid having users in IAM that does not exist in local storage.
