@@ -91,6 +91,7 @@ public class UserResource extends BaseResource<User, UserDTO> {
 
     @GET
     @Path("{userName}/roleAssignments")
+    @PreAuthorize("@authorizationService.canViewRoleAssignments()")
     public List<RoleAssignment> getRoleAssignments(@PathParam("userName") String userName) {
         return userService.roleAssignments(userName);
     }
