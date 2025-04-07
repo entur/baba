@@ -17,6 +17,12 @@
 package no.rutebanken.baba.config;
 
 import no.rutebanken.baba.organisation.user.UserService;
+import com.auth0.client.auth.AuthAPI;
+import no.rutebanken.baba.organisation.repository.RoleRepository;
+import no.rutebanken.baba.organisation.repository.UserRepository;
+import no.rutebanken.baba.organisation.service.Auth0IamService;
+import no.rutebanken.baba.organisation.service.IamService;
+import no.rutebanken.baba.organisation.service.NoopIamService;
 import org.entur.oauth2.JwtRoleAssignmentExtractor;
 import org.entur.oauth2.user.JwtUserInfoExtractor;
 import org.rutebanken.helper.organisation.RoleAssignmentExtractor;
@@ -24,9 +30,14 @@ import org.rutebanken.helper.organisation.authorization.AuthorizationService;
 import org.rutebanken.helper.organisation.authorization.DefaultAuthorizationService;
 import org.rutebanken.helper.organisation.authorization.FullAccessAuthorizationService;
 import org.rutebanken.helper.organisation.user.UserInfoExtractor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+
+import java.util.List;
 
 /**
  * Configure authorization.
@@ -74,6 +85,26 @@ public class AuthorizationConfig {
     @Bean("authorizationService")
     public AuthorizationService<Long> fullAccessAuthorizationService() {
         return new FullAccessAuthorizationService();
+    }
+
+
+    @Profile("auth0")
+    @Bean("iamService")
+    public IamService auth0IamService(UserRepository userRepository,
+                                      RoleRepository roleRepository,
+                                      AuthAPI authAPI,
+                                      @Value("#{'${iam.auth0.default.roles:rutebanken}'.split(',')}") List<String> defaultRoles,
+                                      @Value("${iam.auth0.admin.domain}") String domain){
+        return new Auth0IamService(userRepository, roleRepository, authAPI, defaultRoles, domain);
+    }
+
+    @ConditionalOnMissingBean(
+            value = IamService.class,
+            ignored = NoopIamService.class
+    )
+    @Bean("iamService")
+    public IamService noopIamService(){
+        return new NoopIamService();
     }
 
 }

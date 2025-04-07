@@ -17,9 +17,6 @@ import no.rutebanken.baba.organisation.repository.RoleRepository;
 import no.rutebanken.baba.organisation.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -31,8 +28,9 @@ import java.util.stream.Collectors;
 import static no.rutebanken.baba.organisation.service.IamUtils.generatePassword;
 import static no.rutebanken.baba.organisation.util.RoleAssignmentMapper.toAtr;
 
-@Service
-@Profile("auth0")
+/**
+ * Implementation of the IamService that updates a remote Auth0 tenant.
+ */
 public class Auth0IamService implements IamService {
 
     private static final String AUTH0_CONNECTION = "Username-Password-Authentication";
@@ -56,8 +54,8 @@ public class Auth0IamService implements IamService {
     public Auth0IamService(UserRepository userRepository,
                            RoleRepository roleRepository,
                            AuthAPI authAPI,
-                           @Value("#{'${iam.auth0.default.roles:rutebanken}'.split(',')}") List<String> defaultRoles,
-                           @Value("${iam.auth0.admin.domain}") String domain){
+                           List<String> defaultRoles,
+                           String domain){
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.authAPI = authAPI;

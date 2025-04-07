@@ -21,7 +21,6 @@ import no.rutebanken.baba.exceptions.BabaException;
 import no.rutebanken.baba.organisation.model.user.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
@@ -30,7 +29,6 @@ import java.util.Locale;
 import java.util.Map;
 
 @Service
-@Profile({"auth0 | test"})
 public class Auth0NewUserEmailFormatter implements NewUserEmailFormatter {
 
     private final MessageSource messageSource;
