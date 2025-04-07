@@ -52,6 +52,7 @@ data:
 
     # Authorization
     baba.security.authorization-service=token-based
+    baba.security.role.assignment.extractor=baba
 
     # Actuator
     management.server.port=9001
