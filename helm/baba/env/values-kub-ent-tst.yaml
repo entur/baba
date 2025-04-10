@@ -24,6 +24,8 @@ auth0:
       id: JyhRpz2uzDSEKuNdUQMD10wm7y5qiePT
     domain: ror-entur-staging.eu.auth0.com
 
+roleAssignmentExtractor: jwt
+
 mail:
   newUserFrom: noreply-staging@entur.org
   link:

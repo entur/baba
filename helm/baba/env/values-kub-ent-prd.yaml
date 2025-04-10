@@ -26,6 +26,8 @@ auth0:
       id: GLBqcAUgBKVLby3ur9KTqvqraTUmnXvD
     domain: ror-entur.eu.auth0.com
 
+roleAssignmentExtractor: jwt
+
 mail:
   newUserFrom: noreply@entur.org
   link:

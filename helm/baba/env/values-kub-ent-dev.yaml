@@ -22,6 +22,9 @@ auth0:
     client:
       id: dXrBh0VYvPEbz3tCTQzSudyde5hK93mL
     domain: ror-entur-dev.eu.auth0.com
+
+roleAssignmentExtractor: baba
+
 mail:
   newUserFrom: noreply@entur.org
   link:
