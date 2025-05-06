@@ -26,7 +26,7 @@ auth0:
       id: GLBqcAUgBKVLby3ur9KTqvqraTUmnXvD
     domain: ror-entur.eu.auth0.com
 
-roleAssignmentExtractor: jwt
+roleAssignmentExtractor: baba
 
 mail:
   newUserFrom: noreply@entur.org
