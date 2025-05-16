@@ -48,7 +48,7 @@
         <javax.jdo.jdo-api.version>3.2.1</javax.jdo.jdo-api.version>
         <commons-io.version>2.19.0</commons-io.version>
         <passay.version>1.6.6</passay.version>
-        <spring-cloud-gcp-dependencies.version>5.11.3</spring-cloud-gcp-dependencies.version>
+        <spring-cloud-gcp-dependencies.version>5.12.0</spring-cloud-gcp-dependencies.version>
 
         <rest-assured.version>5.5.2</rest-assured.version>
 
