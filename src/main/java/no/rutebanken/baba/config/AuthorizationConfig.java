@@ -24,12 +24,10 @@ import no.rutebanken.baba.organisation.service.Auth0IamService;
 import no.rutebanken.baba.organisation.service.IamService;
 import no.rutebanken.baba.organisation.service.NoopIamService;
 import org.entur.oauth2.JwtRoleAssignmentExtractor;
-import org.entur.oauth2.user.JwtUserInfoExtractor;
 import org.rutebanken.helper.organisation.RoleAssignmentExtractor;
 import org.rutebanken.helper.organisation.authorization.AuthorizationService;
 import org.rutebanken.helper.organisation.authorization.DefaultAuthorizationService;
 import org.rutebanken.helper.organisation.authorization.FullAccessAuthorizationService;
-import org.rutebanken.helper.organisation.user.UserInfoExtractor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -62,11 +60,6 @@ public class AuthorizationConfig {
     @Bean
     public RoleAssignmentExtractor babaRoleAssignmentExtractor(UserService userService) {
         return new LocalBabaRoleAssignmentExtractor(userService);
-    }
-
-    @Bean
-    public UserInfoExtractor userInfoExtractor() {
-        return new JwtUserInfoExtractor();
     }
 
     @ConditionalOnProperty(
