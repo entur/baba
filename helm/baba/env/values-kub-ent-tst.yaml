@@ -24,6 +24,15 @@ auth0:
       id: JyhRpz2uzDSEKuNdUQMD10wm7y5qiePT
     domain: ror-entur-staging.eu.auth0.com
 
+oauth2:
+  client:
+    id: 7OSR0KzXl5eCp1w4Z0QsMW9V1yTZlSan
+    url: https://internal.staging.entur.org/oauth/token
+    audience: https://api.staging.entur.io
+
+permissionStore:
+  url: https://api.staging.entur.io/permission-store/v1
+
 roleAssignmentExtractor: baba
 
 mail:

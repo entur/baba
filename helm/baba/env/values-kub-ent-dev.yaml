@@ -23,6 +23,15 @@ auth0:
       id: dXrBh0VYvPEbz3tCTQzSudyde5hK93mL
     domain: ror-entur-dev.eu.auth0.com
 
+oauth2:
+  client:
+    id: vdyAMoPespPs0I21uC5eAtqfjDtwOtXq
+    url: https://internal.dev.entur.org/oauth/token
+    audience: https://api.dev.entur.io
+
+permissionStore:
+  url: https://api.dev.entur.io/permission-store/v1
+
 roleAssignmentExtractor: baba
 
 mail:

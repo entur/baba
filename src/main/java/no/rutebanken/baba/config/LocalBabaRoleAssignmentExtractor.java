@@ -1,6 +1,7 @@
 package no.rutebanken.baba.config;
 
 import no.rutebanken.baba.organisation.user.UserService;
+import org.entur.ror.permission.AuthenticatedUser;
 import org.entur.ror.permission.BabaRoleAssignmentExtractor;
 import org.rutebanken.helper.organisation.RoleAssignment;
 
@@ -20,7 +21,7 @@ class LocalBabaRoleAssignmentExtractor extends BabaRoleAssignmentExtractor {
     }
 
     @Override
-    protected List<RoleAssignment> userRoleAssignments(String preferredUserName) {
-        return userService.roleAssignments(preferredUserName);
+    protected List<RoleAssignment> userRoleAssignments(AuthenticatedUser authenticatedUser) {
+        return userService.roleAssignments(authenticatedUser);
     }
 }
