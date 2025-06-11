@@ -18,6 +18,7 @@ package no.rutebanken.baba.organisation.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -27,6 +28,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import no.rutebanken.baba.organisation.email.NewUserEmailSender;
@@ -48,6 +50,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.entur.ror.permission.AuthenticatedUser;
 
 import java.util.List;
 
@@ -89,6 +92,7 @@ public class UserResource extends BaseResource<User, UserDTO> {
         return getMapper().toDTO(entity, fullObject);
     }
 
+    @Deprecated
     @GET
     @Path("{userName}/user")
     @PreAuthorize("@authorizationService.canViewRoleAssignments()")
@@ -98,11 +102,32 @@ public class UserResource extends BaseResource<User, UserDTO> {
         return dto;
     }
 
+    @POST
+    @Path("/authenticatedUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @PreAuthorize("@authorizationService.canViewRoleAssignments()")
+    public UserDTO getByUsername(AuthenticatedUser.AuthenticatedUserDTO authenticatedUserDTO) {
+        User entity = userService.getUserByAuthenticatedUser(AuthenticatedUser.ofDTO(authenticatedUserDTO));
+        UserDTO dto = getMapper().toDTO(entity, true);
+        return dto;
+    }
+
+    @Deprecated
     @GET
     @Path("{userName}/roleAssignments")
     @PreAuthorize("@authorizationService.canViewRoleAssignments()")
     public List<RoleAssignment> getRoleAssignments(@PathParam("userName") String userName) {
         return userService.roleAssignments(userName);
+    }
+
+    @POST
+    @Path("/roleAssignments")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @PreAuthorize("@authorizationService.canViewRoleAssignments()")
+    public List<RoleAssignment> getRoleAssignments(AuthenticatedUser.AuthenticatedUserDTO authenticatedUser) {
+        return userService.roleAssignments(AuthenticatedUser.ofDTO(authenticatedUser));
     }
 
 

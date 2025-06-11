@@ -26,6 +26,16 @@ auth0:
       id: GLBqcAUgBKVLby3ur9KTqvqraTUmnXvD
     domain: ror-entur.eu.auth0.com
 
+oauth2:
+  client:
+    id: ZFqnffWIzLiHwCwSyGiUa9ydQRqYhEek
+    url: https://internal.entur.org/oauth/token
+    audience: https://api.entur.io
+
+permissionStore:
+  url: https://api.entur.io/permission-store/v1
+
+
 roleAssignmentExtractor: baba
 
 mail:
