@@ -43,6 +43,8 @@ spec:
             - secretRef:
                 name: auth-credentials
             - secretRef:
+                name: auth-internal-credentials
+            - secretRef:
                 name: smtp-credentials
             - secretRef:
                 name: psql-credentials
