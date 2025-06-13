@@ -48,4 +48,9 @@ public class NoopIamService implements IamService {
         logger.info("NOOP IAM service! Ignored updateResponsibilitySet: {}", responsibilitySet.getName());
     }
 
+    @Override
+    public boolean hasUserWithEmail(String email) {
+        return false;
+    }
+
 }

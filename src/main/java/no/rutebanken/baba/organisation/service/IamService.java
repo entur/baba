@@ -38,4 +38,6 @@ public interface IamService {
 	void removeRole(Role role);
 
 	void updateResponsibilitySet(ResponsibilitySet responsibilitySet);
+
+    boolean hasUserWithEmail(String email);
 }

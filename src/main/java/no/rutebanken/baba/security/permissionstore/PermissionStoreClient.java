@@ -10,4 +10,6 @@ public interface PermissionStoreClient {
           String subject
   );
 
- }
+
+    boolean isFederated(String domain);
+}

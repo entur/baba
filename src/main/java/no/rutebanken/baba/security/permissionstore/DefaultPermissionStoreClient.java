@@ -15,13 +15,11 @@
 
 package no.rutebanken.baba.security.permissionstore;
 
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -60,6 +58,22 @@ public class DefaultPermissionStoreClient implements PermissionStoreClient {
       throw new IllegalStateException("Multiple users found for subject " + subject);
     }
     return users.getFirst();
+  }
+
+  @Override
+  public boolean isFederated(String domain) {
+    Long count = webClient.get().uri(uriBuilder -> uriBuilder
+                    .path("/users/providers/emaildomains")
+                    .queryParam("domainOrEmail", domain)
+                    .build())
+            .retrieve()
+            .bodyToFlux(Object.class)
+            .count()
+            .retryWhen(
+                    Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(1)).filter(is5xx)
+            )
+            .block();
+    return count != null && count > 0;
   }
 
   private static final Predicate<Throwable> is5xx = throwable ->
