@@ -183,6 +183,13 @@ public class UserResource extends BaseResource<User, UserDTO> {
     }
 
     @GET
+    @Path("/listUsers")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String listUsers() {
+        return userService.jsonlistUsers();
+    }
+
+    @GET
     public List<UserDTO> listAll(@QueryParam("full") boolean fullObject) {
         return super.listAllEntities(fullObject);
     }

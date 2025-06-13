@@ -21,6 +21,7 @@ import no.rutebanken.baba.organisation.model.CodeSpace;
 import no.rutebanken.baba.organisation.model.organisation.Authority;
 import no.rutebanken.baba.organisation.model.organisation.Organisation;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
+import no.rutebanken.baba.security.permissionstore.PermissionStoreUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,17 @@ public abstract class BaseIntegrationTest {
 
         @Bean
         public PermissionStoreClient permissionStoreClient() {
-            return subject -> null;
+            return new PermissionStoreClient() {
+                @Override
+                public PermissionStoreUser getUser(String subject) {
+                    return null;
+                }
+
+                @Override
+                public boolean isFederated(String domain) {
+                    return false;
+                }
+            };
         }
 
     }

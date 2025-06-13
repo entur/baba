@@ -178,6 +178,17 @@ public class Auth0IamService implements IamService {
         }
     }
 
+    @Override
+    public boolean hasUserWithEmail(String email) {
+        try {
+            com.auth0.json.mgmt.users.User  auth0UserByEmail = getAuth0UserByEmail(email);
+            return true;
+        } catch (OAuth2UserNotFoundException e) {
+            return false;
+        }
+
+    }
+
     private synchronized ManagementAPI getManagementAPI() throws Auth0Exception {
         if (managementAPI == null) {
             refreshToken();
@@ -302,6 +313,28 @@ public class Auth0IamService implements IamService {
             return matchingUsers.getFirst();
         } catch (Auth0Exception e) {
             logger.error("Failed to retrieve the user {} in Auth0", username, e);
+            throw new OrganisationException("Failed to retrieve the user");
+        }
+    }
+
+
+    private com.auth0.json.mgmt.users.User getAuth0UserByEmail(String email) {
+        try {
+            List<com.auth0.json.mgmt.users.User> matchingUsers = getManagementAPI()
+                    .users()
+                    .list(new UserFilter().withQuery("email:\"" + email + "\""))
+                    .execute()
+                    .getBody()
+                    .getItems();
+            if (matchingUsers.isEmpty()) {
+                throw new OAuth2UserNotFoundException("User not found in Auth0: " + email);
+            } else if (matchingUsers.size() > 1) {
+                logger.error("More than one user found in Auth0 tenant with email: {}", email);
+                throw new OrganisationException("More than one user found with email: " + email);
+            }
+            return matchingUsers.getFirst();
+        } catch (Auth0Exception e) {
+            logger.error("Failed to retrieve the user {} in Auth0", email, e);
             throw new OrganisationException("Failed to retrieve the user");
         }
     }
