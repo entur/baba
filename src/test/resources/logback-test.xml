@@ -22,6 +22,9 @@
     <logger name="org" level="INFO"/>
     <logger name="io" level="INFO"/>
 
+    <logger name="com.google.cloud.spring.core.DefaultCredentialsProvider" level="ERROR"/>
+    <logger name="com.google.auth.oauth2.DefaultCredentialsProvider" level="ERROR"/>
+
     <root level="INFO">
         <appender-ref ref="CONSOLE-ASYNC" />
     </root>
