@@ -16,6 +16,9 @@
 
 package no.rutebanken.baba.organisation.repository;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.UUID;
 import no.rutebanken.baba.organisation.model.responsibility.ResponsibilityRoleAssignment;
 import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.responsibility.Role;
@@ -23,54 +26,65 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.UUID;
-
 class ResponsibilitySetRepositoryTest extends BaseIntegrationTest {
 
-    @Autowired
-    private ResponsibilitySetRepository responsibilitySetRepository;
-    @Autowired
-    private RoleRepository roleRepository;
+  @Autowired
+  private ResponsibilitySetRepository responsibilitySetRepository;
 
+  @Autowired
+  private RoleRepository roleRepository;
 
-    @Test
-    void findResponsibilitySetsReferringToRole() {
-        Role role1 = createRole("r1");
-        Role role2 = createRole("r2");
+  @Test
+  void findResponsibilitySetsReferringToRole() {
+    Role role1 = createRole("r1");
+    Role role2 = createRole("r2");
 
-        ResponsibilitySet only1 = createSet("setOnly1", createRoleAssignment(role1));
-        ResponsibilitySet only2 = createSet("setOnly2", createRoleAssignment(role2));
-        ResponsibilitySet both = createSet("setBoth", createRoleAssignment(role1), createRoleAssignment(role2));
+    ResponsibilitySet only1 = createSet("setOnly1", createRoleAssignment(role1));
+    ResponsibilitySet only2 = createSet("setOnly2", createRoleAssignment(role2));
+    ResponsibilitySet both = createSet(
+      "setBoth",
+      createRoleAssignment(role1),
+      createRoleAssignment(role2)
+    );
 
-        Assertions.assertEquals(Set.of(only1, both),Set.copyOf(responsibilitySetRepository.getResponsibilitySetsReferringTo(role1)));
-        Assertions.assertEquals(Set.of(only2, both), Set.copyOf(responsibilitySetRepository.getResponsibilitySetsReferringTo(role2)));
+    Assertions.assertEquals(
+      Set.of(only1, both),
+      Set.copyOf(responsibilitySetRepository.getResponsibilitySetsReferringTo(role1))
+    );
+    Assertions.assertEquals(
+      Set.of(only2, both),
+      Set.copyOf(responsibilitySetRepository.getResponsibilitySetsReferringTo(role2))
+    );
+  }
+
+  private ResponsibilitySet createSet(String name, ResponsibilityRoleAssignment... roles) {
+    ResponsibilitySet responsibilitySet = new ResponsibilitySet();
+
+    responsibilitySet.setName(name);
+    responsibilitySet.setPrivateCode(name);
+    responsibilitySet.setCodeSpace(defaultCodeSpace);
+
+    if (roles != null) {
+      responsibilitySet.getRoles().addAll(Arrays.asList(roles));
     }
 
-    private ResponsibilitySet createSet(String name, ResponsibilityRoleAssignment... roles) {
-        ResponsibilitySet responsibilitySet = new ResponsibilitySet();
+    return responsibilitySetRepository.save(responsibilitySet);
+  }
 
-        responsibilitySet.setName(name);
-        responsibilitySet.setPrivateCode(name);
-        responsibilitySet.setCodeSpace(defaultCodeSpace);
+  private ResponsibilityRoleAssignment createRoleAssignment(Role role) {
+    return ResponsibilityRoleAssignment
+      .builder()
+      .withCodeSpace(defaultCodeSpace)
+      .withPrivateCode(UUID.randomUUID().toString())
+      .withResponsibleOrganisation(defaultOrganisation)
+      .withTypeOfResponsibilityRole(role)
+      .build();
+  }
 
-        if (roles != null) {
-            responsibilitySet.getRoles().addAll(Arrays.asList(roles));
-        }
-
-        return responsibilitySetRepository.save(responsibilitySet);
-    }
-
-    private ResponsibilityRoleAssignment createRoleAssignment(Role role) {
-        return ResponsibilityRoleAssignment.builder().withCodeSpace(defaultCodeSpace).withPrivateCode(UUID.randomUUID().toString())
-                       .withResponsibleOrganisation(defaultOrganisation).withTypeOfResponsibilityRole(role).build();
-    }
-
-    private Role createRole(String roleName) {
-        Role role = new Role();
-        role.setPrivateCode(roleName);
-        role.setName(roleName);
-        return roleRepository.save(role);
-    }
+  private Role createRole(String roleName) {
+    Role role = new Role();
+    role.setPrivateCode(roleName);
+    role.setName(roleName);
+    return roleRepository.save(role);
+  }
 }

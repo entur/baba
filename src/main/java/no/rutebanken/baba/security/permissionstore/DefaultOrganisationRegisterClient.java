@@ -18,62 +18,34 @@ package no.rutebanken.baba.security.permissionstore;
 import java.time.Duration;
 import java.util.List;
 import java.util.function.Predicate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
 
 /**
- * Client for accessing the Permission Store API.
+ * Client for accessing the Organisation  API.
  */
-public class DefaultPermissionStoreClient implements PermissionStoreClient {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPermissionStoreClient.class);
+public class DefaultOrganisationRegisterClient implements OrganisationRegisterClient {
 
   private static final long MAX_RETRY_ATTEMPTS = 3;
 
   private final WebClient webClient;
 
-  public DefaultPermissionStoreClient(WebClient permissionStoreWebClient) {
+  public DefaultOrganisationRegisterClient(WebClient permissionStoreWebClient) {
     this.webClient = permissionStoreWebClient;
   }
 
   @Override
-  @Cacheable("permissionStoreUsers")
-  public PermissionStoreUser getUser(String subject) {
-    LOGGER.info("Retrieving user {} through Permission Store API", subject);
-    List<PermissionStoreUser> users = webClient
+  public List<CodespaceMapping> getCodespaceMappings() {
+    List<CodespaceMapping> mappings = webClient
       .get()
-      .uri(uriBuilder -> uriBuilder.path("/users").queryParam("subject", subject).build())
+      .uri(uriBuilder -> uriBuilder.path("/codespaces").build())
       .retrieve()
-      .bodyToFlux(PermissionStoreUser.class)
+      .bodyToFlux(CodespaceMapping.class)
       .collectList()
       .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(1)).filter(is5xx))
       .block();
-    if (users == null || users.isEmpty()) {
-      throw new IllegalArgumentException("No users found for subject " + subject);
-    }
-    if (users.size() > 1) {
-      throw new IllegalStateException("Multiple users found for subject " + subject);
-    }
-    return users.getFirst();
-  }
-
-  @Override
-  public boolean isFederated(String domain) {
-    Long count = webClient
-      .get()
-      .uri(uriBuilder ->
-        uriBuilder.path("/users/providers/emaildomains").queryParam("domainOrEmail", domain).build()
-      )
-      .retrieve()
-      .bodyToFlux(Object.class)
-      .count()
-      .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(1)).filter(is5xx))
-      .block();
-    return count != null && count > 0;
+    return mappings;
   }
 
   private static final Predicate<Throwable> is5xx = throwable ->

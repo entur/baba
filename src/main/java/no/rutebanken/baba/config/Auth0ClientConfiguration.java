@@ -28,20 +28,22 @@ import org.springframework.context.annotation.Profile;
 @Profile("auth0")
 public class Auth0ClientConfiguration {
 
-    @Bean
-    public AuthAPI authAPI(@Value("${iam.auth0.admin.domain}") String domain,
-						   @Value("${iam.auth0.admin.client.id}") String clientId,
-						   @Value("${iam.auth0.admin.client.secret}") String clientSecret) {
+  @Bean
+  public AuthAPI authAPI(
+    @Value("${iam.auth0.admin.domain}") String domain,
+    @Value("${iam.auth0.admin.client.id}") String clientId,
+    @Value("${iam.auth0.admin.client.secret}") String clientSecret
+  ) {
+    Auth0HttpClient auth0HttpClient = DefaultHttpClient
+      .newBuilder()
+      .withConnectTimeout(10)
+      .withReadTimeout(10)
+      .withMaxRetries(10)
+      .build();
 
-        Auth0HttpClient auth0HttpClient = DefaultHttpClient.newBuilder()
-                .withConnectTimeout(10)
-                .withReadTimeout(10)
-                .withMaxRetries(10)
-                .build();
-
-        return AuthAPI.newBuilder(domain, clientId, clientSecret)
-                .withHttpClient(auth0HttpClient)
-                .build();
-
-    }
+    return AuthAPI
+      .newBuilder(domain, clientId, clientSecret)
+      .withHttpClient(auth0HttpClient)
+      .build();
+  }
 }

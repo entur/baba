@@ -29,6 +29,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import java.util.List;
 import no.rutebanken.baba.organisation.model.user.M2MClient;
 import no.rutebanken.baba.organisation.repository.M2MClientRepository;
 import no.rutebanken.baba.organisation.repository.VersionedEntityRepository;
@@ -41,80 +42,75 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Component
 @Path("m2m_clients")
 @Produces("application/json")
 @Transactional
 @PreAuthorize("@authorizationService.isOrganisationAdmin()")
-@Tags(value = {
-        @Tag(name = "M2MClientResource", description = "M2M Client Resource")
-})
+@Tags(value = { @Tag(name = "M2MClientResource", description = "M2M Client Resource") })
 public class M2MClientResource extends BaseResource<M2MClient, M2MClientDTO> {
 
-    private final VersionedEntityRepository<M2MClient> repository;
-    private final DTOMapper<M2MClient, M2MClientDTO> mapper;
-    private final DTOValidator<M2MClient, M2MClientDTO> validator;
+  private final VersionedEntityRepository<M2MClient> repository;
+  private final DTOMapper<M2MClient, M2MClientDTO> mapper;
+  private final DTOValidator<M2MClient, M2MClientDTO> validator;
 
-    public M2MClientResource(M2MClientRepository repository,
-                             M2MClientMapper mapper,
-                             M2MClientValidator validator
-    ) {
-        this.repository = repository;
-        this.mapper = mapper;
-        this.validator = validator;
-    }
+  public M2MClientResource(
+    M2MClientRepository repository,
+    M2MClientMapper mapper,
+    M2MClientValidator validator
+  ) {
+    this.repository = repository;
+    this.mapper = mapper;
+    this.validator = validator;
+  }
 
-    @GET
-    @Path("{id}")
-    public M2MClientDTO get(@PathParam("id") String id, @QueryParam("full") boolean fullObject) {
-        M2MClient entity = getExisting(id);
-        return getMapper().toDTO(entity, fullObject);
-    }
+  @GET
+  @Path("{id}")
+  public M2MClientDTO get(@PathParam("id") String id, @QueryParam("full") boolean fullObject) {
+    M2MClient entity = getExisting(id);
+    return getMapper().toDTO(entity, fullObject);
+  }
 
-    @POST
-    public Response create(M2MClientDTO dto, @Context UriInfo uriInfo) {
-        M2MClient client = createEntity(dto);
-        return buildCreatedResponse(uriInfo, client);
-    }
+  @POST
+  public Response create(M2MClientDTO dto, @Context UriInfo uriInfo) {
+    M2MClient client = createEntity(dto);
+    return buildCreatedResponse(uriInfo, client);
+  }
 
-    @PUT
-    @Path("{id}")
-    public void update(@PathParam("id") String id, M2MClientDTO dto) {
-        updateEntity(id, dto);
-    }
+  @PUT
+  @Path("{id}")
+  public void update(@PathParam("id") String id, M2MClientDTO dto) {
+    updateEntity(id, dto);
+  }
 
-    @DELETE
-    @Path("{id}")
-    public void delete(@PathParam("id") String id) {
-        deleteEntity(id);
+  @DELETE
+  @Path("{id}")
+  public void delete(@PathParam("id") String id) {
+    deleteEntity(id);
+  }
 
-    }
+  @GET
+  public List<M2MClientDTO> listAll(@QueryParam("full") boolean fullObject) {
+    return super.listAllEntities(fullObject);
+  }
 
-    @GET
-    public List<M2MClientDTO> listAll(@QueryParam("full") boolean fullObject) {
-        return super.listAllEntities(fullObject);
-    }
+  @Override
+  protected VersionedEntityRepository<M2MClient> getRepository() {
+    return repository;
+  }
 
+  @Override
+  protected DTOMapper<M2MClient, M2MClientDTO> getMapper() {
+    return mapper;
+  }
 
-    @Override
-    protected VersionedEntityRepository<M2MClient> getRepository() {
-        return repository;
-    }
+  @Override
+  protected Class<M2MClient> getEntityClass() {
+    return M2MClient.class;
+  }
 
-    @Override
-    protected DTOMapper<M2MClient, M2MClientDTO> getMapper() {
-        return mapper;
-    }
-
-    @Override
-    protected Class<M2MClient> getEntityClass() {
-        return M2MClient.class;
-    }
-
-    @Override
-    protected DTOValidator<M2MClient, M2MClientDTO> getValidator() {
-        return validator;
-    }
+  @Override
+  protected DTOValidator<M2MClient, M2MClientDTO> getValidator() {
+    return validator;
+  }
 }

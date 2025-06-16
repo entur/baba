@@ -16,9 +16,10 @@
 
 package no.rutebanken.baba.organisation.rest;
 
-
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import no.rutebanken.baba.organisation.model.organisation.Organisation;
 import no.rutebanken.baba.organisation.repository.OrganisationRepository;
 import no.rutebanken.baba.organisation.repository.VersionedEntityRepository;
@@ -31,47 +32,45 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-
 @Component
 @Path("")
 @Produces("application/json")
 @Transactional
 @PreAuthorize("@authorizationService.isOrganisationAdmin()")
-@Tags(value = {
-		@Tag(name = "OrganisationResource", description ="Organisation resource")
-})
+@Tags(value = { @Tag(name = "OrganisationResource", description = "Organisation resource") })
 public class OrganisationResource extends AnnotatedBaseResource<Organisation, OrganisationDTO> {
 
+  private final OrganisationRepository repository;
+  private final OrganisationMapper mapper;
+  private final OrganisationValidator validator;
 
-	private final OrganisationRepository repository;
-	private final OrganisationMapper mapper;
-	private final OrganisationValidator validator;
+  public OrganisationResource(
+    OrganisationRepository repository,
+    OrganisationMapper mapper,
+    OrganisationValidator validator
+  ) {
+    this.repository = repository;
+    this.mapper = mapper;
+    this.validator = validator;
+  }
 
-	public OrganisationResource(OrganisationRepository repository, OrganisationMapper mapper, OrganisationValidator validator) {
-		this.repository = repository;
-		this.mapper = mapper;
-		this.validator = validator;
-	}
+  @Override
+  protected Class<Organisation> getEntityClass() {
+    return Organisation.class;
+  }
 
-	@Override
-	protected Class<Organisation> getEntityClass() {
-		return Organisation.class;
-	}
+  @Override
+  protected VersionedEntityRepository<Organisation> getRepository() {
+    return repository;
+  }
 
-	@Override
-	protected VersionedEntityRepository<Organisation> getRepository() {
-		return repository;
-	}
+  @Override
+  protected DTOMapper<Organisation, OrganisationDTO> getMapper() {
+    return mapper;
+  }
 
-	@Override
-	protected DTOMapper<Organisation, OrganisationDTO> getMapper() {
-		return mapper;
-	}
-
-	@Override
-	protected DTOValidator<Organisation, OrganisationDTO> getValidator() {
-		return validator;
-	}
+  @Override
+  protected DTOValidator<Organisation, OrganisationDTO> getValidator() {
+    return validator;
+  }
 }

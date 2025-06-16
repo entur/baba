@@ -18,7 +18,4 @@ package no.rutebanken.baba.organisation.repository;
 
 import no.rutebanken.baba.organisation.model.user.M2MClient;
 
-
-public interface M2MClientRepository extends VersionedEntityRepository<M2MClient> {
-
-}
+public interface M2MClientRepository extends VersionedEntityRepository<M2MClient> {}

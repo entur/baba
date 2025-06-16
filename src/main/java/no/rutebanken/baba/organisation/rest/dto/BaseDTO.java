@@ -23,12 +23,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BaseDTO {
 
-    @Schema(description = "Unique id for the entity")
-    public String id;
+  @Schema(description = "Unique id for the entity")
+  public String id;
 
-    @Schema(description = "The code space the entity belongs to")
-    public String codeSpace;
+  @Schema(description = "The code space the entity belongs to")
+  public String codeSpace;
 
-    @Schema(description = "Private code for the entity. Unique for type within code space")
-    public String privateCode;
+  @Schema(description = "Private code for the entity. Unique for type within code space")
+  public String privateCode;
 }

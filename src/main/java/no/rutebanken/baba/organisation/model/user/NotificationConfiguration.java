@@ -17,52 +17,54 @@
 package no.rutebanken.baba.organisation.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import no.rutebanken.baba.organisation.model.user.eventfilter.EventFilter;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import no.rutebanken.baba.organisation.model.user.eventfilter.EventFilter;
 
 @Entity
 public class NotificationConfiguration {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_configuration_seq")
-    @SequenceGenerator(name = "notification_configuration_seq", sequenceName = "notification_configuration_seq", allocationSize = 1)
-    @JsonIgnore
-    private Long pk;
 
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private NotificationType notificationType;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_configuration_seq")
+  @SequenceGenerator(
+    name = "notification_configuration_seq",
+    sequenceName = "notification_configuration_seq",
+    allocationSize = 1
+  )
+  @JsonIgnore
+  private Long pk;
 
+  @Enumerated(EnumType.STRING)
+  @NotNull
+  private NotificationType notificationType;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @NotNull
-    private EventFilter eventFilter;
+  @OneToOne(cascade = CascadeType.ALL)
+  @NotNull
+  private EventFilter eventFilter;
 
-    private boolean enabled;
+  private boolean enabled;
 
+  public NotificationType getNotificationType() {
+    return notificationType;
+  }
 
-    public NotificationType getNotificationType() {
-        return notificationType;
-    }
+  public void setNotificationType(NotificationType notificationType) {
+    this.notificationType = notificationType;
+  }
 
-    public void setNotificationType(NotificationType notificationType) {
-        this.notificationType = notificationType;
-    }
+  public EventFilter getEventFilter() {
+    return eventFilter;
+  }
 
-    public EventFilter getEventFilter() {
-        return eventFilter;
-    }
+  public void setEventFilter(EventFilter eventFilter) {
+    this.eventFilter = eventFilter;
+  }
 
-    public void setEventFilter(EventFilter eventFilter) {
-        this.eventFilter = eventFilter;
-    }
+  public boolean isEnabled() {
+    return enabled;
+  }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
 }

@@ -16,39 +16,38 @@
 
 package no.rutebanken.baba.organisation.model.responsibility;
 
-import no.rutebanken.baba.organisation.model.TypeEntity;
-import no.rutebanken.baba.organisation.model.VersionedEntity;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import no.rutebanken.baba.organisation.model.TypeEntity;
+import no.rutebanken.baba.organisation.model.VersionedEntity;
 
 @Entity
-@Table(uniqueConstraints = {
-		                           @UniqueConstraint(name = "role_unique_id", columnNames = {"privateCode", "entityVersion"})
-})
+@Table(
+  uniqueConstraints = {
+    @UniqueConstraint(name = "role_unique_id", columnNames = { "privateCode", "entityVersion" }),
+  }
+)
 public class Role extends VersionedEntity implements TypeEntity {
 
-	@NotNull
-	private String name;
+  @NotNull
+  private String name;
 
-	public Role() {
-	}
+  public Role() {}
 
-	public Role(String privateCode, String name) {
-		setPrivateCode(privateCode);
-		this.name = name;
-	}
+  public Role(String privateCode, String name) {
+    setPrivateCode(privateCode);
+    this.name = name;
+  }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+  @Override
+  public String getName() {
+    return name;
+  }
 
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
+  @Override
+  public void setName(String name) {
+    this.name = name;
+  }
 }

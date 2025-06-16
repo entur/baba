@@ -16,6 +16,7 @@
 
 package no.rutebanken.baba.organisation.email;
 
+import java.util.Locale;
 import no.rutebanken.baba.BabaTestApp;
 import no.rutebanken.baba.organisation.model.user.ContactDetails;
 import no.rutebanken.baba.organisation.model.user.User;
@@ -26,34 +27,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Locale;
-
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = BabaTestApp.class)
 class NewUserEmailFormatterTest {
-    @Autowired
-    private NewUserEmailFormatter emailFormatter;
 
-    @Test
-    void testFormatNewUserEmail() {
-        ContactDetails contactDetails = new ContactDetails();
-        contactDetails.setEmail("e@e.org");
-        contactDetails.setFirstName("First");
-        contactDetails.setLastName("Last");
-        User user = User.builder().withContactDetails(contactDetails).withUsername("test-user").build();
+  @Autowired
+  private NewUserEmailFormatter emailFormatter;
 
-        String msg = emailFormatter.formatMessage(user, new Locale.Builder().setLanguage("no").build());
+  @Test
+  void testFormatNewUserEmail() {
+    ContactDetails contactDetails = new ContactDetails();
+    contactDetails.setEmail("e@e.org");
+    contactDetails.setFirstName("First");
+    contactDetails.setLastName("Last");
+    User user = User.builder().withContactDetails(contactDetails).withUsername("test-user").build();
 
-        Assertions.assertTrue(msg.startsWith("<html>"));
-        Assertions.assertTrue(msg.contains(contactDetails.getFirstName() + " " + contactDetails.getLastName()));
-        Assertions.assertTrue(msg.contains(user.getUsername()));
+    String msg = emailFormatter.formatMessage(user, new Locale.Builder().setLanguage("no").build());
 
-        System.out.println(msg);
-    }
+    Assertions.assertTrue(msg.startsWith("<html>"));
+    Assertions.assertTrue(
+      msg.contains(contactDetails.getFirstName() + " " + contactDetails.getLastName())
+    );
+    Assertions.assertTrue(msg.contains(user.getUsername()));
 
-    @Test
-    void testGetNewUserEmailSubject() {
-        Assertions.assertEquals("Entur - New account details", emailFormatter.getSubject(Locale.ENGLISH));
-    }
+    System.out.println(msg);
+  }
 
+  @Test
+  void testGetNewUserEmailSubject() {
+    Assertions.assertEquals(
+      "Entur - New account details",
+      emailFormatter.getSubject(Locale.ENGLISH)
+    );
+  }
 }

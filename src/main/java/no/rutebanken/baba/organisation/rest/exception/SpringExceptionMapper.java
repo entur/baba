@@ -16,29 +16,28 @@
 
 package no.rutebanken.baba.organisation.rest.exception;
 
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.NestedRuntimeException;
 
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.ext.ExceptionMapper;
-import jakarta.ws.rs.ext.Provider;
-
 @Provider
-public class SpringExceptionMapper extends ExceptionMapperBase implements ExceptionMapper<NestedRuntimeException> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SpringExceptionMapper.class);
+public class SpringExceptionMapper
+  extends ExceptionMapperBase
+  implements ExceptionMapper<NestedRuntimeException> {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(SpringExceptionMapper.class);
 
-	@Override
-	public Response toResponse(NestedRuntimeException e) {
-		LOGGER.debug("Operation failed with exception: {}", e.getMessage(), e);
-		Throwable t = e;
-		if (e.getRootCause() != null) {
-			t = e.getRootCause();
-		}
+  @Override
+  public Response toResponse(NestedRuntimeException e) {
+    LOGGER.debug("Operation failed with exception: {}", e.getMessage(), e);
+    Throwable t = e;
+    if (e.getRootCause() != null) {
+      t = e.getRootCause();
+    }
 
-		return super.buildResponse(t);
-	}
-
-
+    return super.buildResponse(t);
+  }
 }

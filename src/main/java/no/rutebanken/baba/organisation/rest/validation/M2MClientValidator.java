@@ -16,30 +16,29 @@
 
 package no.rutebanken.baba.organisation.rest.validation;
 
+import java.util.Set;
 import no.rutebanken.baba.organisation.model.user.M2MClient;
 import no.rutebanken.baba.organisation.rest.dto.m2m.M2MClientDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.Set;
-
 @Service
 public class M2MClientValidator implements DTOValidator<M2MClient, M2MClientDTO> {
 
-    @Override
-    public void validateCreate(M2MClientDTO dto) {
-        Assert.hasLength(dto.privateCode, "private code required");
-        validateUpdate(dto, null);
-    }
+  @Override
+  public void validateCreate(M2MClientDTO dto) {
+    Assert.hasLength(dto.privateCode, "private code required");
+    validateUpdate(dto, null);
+  }
 
-    @Override
-    public void validateUpdate(M2MClientDTO dto, M2MClient entity) {
-        Assert.hasLength(dto.name, "display name required");
-        Assert.hasLength(dto.issuer, "issuer required");
-        Assert.isTrue(Set.of(M2MClient.PARTNER_ISSUER, M2MClient.INTERNAL_ISSUER).contains(dto.issuer), "Issuer is either 'Partner' or 'Internal'");
-        Assert.notNull(dto.enturOrganisationId, "enturOrganisationId required");
-
-    }
-
-
+  @Override
+  public void validateUpdate(M2MClientDTO dto, M2MClient entity) {
+    Assert.hasLength(dto.name, "display name required");
+    Assert.hasLength(dto.issuer, "issuer required");
+    Assert.isTrue(
+      Set.of(M2MClient.PARTNER_ISSUER, M2MClient.INTERNAL_ISSUER).contains(dto.issuer),
+      "Issuer is either 'Partner' or 'Internal'"
+    );
+    Assert.notNull(dto.enturOrganisationId, "enturOrganisationId required");
+  }
 }

@@ -29,47 +29,46 @@ import java.util.Set;
 @Entity
 public class JobEventFilter extends EventFilter {
 
-    @NotNull
-    private String jobDomain;
+  @NotNull
+  private String jobDomain;
 
-    @NotNull
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> actions;
+  @NotNull
+  @ElementCollection(fetch = FetchType.EAGER)
+  private Set<String> actions;
 
-    @NotNull
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<JobState> states;
+  @NotNull
+  @ElementCollection(fetch = FetchType.EAGER)
+  private Set<JobState> states;
 
-    public String getJobDomain() {
-        return jobDomain;
+  public String getJobDomain() {
+    return jobDomain;
+  }
+
+  public void setJobDomain(String jobDomain) {
+    this.jobDomain = jobDomain;
+  }
+
+  public Set<String> getActions() {
+    if (actions == null) {
+      actions = new HashSet<>();
     }
+    return actions;
+  }
 
-    public void setJobDomain(String jobDomain) {
-        this.jobDomain = jobDomain;
+  public void setActions(Set<String> actions) {
+    getActions().clear();
+    getActions().addAll(actions);
+  }
+
+  public Set<JobState> getStates() {
+    if (states == null) {
+      states = new HashSet<>();
     }
+    return states;
+  }
 
-    public Set<String> getActions() {
-        if (actions == null) {
-            actions = new HashSet<>();
-        }
-        return actions;
-    }
-
-    public void setActions(Set<String> actions) {
-        getActions().clear();
-        getActions().addAll(actions);
-    }
-
-    public Set<JobState> getStates() {
-        if (states == null) {
-            states = new HashSet<>();
-        }
-        return states;
-    }
-
-    public void setStates(Set<JobState> states) {
-        getStates().clear();
-        getStates().addAll(states);
-    }
-
+  public void setStates(Set<JobState> states) {
+    getStates().clear();
+    getStates().addAll(states);
+  }
 }

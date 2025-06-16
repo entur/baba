@@ -22,10 +22,12 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
 @Provider
-public class PersistenceExceptionMapper extends ExceptionMapperBase implements ExceptionMapper<PersistenceException> {
+public class PersistenceExceptionMapper
+  extends ExceptionMapperBase
+  implements ExceptionMapper<PersistenceException> {
 
-	@Override
-	public Response toResponse(PersistenceException e) {
-		return super.buildResponse(e);
-	}
+  @Override
+  public Response toResponse(PersistenceException e) {
+    return super.buildResponse(e);
+  }
 }

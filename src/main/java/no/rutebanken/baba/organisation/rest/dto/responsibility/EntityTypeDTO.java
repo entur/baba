@@ -17,13 +17,12 @@
 package no.rutebanken.baba.organisation.rest.dto.responsibility;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import no.rutebanken.baba.organisation.rest.dto.TypeDTO;
-
 import java.util.ArrayList;
 import java.util.List;
+import no.rutebanken.baba.organisation.rest.dto.TypeDTO;
+
 @Schema(description = "A type of entity or field")
 public class EntityTypeDTO extends TypeDTO {
 
-	public List<TypeDTO> classifications = new ArrayList<>();
-
+  public List<TypeDTO> classifications = new ArrayList<>();
 }

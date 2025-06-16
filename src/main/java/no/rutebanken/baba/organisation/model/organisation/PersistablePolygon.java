@@ -17,9 +17,8 @@
 package no.rutebanken.baba.organisation.model.organisation;
 
 import jakarta.persistence.*;
-import org.locationtech.jts.geom.Polygon;
-
 import jakarta.validation.constraints.NotNull;
+import org.locationtech.jts.geom.Polygon;
 
 /**
  * Wrapper class to enable lazy loading of polygons.
@@ -27,28 +26,31 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 public class PersistablePolygon {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "persistable_polygon_seq")
-    @SequenceGenerator(name = "persistable_polygon_seq", sequenceName = "persistable_polygon_seq", allocationSize = 1)
-    protected Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "persistable_polygon_seq")
+  @SequenceGenerator(
+    name = "persistable_polygon_seq",
+    sequenceName = "persistable_polygon_seq",
+    allocationSize = 1
+  )
+  protected Long id;
 
-    @Basic(fetch = FetchType.LAZY)
-    @Column(columnDefinition = "geometry")
-    @NotNull
-    private Polygon polygon;
+  @Basic(fetch = FetchType.LAZY)
+  @Column(columnDefinition = "geometry")
+  @NotNull
+  private Polygon polygon;
 
-    public Polygon getPolygon() {
-        return polygon;
-    }
+  public Polygon getPolygon() {
+    return polygon;
+  }
 
-    public void setPolygon(Polygon polygon) {
-        this.polygon = polygon;
-    }
+  public void setPolygon(Polygon polygon) {
+    this.polygon = polygon;
+  }
 
-    public PersistablePolygon(Polygon polygon) {
-        this.polygon = polygon;
-    }
+  public PersistablePolygon(Polygon polygon) {
+    this.polygon = polygon;
+  }
 
-    public PersistablePolygon() {
-    }
+  public PersistablePolygon() {}
 }

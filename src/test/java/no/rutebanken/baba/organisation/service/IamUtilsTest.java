@@ -21,14 +21,11 @@ import org.junit.jupiter.api.Test;
 
 class IamUtilsTest {
 
-
-    @Test
-    void testGeneratePassword() {
-        String password = IamUtils.generatePassword();
-        Assertions.assertEquals(12, password.length());
-        Assertions.assertNotEquals(password.toLowerCase(), password);
-        Assertions.assertNotEquals(password.toUpperCase(), password);
-    }
-
-
+  @Test
+  void testGeneratePassword() {
+    String password = IamUtils.generatePassword();
+    Assertions.assertEquals(12, password.length());
+    Assertions.assertNotEquals(password.toLowerCase(), password);
+    Assertions.assertNotEquals(password.toUpperCase(), password);
+  }
 }

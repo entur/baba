@@ -16,6 +16,8 @@
 
 package no.rutebanken.baba.organisation.repository;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import no.rutebanken.baba.organisation.model.organisation.AdministrativeZone;
 import no.rutebanken.baba.organisation.model.organisation.AdministrativeZoneType;
 import org.junit.jupiter.api.Test;
@@ -25,31 +27,35 @@ import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-
 class AdministrativeZoneRepositoryTest extends BaseIntegrationTest {
 
-	@Autowired
-	private AdministrativeZoneRepository administrativeZoneRepository;
+  @Autowired
+  private AdministrativeZoneRepository administrativeZoneRepository;
 
+  @Test
+  void testInsertAdministrativeZone() {
+    AdministrativeZone zone = new AdministrativeZone();
+    zone.setPrivateCode("0101");
+    zone.setName("name");
+    zone.setCodeSpace(defaultCodeSpace);
+    zone.setAdministrativeZoneType(AdministrativeZoneType.COUNTY);
+    zone.setSource("KVE");
 
-	@Test
-	void testInsertAdministrativeZone() {
-		AdministrativeZone zone = new AdministrativeZone();
-		zone.setPrivateCode("0101");
-		zone.setName("name");
-		zone.setCodeSpace(defaultCodeSpace);
-		zone.setAdministrativeZoneType(AdministrativeZoneType.COUNTY);
-		zone.setSource("KVE");
+    GeometryFactory fact = new GeometryFactory();
+    LinearRing linear = new GeometryFactory()
+      .createLinearRing(
+        new Coordinate[] {
+          new Coordinate(0, 0),
+          new Coordinate(1, 0),
+          new Coordinate(1, 1),
+          new Coordinate(0, 0),
+        }
+      );
+    Polygon poly = new Polygon(linear, null, fact);
 
-		GeometryFactory fact = new GeometryFactory();
-		LinearRing linear = new GeometryFactory().createLinearRing(new Coordinate[]{new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(1, 1), new Coordinate(0, 0)});
-		Polygon poly = new Polygon(linear, null, fact);
+    zone.setPolygon(poly);
 
-		zone.setPolygon(poly);
-
-		administrativeZoneRepository.saveAndFlush(zone);
-		assertNotNull(administrativeZoneRepository.getOneByPublicIdIfExists(zone.getId()));
-	}
+    administrativeZoneRepository.saveAndFlush(zone);
+    assertNotNull(administrativeZoneRepository.getOneByPublicIdIfExists(zone.getId()));
+  }
 }

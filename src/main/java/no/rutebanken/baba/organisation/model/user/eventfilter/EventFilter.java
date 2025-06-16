@@ -24,25 +24,26 @@ import no.rutebanken.baba.organisation.model.organisation.Organisation;
  * User defined filter for events.
  */
 @Entity
-
-
 public abstract class EventFilter {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_filter_seq")
-    @SequenceGenerator(name = "event_filter_seq", sequenceName = "event_filter_seq", allocationSize = 1)
-    @JsonIgnore
-    private Long pk;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_filter_seq")
+  @SequenceGenerator(
+    name = "event_filter_seq",
+    sequenceName = "event_filter_seq",
+    allocationSize = 1
+  )
+  @JsonIgnore
+  private Long pk;
 
-    @ManyToOne
-    private Organisation organisation;
+  @ManyToOne
+  private Organisation organisation;
 
-    public Organisation getOrganisation() {
-        return organisation;
-    }
+  public Organisation getOrganisation() {
+    return organisation;
+  }
 
-    public void setOrganisation(Organisation organisation) {
-        this.organisation = organisation;
-    }
-
+  public void setOrganisation(Organisation organisation) {
+    this.organisation = organisation;
+  }
 }

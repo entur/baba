@@ -22,89 +22,92 @@ import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import no.rutebanken.baba.organisation.model.VersionedEntity;
-import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
-
-import javax.jdo.annotations.Unique;
 import java.util.HashSet;
 import java.util.Set;
+import javax.jdo.annotations.Unique;
+import no.rutebanken.baba.organisation.model.VersionedEntity;
+import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 
 /**
  * An M2M client identified by its client-id (private code) and display name (name)
  */
 @Entity
-@Table(name = "m2m_client", uniqueConstraints = {
-        @UniqueConstraint(name = "m2m_client_unique_client_id", columnNames = {"privateCode", "entityVersion"})
-})
+@Table(
+  name = "m2m_client",
+  uniqueConstraints = {
+    @UniqueConstraint(
+      name = "m2m_client_unique_client_id",
+      columnNames = { "privateCode", "entityVersion" }
+    ),
+  }
+)
 public class M2MClient extends VersionedEntity {
 
-    public static final String INTERNAL_ISSUER = "Internal";
-    public static final String PARTNER_ISSUER = "Partner";
+  public static final String INTERNAL_ISSUER = "Internal";
+  public static final String PARTNER_ISSUER = "Partner";
 
-    @NotNull
-    @Unique
-    private String name;
+  @NotNull
+  @Unique
+  private String name;
 
-    @ManyToMany
-    private Set<ResponsibilitySet> responsibilitySets;
+  @ManyToMany
+  private Set<ResponsibilitySet> responsibilitySets;
 
-    private Long enturOrganisationId;
+  private Long enturOrganisationId;
 
-    private String issuer;
+  private String issuer;
 
-    public String getName() {
-        return name;
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String username) {
+    this.name = username;
+  }
+
+  public String getIssuer() {
+    return issuer;
+  }
+
+  public void setIssuer(String issuer) {
+    this.issuer = issuer;
+  }
+
+  public Long getEnturOrganisationId() {
+    return enturOrganisationId;
+  }
+
+  public void setEnturOrganisationId(Long enturOrganisationId) {
+    this.enturOrganisationId = enturOrganisationId;
+  }
+
+  public Set<ResponsibilitySet> getResponsibilitySets() {
+    if (responsibilitySets == null) {
+      this.responsibilitySets = new HashSet<>();
     }
+    return responsibilitySets;
+  }
 
-    public void setName(String username) {
-        this.name = username;
-    }
+  public void setResponsibilitySets(Set<ResponsibilitySet> responsibilitySets) {
+    getResponsibilitySets().clear();
+    getResponsibilitySets().addAll(responsibilitySets);
+  }
 
+  @PreRemove
+  private void removeChildren() {
+    getResponsibilitySets().clear();
+  }
 
-    public String getIssuer() {
-        return issuer;
-    }
+  @Override
+  public String getId() {
+    return String.join(":", getType(), getPrivateCode());
+  }
 
-    public void setIssuer(String issuer) {
-        this.issuer = issuer;
-    }
+  public boolean isInternal() {
+    return INTERNAL_ISSUER.equals(getIssuer());
+  }
 
-    public Long getEnturOrganisationId() {
-        return enturOrganisationId;
-    }
-
-    public void setEnturOrganisationId(Long enturOrganisationId) {
-        this.enturOrganisationId = enturOrganisationId;
-    }
-
-
-    public Set<ResponsibilitySet> getResponsibilitySets() {
-        if (responsibilitySets == null) {
-            this.responsibilitySets = new HashSet<>();
-        }
-        return responsibilitySets;
-    }
-
-    public void setResponsibilitySets(Set<ResponsibilitySet> responsibilitySets) {
-        getResponsibilitySets().clear();
-        getResponsibilitySets().addAll(responsibilitySets);
-    }
-
-    @PreRemove
-    private void removeChildren() {
-        getResponsibilitySets().clear();
-    }
-
-    @Override
-    public String getId() {
-        return String.join(":", getType(), getPrivateCode());
-    }
-
-    public boolean isInternal() {
-        return INTERNAL_ISSUER.equals(getIssuer());
-    }
-
-    public boolean isPartner() {
-        return PARTNER_ISSUER.equals(getIssuer());
-    }
+  public boolean isPartner() {
+    return PARTNER_ISSUER.equals(getIssuer());
+  }
 }

@@ -16,34 +16,37 @@
 
 package no.rutebanken.baba.organisation.repository;
 
+import jakarta.persistence.EntityManager;
+import java.util.ArrayList;
+import java.util.List;
 import no.rutebanken.baba.organisation.model.VersionedEntity;
 import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.responsibility.Role;
 import org.springframework.stereotype.Repository;
 
-import jakarta.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.List;
-
 @Repository
 public class ResponsibilitySetRepositoryImpl implements ResponsibilitySetRepositoryCustom {
 
-    private final EntityManager entityManager;
+  private final EntityManager entityManager;
 
-    public ResponsibilitySetRepositoryImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
+  public ResponsibilitySetRepositoryImpl(EntityManager entityManager) {
+    this.entityManager = entityManager;
+  }
+
+  @Override
+  public List<ResponsibilitySet> getResponsibilitySetsReferringTo(VersionedEntity entity) {
+    if (entity instanceof Role) {
+      return entityManager
+        .createQuery(
+          "select rs from ResponsibilitySet rs inner join rs.roles r" +
+          " where r.typeOfResponsibilityRole=:role",
+          ResponsibilitySet.class
+        )
+        .setParameter("role", entity)
+        .getResultList();
     }
 
-    @Override
-    public List<ResponsibilitySet> getResponsibilitySetsReferringTo(VersionedEntity entity) {
-
-        if (entity instanceof Role) {
-            return entityManager.createQuery("select rs from ResponsibilitySet rs inner join rs.roles r" +
-                    " where r.typeOfResponsibilityRole=:role", ResponsibilitySet.class)
-                    .setParameter("role", entity).getResultList();
-        }
-
-        // TODO hanle other entity types
-        return new ArrayList<>();
-    }
+    // TODO hanle other entity types
+    return new ArrayList<>();
+  }
 }

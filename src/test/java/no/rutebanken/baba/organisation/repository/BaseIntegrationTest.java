@@ -16,11 +16,15 @@
 
 package no.rutebanken.baba.organisation.repository;
 
+import java.util.List;
 import no.rutebanken.baba.BabaTestApp;
 import no.rutebanken.baba.organisation.model.CodeSpace;
 import no.rutebanken.baba.organisation.model.organisation.Authority;
 import no.rutebanken.baba.organisation.model.organisation.Organisation;
+import no.rutebanken.baba.security.permissionstore.CodespaceMapping;
+import no.rutebanken.baba.security.permissionstore.OrganisationRegisterClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
+import no.rutebanken.baba.security.permissionstore.PermissionStoreUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,52 +39,70 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = BabaTestApp.class)
+@SpringBootTest(
+  webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+  classes = BabaTestApp.class
+)
 @Transactional
 public abstract class BaseIntegrationTest {
 
+  @TestConfiguration
+  @EnableWebSecurity
+  static class TestWebSecurityConfiguration {
 
-    @TestConfiguration
-    @EnableWebSecurity
-    static class TestWebSecurityConfiguration {
-
-        @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            http.csrf(AbstractHttpConfigurer::disable)
-                    .authorizeHttpRequests(authz -> authz
-                            .anyRequest().permitAll()
-                    );
-            return http.build();
-        }
-
-        @Bean
-        public PermissionStoreClient permissionStoreClient() {
-            return subject -> null;
-        }
-
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+      http
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+      return http.build();
     }
 
-    @Autowired
-    protected CodeSpaceRepository codeSpaceRepository;
+    @Bean
+    public PermissionStoreClient permissionStoreClient() {
+      return new PermissionStoreClient() {
+        @Override
+        public PermissionStoreUser getUser(String subject) {
+          return null;
+        }
 
-    @Autowired
-    protected OrganisationRepository organisationRepository;
-
-
-    protected Organisation defaultOrganisation;
-
-    protected CodeSpace defaultCodeSpace;
-
-    @BeforeEach
-    void setUp() {
-        CodeSpace codeSpace = new CodeSpace("nsr", "NSR", "http://www.rutebanken.org/ns/nsr");
-        defaultCodeSpace = codeSpaceRepository.saveAndFlush(codeSpace);
-
-        Authority authority = new Authority();
-        authority.setCodeSpace(defaultCodeSpace);
-        authority.setName("Test Org");
-        authority.setPrivateCode("testOrg");
-        defaultOrganisation = organisationRepository.saveAndFlush(authority);
+        @Override
+        public boolean isFederated(String domain) {
+          return false;
+        }
+      };
     }
 
+    @Bean
+    public OrganisationRegisterClient organisationRegisterClient() {
+      return new OrganisationRegisterClient() {
+        @Override
+        public List<CodespaceMapping> getCodespaceMappings() {
+          return List.of();
+        }
+      };
+    }
+  }
+
+  @Autowired
+  protected CodeSpaceRepository codeSpaceRepository;
+
+  @Autowired
+  protected OrganisationRepository organisationRepository;
+
+  protected Organisation defaultOrganisation;
+
+  protected CodeSpace defaultCodeSpace;
+
+  @BeforeEach
+  void setUp() {
+    CodeSpace codeSpace = new CodeSpace("nsr", "NSR", "http://www.rutebanken.org/ns/nsr");
+    defaultCodeSpace = codeSpaceRepository.saveAndFlush(codeSpace);
+
+    Authority authority = new Authority();
+    authority.setCodeSpace(defaultCodeSpace);
+    authority.setName("Test Org");
+    authority.setPrivateCode("testOrg");
+    defaultOrganisation = organisationRepository.saveAndFlush(authority);
+  }
 }

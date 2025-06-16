@@ -23,42 +23,46 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(uniqueConstraints = {
-		                           @UniqueConstraint(name = "code_space_unique_private_code", columnNames = {"privateCode", "entityVersion"}),
-		                           @UniqueConstraint(name = "code_space_unique_xmlns", columnNames = {"xmlns", "entityVersion"})
-})
+@Table(
+  uniqueConstraints = {
+    @UniqueConstraint(
+      name = "code_space_unique_private_code",
+      columnNames = { "privateCode", "entityVersion" }
+    ),
+    @UniqueConstraint(name = "code_space_unique_xmlns", columnNames = { "xmlns", "entityVersion" }),
+  }
+)
 public class CodeSpace extends VersionedEntity {
 
-	@NotNull
-	@Column(unique = true)
-	private String xmlns;
-	@NotNull
-	@Column(unique = true)
-	private String xmlnsUrl;
+  @NotNull
+  @Column(unique = true)
+  private String xmlns;
 
-	public CodeSpace(String typeId, String xmlns, String xmlnsUrl) {
-		this.setPrivateCode(typeId);
-		this.xmlns = xmlns;
-		this.xmlnsUrl = xmlnsUrl;
-	}
+  @NotNull
+  @Column(unique = true)
+  private String xmlnsUrl;
 
-	public CodeSpace() {
-	}
+  public CodeSpace(String typeId, String xmlns, String xmlnsUrl) {
+    this.setPrivateCode(typeId);
+    this.xmlns = xmlns;
+    this.xmlnsUrl = xmlnsUrl;
+  }
 
-	public String getXmlns() {
-		return xmlns;
-	}
+  public CodeSpace() {}
 
-	public void setXmlns(String xmlns) {
-		this.xmlns = xmlns;
-	}
+  public String getXmlns() {
+    return xmlns;
+  }
 
-	public String getXmlnsUrl() {
-		return xmlnsUrl;
-	}
+  public void setXmlns(String xmlns) {
+    this.xmlns = xmlns;
+  }
 
-	public void setXmlnsUrl(String xmlnsUrl) {
-		this.xmlnsUrl = xmlnsUrl;
-	}
+  public String getXmlnsUrl() {
+    return xmlnsUrl;
+  }
 
+  public void setXmlnsUrl(String xmlnsUrl) {
+    this.xmlnsUrl = xmlnsUrl;
+  }
 }
