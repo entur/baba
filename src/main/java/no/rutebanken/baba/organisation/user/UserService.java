@@ -10,7 +10,9 @@ import no.rutebanken.baba.organisation.model.user.User;
 import no.rutebanken.baba.organisation.repository.UserRepository;
 import no.rutebanken.baba.organisation.service.IamService;
 import no.rutebanken.baba.organisation.util.RoleAssignmentMapper;
+import no.rutebanken.baba.security.permissionstore.CodespaceMapping;
 import no.rutebanken.baba.security.permissionstore.EnturPartnerM2MRoleAssignmentRepository;
+import no.rutebanken.baba.security.permissionstore.OrganisationRegisterClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreUser;
 import org.entur.ror.permission.AuthenticatedUser;
@@ -36,12 +38,14 @@ public class UserService {
 
     private final UserRepository repository;
     private final PermissionStoreClient permissionStoreClient;
+    private final OrganisationRegisterClient organisationRegisterClient;
     private final EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRoleAssignmentRepository;
     private final IamService iamService;
 
-    public UserService(UserRepository repository, PermissionStoreClient permissionStoreClient, EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRoleAssignmentRepository, IamService iamService) {
+    public UserService(UserRepository repository, PermissionStoreClient permissionStoreClient, OrganisationRegisterClient organisationRegisterClient, EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRoleAssignmentRepository, IamService iamService) {
         this.repository = repository;
         this.permissionStoreClient = permissionStoreClient;
+        this.organisationRegisterClient = organisationRegisterClient;
         this.enturPartnerM2MRoleAssignmentRepository = enturPartnerM2MRoleAssignmentRepository;
         this.iamService = iamService;
     }
@@ -143,10 +147,21 @@ public class UserService {
     }
 
     public String listUsers() {
+
+        List<CodespaceMapping> codespaceMappings = organisationRegisterClient.getCodespaceMappings();
+        Map<String, Long> organisationIdByCodespace = codespaceMappings.stream().collect(Collectors.toMap(
+                codespaceMapping -> codespaceMapping.codespaces().getFirst(),
+                CodespaceMapping::organisationId,
+                (id1, id2) -> id1
+        ));
+        organisationIdByCodespace.put("RB", 1L);
+        organisationIdByCodespace.put("VYG", 107L);
+        organisationIdByCodespace.put("VKT", 32L);
+
         return repository.findAll().stream()
                 .filter(User::isPersonalAccount)
                 .sorted(Comparator.comparing(User::getUsername))
-                .map(this::mapUser)
+                .map(user -> mapUser(user, organisationIdByCodespace))
                 .collect(Collectors.joining("\n"));
 
     }
@@ -198,7 +213,7 @@ public class UserService {
         return auth0User;
     }
 
-    private String mapUser(User user) {
+    private String mapUser(User user, Map<String, Long> codespaceByOrganisationId) {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -207,7 +222,12 @@ public class UserService {
         String email = user.getContactDetails().getEmail();
         boolean isFederated = permissionStoreClient.isFederated(email);
         boolean existsInEnturPartner = isFederated || iamService.hasUserWithEmail(email);
-        String userInfo = user.getUsername() + "," + email + "," + user.getOrganisation().getPrivateCode() + "," + isFederated + "," + existsInEnturPartner;
+        String userInfo = user.getUsername() + ","
+                + email + ","
+                + user.getOrganisation().getPrivateCode() + ","
+                + isFederated + ","
+                + existsInEnturPartner + ","
+                + codespaceByOrganisationId.get(user.getOrganisation().getPrivateCode());
         System.out.println(userInfo);
         return userInfo;
     }

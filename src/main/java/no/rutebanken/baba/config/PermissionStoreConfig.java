@@ -16,8 +16,10 @@
 
 package no.rutebanken.baba.config;
 
+import no.rutebanken.baba.security.permissionstore.DefaultOrganisationRegisterClient;
 import no.rutebanken.baba.security.permissionstore.EnturPartnerM2MRoleAssignmentRepository;
 import no.rutebanken.baba.security.permissionstore.DefaultPermissionStoreClient;
+import no.rutebanken.baba.security.permissionstore.OrganisationRegisterClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
 import org.entur.oauth2.AuthorizedWebClientBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,19 +51,35 @@ public class PermissionStoreConfig {
   @Bean
   @Profile("!test")
   PermissionStoreClient permissionStoreClient(
-    @Qualifier("internalWebClient") WebClient permissionStoreWebClient
+    @Qualifier("internalWebClient") WebClient internalWebClient,
+    @Value("${baba.permissionstore.url}") String permissionStoreUrl
   ) {
+    WebClient permissionStoreWebClient = internalWebClient.mutate()
+            .baseUrl(permissionStoreUrl)
+            .build();
     return new DefaultPermissionStoreClient(permissionStoreWebClient);
   }
 
+  @Bean
+  @Profile("!test")
+  OrganisationRegisterClient organisationRegisterClient(
+          @Qualifier("internalWebClient") WebClient internalWebClient,
+          @Value("${baba.organisation.register.url}") String organisationRegisterUrl
+  ) {
+    WebClient organisationRegisterWebClient = internalWebClient.mutate()
+            .baseUrl(organisationRegisterUrl)
+            .build();
+    return new DefaultOrganisationRegisterClient(organisationRegisterWebClient);
+  }
+
+
   @Bean("internalWebClient")
   @Profile("!test")
-  WebClient permissionStoreWebClient(
+  WebClient internalWebClient(
     WebClient.Builder webClientBuilder,
     OAuth2ClientProperties properties,
     @Value("${baba.permissionstore.oauth2.client.audience}") String audience,
-    ClientHttpConnector clientHttpConnector,
-    @Value("${baba.permissionstore.url}") String organisationRegistryUrl
+    ClientHttpConnector clientHttpConnector
   ) {
     return new AuthorizedWebClientBuilder(webClientBuilder)
       .withOAuth2ClientProperties(properties)
@@ -71,7 +89,6 @@ public class PermissionStoreConfig {
       .mutate()
       .clientConnector(clientHttpConnector)
       .defaultHeader("Et-Client-Name", "entur-baba")
-      .baseUrl(organisationRegistryUrl)
       .build();
   }
 }

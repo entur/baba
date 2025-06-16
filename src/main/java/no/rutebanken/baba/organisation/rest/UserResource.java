@@ -186,7 +186,8 @@ public class UserResource extends BaseResource<User, UserDTO> {
     @Path("/listUsers")
     @Produces(MediaType.TEXT_PLAIN)
     public String listUsers() {
-        return userService.jsonlistUsers();
+        //return userService.jsonlistUsers();
+        return userService.listUsers();
     }
 
     @GET
