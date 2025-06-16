@@ -74,11 +74,13 @@ public class UserService {
                 throw new ServerErrorException("User with subject '" + authenticatedUser.subject() + "' has no email in Entur Partner", Response.Status.INTERNAL_SERVER_ERROR);
             }
             String normalizedEmail = permissionStoreUser.email.toLowerCase();
+            LOGGER.debug("Retrieving user with email '{}' in Baba database", normalizedEmail);
             User user = repository.getUserByEmail(normalizedEmail);
             if (user == null) {
                 LOGGER.debug("No user found in Baba database with email '{}' : permission store user = {}", normalizedEmail, permissionStoreUser);
-                throw new NotFoundException("User with user name: [" + authenticatedUser + "] not found");
+                throw new NotFoundException("User with subject: [" + authenticatedUser + "] not found");
             }
+            LOGGER.debug("Found user with email '{}' in Baba database: '{}'", normalizedEmail, user.getUsername());
             return user;
         }
     }
