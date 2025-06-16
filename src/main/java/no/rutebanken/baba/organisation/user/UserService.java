@@ -77,7 +77,7 @@ public class UserService {
             User user = repository.getUserByEmail(normalizedEmail);
             if (user == null) {
                 LOGGER.debug("No user found in Baba database with email '{}' : permission store user = {}", normalizedEmail, permissionStoreUser);
-                throw new NotFoundException("User with user name: [" + authenticatedUser + "] not found");
+                throw new NotFoundException("User with subject: [" + authenticatedUser + "] not found");
             }
             return user;
         }
