@@ -10,6 +10,8 @@ import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreUser;
 import org.entur.ror.permission.AuthenticatedUser;
 import org.rutebanken.helper.organisation.RoleAssignment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,8 @@ import java.util.List;
 @Service
 @Transactional
 public class UserService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository repository;
     private final PermissionStoreClient permissionStoreClient;
@@ -56,9 +60,16 @@ public class UserService {
             return repository.getUserByUsername(authenticatedUser.username());
         }
         else {
+            LOGGER.debug("Retrieving user {} in permission store", authenticatedUser.subject());
             PermissionStoreUser permissionStoreUser = permissionStoreClient.getUser(authenticatedUser.subject());
+            LOGGER.debug("Found permission store user for subject {} : {}", authenticatedUser.subject(), permissionStoreUser);
+            if(permissionStoreUser == null) {
+                LOGGER.debug("User not found in Entur Partner: {}", authenticatedUser.subject());
+                throw new NotFoundException("User with subject '" + authenticatedUser.subject() + "' not found in Entur Partner");
+            }
             User user = repository.getUserByEmail(permissionStoreUser.email);
             if (user == null) {
+                LOGGER.debug("User not found in Baba database: {}", permissionStoreUser);
                 throw new NotFoundException("User with user name: [" + authenticatedUser + "] not found");
             }
             return user;

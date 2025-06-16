@@ -69,6 +69,8 @@ data:
     baba.netex.import.delegation.authorization={CON:'AKT', HAC: 'FLT'}
     baba.netex.export.block.authorization={FAR:'OST,ATB,INN',CON:'TRO,BRA', DGR:'FIN'}
 
+    # Logger
+    logging.level.no.rutebanken.baba.organisation.user.UserService=DEBUG
 
     # Actuator
     management.server.port=9001
