@@ -1,6 +1,8 @@
 package no.rutebanken.baba.organisation.user;
 
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.core.Response;
 import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.user.User;
 import no.rutebanken.baba.organisation.repository.UserRepository;
@@ -60,14 +62,18 @@ public class UserService {
             return repository.getUserByUsername(authenticatedUser.username());
         }
         else {
-            LOGGER.debug("Retrieving user {} in permission store", authenticatedUser.subject());
+            LOGGER.debug("Retrieving user {} in Entur Partner", authenticatedUser.subject());
             PermissionStoreUser permissionStoreUser = permissionStoreClient.getUser(authenticatedUser.subject());
-            LOGGER.debug("Found permission store user for subject {} : {}", authenticatedUser.subject(), permissionStoreUser);
             if(permissionStoreUser == null) {
                 LOGGER.debug("User not found in Entur Partner: {}", authenticatedUser.subject());
                 throw new NotFoundException("User with subject '" + authenticatedUser.subject() + "' not found in Entur Partner");
             }
-            User user = repository.getUserByEmail(permissionStoreUser.email);
+            LOGGER.debug("Found Entur Partner user for subject {} : {}", authenticatedUser.subject(), permissionStoreUser);
+            if(permissionStoreUser.email == null) {
+                LOGGER.debug("User without email in Entur Partner: {}", authenticatedUser.subject());
+                throw new ServerErrorException("User with subject '" + authenticatedUser.subject() + "' has no email in Entur Partner", Response.Status.INTERNAL_SERVER_ERROR);
+            }
+            User user = repository.getUserByEmail(permissionStoreUser.email.toLowerCase());
             if (user == null) {
                 LOGGER.debug("User not found in Baba database: {}", permissionStoreUser);
                 throw new NotFoundException("User with user name: [" + authenticatedUser + "] not found");
