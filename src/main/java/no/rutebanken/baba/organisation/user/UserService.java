@@ -62,26 +62,7 @@ public class UserService {
             return repository.getUserByUsername(authenticatedUser.username());
         }
         else {
-            LOGGER.debug("Retrieving user {} in Entur Partner", authenticatedUser.subject());
-            PermissionStoreUser permissionStoreUser = permissionStoreClient.getUser(authenticatedUser.subject());
-            if(permissionStoreUser == null) {
-                LOGGER.debug("User not found in Entur Partner: {}", authenticatedUser.subject());
-                throw new NotFoundException("User with subject '" + authenticatedUser.subject() + "' not found in Entur Partner");
-            }
-            LOGGER.debug("Found Entur Partner user for subject {} : {}", authenticatedUser.subject(), permissionStoreUser);
-            if(permissionStoreUser.email == null) {
-                LOGGER.debug("User without email in Entur Partner: {}", authenticatedUser.subject());
-                throw new ServerErrorException("User with subject '" + authenticatedUser.subject() + "' has no email in Entur Partner", Response.Status.INTERNAL_SERVER_ERROR);
-            }
-            String normalizedEmail = permissionStoreUser.email.toLowerCase();
-            LOGGER.debug("Retrieving user with email '{}' in Baba database", normalizedEmail);
-            User user = repository.getUserByEmail(normalizedEmail);
-            if (user == null) {
-                LOGGER.debug("No user found in Baba database with email '{}' : permission store user = {}", normalizedEmail, permissionStoreUser);
-                throw new NotFoundException("User with subject: [" + authenticatedUser + "] not found");
-            }
-            LOGGER.debug("Found user with email '{}' in Baba database: '{}'", normalizedEmail, user.getUsername());
-            return user;
+            return permissionStoreUser(authenticatedUser);
         }
     }
 
@@ -116,13 +97,32 @@ public class UserService {
             return toRoleAssignments(user);
         }
         else {
-            PermissionStoreUser permissionStoreUser = permissionStoreClient.getUser(authenticatedUser.subject());
-            User user = repository.getUserByEmail(permissionStoreUser.email);
-            if (user == null) {
-                throw new NotFoundException("User with user name: [" + authenticatedUser.subject() + "] not found");
-            }
+            User user = permissionStoreUser(authenticatedUser);
             return toRoleAssignments(user);
         }
+    }
+
+    private User permissionStoreUser(AuthenticatedUser authenticatedUser) {
+        LOGGER.debug("Retrieving user {} in Entur Partner", authenticatedUser.subject());
+        PermissionStoreUser permissionStoreUser = permissionStoreClient.getUser(authenticatedUser.subject());
+        if(permissionStoreUser == null) {
+            LOGGER.debug("User not found in Entur Partner: {}", authenticatedUser.subject());
+            throw new NotFoundException("User with subject '" + authenticatedUser.subject() + "' not found in Entur Partner");
+        }
+        LOGGER.debug("Found Entur Partner user for subject {} : {}", authenticatedUser.subject(), permissionStoreUser);
+        if(permissionStoreUser.email == null) {
+            LOGGER.debug("User without email in Entur Partner: {}", authenticatedUser.subject());
+            throw new ServerErrorException("User with subject '" + authenticatedUser.subject() + "' has no email in Entur Partner", Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        String normalizedEmail = permissionStoreUser.email.toLowerCase();
+        LOGGER.debug("Retrieving user with email '{}' in Baba database", normalizedEmail);
+        User user = repository.getUserByEmail(normalizedEmail);
+        if (user == null) {
+            LOGGER.debug("No user found in Baba database with email '{}' : permission store user = {}", normalizedEmail, permissionStoreUser);
+            throw new NotFoundException("User with subject: [" + authenticatedUser + "] not found");
+        }
+        LOGGER.debug("Found user with email '{}' in Baba database: '{}'", normalizedEmail, user.getUsername());
+        return user;
     }
 
     private List<RoleAssignment> toRoleAssignments(User user) {
