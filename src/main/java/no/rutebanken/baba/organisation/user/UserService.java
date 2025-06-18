@@ -147,17 +147,7 @@ public class UserService {
     }
 
     public String listUsers() {
-
-        List<CodespaceMapping> codespaceMappings = organisationRegisterClient.getCodespaceMappings();
-        Map<String, Long> organisationIdByCodespace = codespaceMappings.stream().collect(Collectors.toMap(
-                codespaceMapping -> codespaceMapping.codespaces().getFirst(),
-                CodespaceMapping::organisationId,
-                (id1, id2) -> id1
-        ));
-        organisationIdByCodespace.put("RB", 1L);
-        organisationIdByCodespace.put("VYG", 107L);
-        organisationIdByCodespace.put("VKT", 32L);
-
+        Map<String, Long> organisationIdByCodespace = organisationIdByCodespace();
         return repository.findAll().stream()
                 .filter(User::isPersonalAccount)
                 .sorted(Comparator.comparing(User::getUsername))
@@ -167,15 +157,31 @@ public class UserService {
     }
 
     public String jsonlistUsers() {
+        Map<String, Long> organisationIdByCodespace = organisationIdByCodespace();
         String userExport = toJson(repository.findAll().stream()
                 .filter(User::isPersonalAccount)
                 .filter(this::shouldExport)
                 .sorted(Comparator.comparing(User::getUsername))
-                .map(this::mapUserJson)
+                .map(user -> mapUserJson(user, organisationIdByCodespace))
                 .toList());
         System.out.println(userExport);
         return userExport;
 
+    }
+
+    private Map<String, Long> organisationIdByCodespace() {
+        List<CodespaceMapping> codespaceMappings = organisationRegisterClient.getCodespaceMappings();
+        Map<String, Long> organisationIdByCodespace = codespaceMappings.stream().collect(Collectors.toMap(
+                codespaceMapping -> codespaceMapping.codespaces().getFirst(),
+                CodespaceMapping::organisationId,
+                (id1, id2) -> id1
+        ));
+        organisationIdByCodespace.put("RB", 1L);
+        organisationIdByCodespace.put("ENT", 282L);
+        organisationIdByCodespace.put("VYG", 107L);
+        organisationIdByCodespace.put("VKT", 32L);
+        organisationIdByCodespace.put("SOF", 24L);
+        return organisationIdByCodespace;
     }
 
     private boolean shouldExport(User user) {
@@ -202,14 +208,15 @@ public class UserService {
         }
     }
 
-    private com.auth0.json.mgmt.users.User mapUserJson(User user) {
-
+    private com.auth0.json.mgmt.users.User mapUserJson(User user, Map<String, Long> organisationIdByCodespace) {
         com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
         auth0User.setEmail(user.getContactDetails().getEmail());
         auth0User.setGivenName(user.getContactDetails().getFirstName());
         auth0User.setFamilyName(user.getContactDetails().getLastName());
         auth0User.setNickname(user.getUsername());
-        auth0User.setAppMetadata(Map.of("organisationId", -1, "employeeId", ""));
+        auth0User.setAppMetadata(Map.of(
+                "organisationId", organisationIdByCodespace.get(user.getOrganisation().getPrivateCode()),
+                "employeeId", ""));
         return auth0User;
     }
 
