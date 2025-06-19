@@ -19,6 +19,7 @@ package no.rutebanken.baba.organisation.email;
 import freemarker.template.Configuration;
 import no.rutebanken.baba.exceptions.BabaException;
 import no.rutebanken.baba.organisation.model.user.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Profile;
@@ -29,25 +30,22 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+@Profile("migration")
 @Service
-@Profile("!migration")
-public class Auth0NewUserEmailFormatter implements NewUserEmailFormatter {
+public class Auth0UserMigrationEmailFormatter implements NewUserEmailFormatter {
 
-    private final MessageSource messageSource;
-    private final Configuration freemarkerConfiguration;
-    private final String userGuideLink;
+    @Autowired
+    private MessageSource messageSource;
 
-    private final String contactInfoEmail;
+    @Autowired
+    private Configuration freemarkerConfiguration;
 
-    public Auth0NewUserEmailFormatter(MessageSource messageSource,
-                                      Configuration freemarkerConfiguration,
-                                      @Value("${email.link.user.guide:https://enturas.atlassian.net/wiki/spaces/PUBLIC/pages/1444216931/Using+our+services}") String userGuideLink,
-                                      @Value("${email.contact.info:kollektivdata@entur.org}") String contactInfoEmail) {
-        this.messageSource = messageSource;
-        this.freemarkerConfiguration = freemarkerConfiguration;
-        this.userGuideLink = userGuideLink;
-        this.contactInfoEmail = contactInfoEmail;
-    }
+    @Value("${email.link.user.guide:https://enturas.atlassian.net/wiki/spaces/PUBLIC/pages/1444216931/Using+our+services}")
+    private String userGuideLink;
+
+
+    @Value("${email.contact.info:kollektivdata@entur.org}")
+    private String contactInfoEmail;
 
 
     @Override
@@ -72,7 +70,7 @@ public class Auth0NewUserEmailFormatter implements NewUserEmailFormatter {
     private String geFreeMarkerTemplateContent(Map<String, Object> model) {
         try {
             return FreeMarkerTemplateUtils.processTemplateIntoString(
-                    freemarkerConfiguration.getTemplate("fm_email_new_user_template_auth0.ftl"), model);
+                    freemarkerConfiguration.getTemplate("fm_email_new_user_template_auth0_migration.ftl"), model);
         } catch (Exception e) {
             throw new BabaException("Exception occurred while processing email template:" + e.getMessage(), e);
         }

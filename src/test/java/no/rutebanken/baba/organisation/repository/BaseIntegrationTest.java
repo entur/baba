@@ -20,6 +20,8 @@ import no.rutebanken.baba.BabaTestApp;
 import no.rutebanken.baba.organisation.model.CodeSpace;
 import no.rutebanken.baba.organisation.model.organisation.Authority;
 import no.rutebanken.baba.organisation.model.organisation.Organisation;
+import no.rutebanken.baba.security.permissionstore.CodespaceMapping;
+import no.rutebanken.baba.security.permissionstore.OrganisationRegisterClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +36,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = BabaTestApp.class)
@@ -68,6 +72,16 @@ public abstract class BaseIntegrationTest {
                 }
             };
         }
+        @Bean
+        public OrganisationRegisterClient organisationRegisterClient() {
+         return new OrganisationRegisterClient() {
+             @Override
+             public List<CodespaceMapping> getCodespaceMappings() {
+                 return List.of();
+             }
+         }  ;
+        }
+
 
     }
 

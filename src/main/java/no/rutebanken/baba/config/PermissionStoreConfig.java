@@ -97,7 +97,7 @@ public class PermissionStoreConfig {
   WebClient orgRegisterWebClient(
           WebClient.Builder webClientBuilder,
           OAuth2ClientProperties properties,
-          @Value("${baba.permissionstore.oauth2.client.audience}") String audience,
+          @Value("${baba.organisation.register.audience}") String audience,
 
           ClientHttpConnector clientHttpConnector
   ) {

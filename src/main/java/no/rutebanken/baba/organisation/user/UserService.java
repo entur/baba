@@ -5,6 +5,7 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.core.Response;
 import no.rutebanken.baba.exceptions.BabaException;
+import no.rutebanken.baba.organisation.email.NewUserEmailSender;
 import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.user.User;
 import no.rutebanken.baba.organisation.repository.UserRepository;
@@ -41,13 +42,15 @@ public class UserService {
     private final OrganisationRegisterClient organisationRegisterClient;
     private final EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRoleAssignmentRepository;
     private final IamService iamService;
+    private final NewUserEmailSender newUserEmailSender;
 
-    public UserService(UserRepository repository, PermissionStoreClient permissionStoreClient, OrganisationRegisterClient organisationRegisterClient, EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRoleAssignmentRepository, IamService iamService) {
+    public UserService(UserRepository repository, PermissionStoreClient permissionStoreClient, OrganisationRegisterClient organisationRegisterClient, EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRoleAssignmentRepository, IamService iamService, NewUserEmailSender newUserEmailSender) {
         this.repository = repository;
         this.permissionStoreClient = permissionStoreClient;
         this.organisationRegisterClient = organisationRegisterClient;
         this.enturPartnerM2MRoleAssignmentRepository = enturPartnerM2MRoleAssignmentRepository;
         this.iamService = iamService;
+        this.newUserEmailSender = newUserEmailSender;
     }
 
     /**
@@ -240,4 +243,16 @@ public class UserService {
     }
 
 
+    public String notifyUsers() {
+        return "";
+        /*return repository.findAll().stream()
+                .filter(User::isPersonalAccount)
+                .filter(this::shouldExport)
+                .map(user -> {
+                    newUserEmailSender.sendEmail(user);
+                    return user.getContactDetails().getEmail();
+                }).
+                collect(Collectors.joining("\n"));*/
+
+    }
 }

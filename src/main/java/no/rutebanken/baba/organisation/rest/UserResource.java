@@ -182,12 +182,19 @@ public class UserResource extends BaseResource<User, UserDTO> {
         }
     }
 
+    @POST
+    @Path("/notifyUsers")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String notifyUsers() {
+        return userService.notifyUsers();
+    }
+
     @GET
     @Path("/listUsers")
     @Produces(MediaType.TEXT_PLAIN)
     public String listUsers() {
-        //return userService.jsonlistUsers();
-        return userService.listUsers();
+        return userService.jsonlistUsers();
+        //return userService.listUsers();
     }
 
     @GET
