@@ -63,7 +63,7 @@ public class PermissionStoreConfig {
   @Bean
   @Profile("!test")
   OrganisationRegisterClient organisationRegisterClient(
-          @Qualifier("internalWebClient") WebClient internalWebClient,
+          @Qualifier("orgRegisterWebClient") WebClient internalWebClient,
           @Value("${baba.organisation.register.url}") String organisationRegisterUrl
   ) {
     WebClient organisationRegisterWebClient = internalWebClient.mutate()
@@ -90,5 +90,25 @@ public class PermissionStoreConfig {
       .clientConnector(clientHttpConnector)
       .defaultHeader("Et-Client-Name", "entur-baba")
       .build();
+  }
+
+  @Bean("orgRegisterWebClient")
+  @Profile("!test")
+  WebClient orgRegisterWebClient(
+          WebClient.Builder webClientBuilder,
+          OAuth2ClientProperties properties,
+          @Value("${baba.permissionstore.oauth2.client.audience}") String audience,
+
+          ClientHttpConnector clientHttpConnector
+  ) {
+    return new AuthorizedWebClientBuilder(webClientBuilder)
+            .withOAuth2ClientProperties(properties)
+            .withAudience(audience)
+            .withClientRegistrationId("orgregister")
+            .build()
+            .mutate()
+            .clientConnector(clientHttpConnector)
+            .defaultHeader("Et-Client-Name", "entur-baba")
+            .build();
   }
 }
