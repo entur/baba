@@ -248,11 +248,13 @@ public class UserService {
         /*return repository.findAll().stream()
                 .filter(User::isPersonalAccount)
                 .filter(this::shouldExport)
-                .map(user -> {
-                    newUserEmailSender.sendEmail(user);
-                    return user.getContactDetails().getEmail();
-                }).
+                .map(this::sendEmail).
                 collect(Collectors.joining("\n"));*/
 
+    }
+
+    private String sendEmail(User user) {
+        newUserEmailSender.sendEmail(user);
+        return user.getContactDetails().getEmail();
     }
 }
