@@ -51,7 +51,7 @@
     <li><a href="https://nplan.dev.entur.org/">https://nplan.dev.entur.org/</a></li>
 </ul>
 
-    Dersom du ikke ønsker beholde denne kontoen trenger du ikke svare ut denne e-posten.<br>
+     Dersom du ikke ønsker beholde denne kontoen, trenger du ikke å foreta deg noe.<br>
     <i>If you do not wish to keep this account, you can simply ignore this email.</i><br>
 
 </p>
