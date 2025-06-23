@@ -189,6 +189,13 @@ public class UserResource extends BaseResource<User, UserDTO> {
         return userService.notifyUsers();
     }
 
+    @POST
+    @Path("/notifySSOUsers")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String notifySSOUsers() {
+        return userService.notifySSOUsers();
+    }
+
     @GET
     @Path("/listUsers")
     @Produces(MediaType.TEXT_PLAIN)

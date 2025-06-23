@@ -200,6 +200,7 @@ public class UserService {
         return !existsInEnturPartner;
     }
 
+
     private String toJson(Object object) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -246,11 +247,33 @@ public class UserService {
     public String notifyUsers() {
         return "";
         /*return repository.findAll().stream()
+                .sorted(Comparator.comparing(User::getUsername))
                 .filter(User::isPersonalAccount)
                 .filter(this::shouldExport)
                 .map(this::sendEmail).
                 collect(Collectors.joining("\n"));*/
 
+    }
+
+    public String notifySSOUsers() {
+        return "";
+        /*return repository.findAll().stream()
+                .sorted(Comparator.comparing(User::getUsername))
+                .filter(User::isPersonalAccount)
+                .filter(this::isFederatedUser)
+
+                .map(this::sendEmail).
+                collect(Collectors.joining("\n"));
+*/
+    }
+
+    private boolean isFederatedUser(User user) {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return permissionStoreClient.isFederated(user.getContactDetails().getEmail());
     }
 
     private String sendEmail(User user) {
