@@ -15,13 +15,14 @@
 
 package no.rutebanken.baba.security.permissionstore;
 
-import org.springframework.web.reactive.function.BodyInserters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -29,6 +30,8 @@ import java.util.function.Predicate;
  * Client for accessing the Permission Store API.
  */
 public class DefaultPermissionStoreClient implements PermissionStoreClient {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPermissionStoreClient.class);
 
   private static final long MAX_RETRY_ATTEMPTS = 3;
 
@@ -39,7 +42,9 @@ public class DefaultPermissionStoreClient implements PermissionStoreClient {
   }
 
   @Override
+  @Cacheable("permissionStoreUsers")
   public  PermissionStoreUser getUser(String subject) {
+    LOGGER.info("Retrieving user {} through Permission Store API", subject);
     List<PermissionStoreUser> users = webClient
             .get()
             .uri(uriBuilder ->
