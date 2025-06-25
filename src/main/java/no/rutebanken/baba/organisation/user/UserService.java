@@ -7,6 +7,7 @@ import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.user.User;
 import no.rutebanken.baba.organisation.repository.UserRepository;
 import no.rutebanken.baba.organisation.util.RoleAssignmentMapper;
+import no.rutebanken.baba.security.permissionstore.EnturInternalM2MRoleAssignmentMapper;
 import no.rutebanken.baba.security.permissionstore.EnturPartnerM2MRoleAssignmentRepository;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreUser;
@@ -29,11 +30,13 @@ public class UserService {
     private final UserRepository repository;
     private final PermissionStoreClient permissionStoreClient;
     private final EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRoleAssignmentRepository;
+    private final EnturInternalM2MRoleAssignmentMapper enturInternalM2MRoleAssignmentMapper;
 
     public UserService(UserRepository repository, PermissionStoreClient permissionStoreClient, EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRoleAssignmentRepository) {
         this.repository = repository;
         this.permissionStoreClient = permissionStoreClient;
         this.enturPartnerM2MRoleAssignmentRepository = enturPartnerM2MRoleAssignmentRepository;
+        this.enturInternalM2MRoleAssignmentMapper = new EnturInternalM2MRoleAssignmentMapper();
     }
 
     /**
@@ -80,15 +83,17 @@ public class UserService {
      * Return the role assignments for an OAuth2 subject.
      * Role assignments for actual users are extracted from the Baba database.
      * Role assignments for Entur Partner machine-to-machine tokens are built from configuration.
-     * Role assignments for Entur Internal machine-to-machine tokens are not processed here. The role assignments can be
-     * built directly from the permissions claim in the token.
+     * Role assignments for Entur Internal machine-to-machine tokens are mapped directly from the permissions listed in the token.
      */
     public List<RoleAssignment> roleAssignments(AuthenticatedUser authenticatedUser) {
         if(authenticatedUser.isClient()) {
-            if(!authenticatedUser.isPartner()) {
-                throw new IllegalArgumentException("machine-to-machine tokens are not supported for this authority: " + authenticatedUser);
+            if(authenticatedUser.isInternal()) {
+                return  enturInternalM2MRoleAssignmentMapper.getRolesAssignments(authenticatedUser.permissions());
+            } else if(authenticatedUser.isPartner()) {
+                return enturPartnerM2MRoleAssignmentRepository.getRolesAssignments(authenticatedUser.organisationId());
+            } else {
+                throw new IllegalArgumentException("Unknown client " + authenticatedUser);
             }
-            return enturPartnerM2MRoleAssignmentRepository.getRolesAssignments(authenticatedUser.organisationId());
         } else if(authenticatedUser.isRor()) {
             User user = repository.getUserByUsername(authenticatedUser.username());
             if (user == null) {
