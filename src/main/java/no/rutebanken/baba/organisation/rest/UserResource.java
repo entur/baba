@@ -43,6 +43,7 @@ import no.rutebanken.baba.organisation.rest.validation.DTOValidator;
 import no.rutebanken.baba.organisation.rest.validation.UserValidator;
 import no.rutebanken.baba.organisation.service.IamService;
 import no.rutebanken.baba.organisation.user.UserService;
+import org.entur.ror.permission.BabaUser;
 import org.rutebanken.helper.organisation.RoleAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,33 +93,14 @@ public class UserResource extends BaseResource<User, UserDTO> {
         return getMapper().toDTO(entity, fullObject);
     }
 
-    @Deprecated
-    @GET
-    @Path("{userName}/user")
-    @PreAuthorize("@authorizationService.canViewRoleAssignments()")
-    public UserDTO getByUsername(@PathParam("userName") String userName) {
-        User entity = userService.getUserByUsername(userName);
-        UserDTO dto = getMapper().toDTO(entity, true);
-        return dto;
-    }
-
     @POST
     @Path("/authenticatedUser")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @PreAuthorize("@authorizationService.canViewRoleAssignments()")
-    public UserDTO getByUsername(AuthenticatedUser.AuthenticatedUserDTO authenticatedUserDTO) {
-        User entity = userService.getUserByAuthenticatedUser(AuthenticatedUser.ofDTO(authenticatedUserDTO));
-        UserDTO dto = getMapper().toDTO(entity, true);
-        return dto;
-    }
-
-    @Deprecated
-    @GET
-    @Path("{userName}/roleAssignments")
-    @PreAuthorize("@authorizationService.canViewRoleAssignments()")
-    public List<RoleAssignment> getRoleAssignments(@PathParam("userName") String userName) {
-        return userService.roleAssignments(userName);
+    public BabaUser getByUsername(AuthenticatedUser.AuthenticatedUserDTO authenticatedUserDTO) {
+        AuthenticatedUser authenticatedUser = AuthenticatedUser.ofDTO(authenticatedUserDTO);
+        return userService.getUserByAuthenticatedUser(authenticatedUser);
     }
 
     @POST

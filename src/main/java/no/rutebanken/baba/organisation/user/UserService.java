@@ -12,6 +12,8 @@ import no.rutebanken.baba.security.permissionstore.EnturPartnerM2MRoleAssignment
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreUser;
 import org.entur.ror.permission.AuthenticatedUser;
+import org.entur.ror.permission.BabaContactDetails;
+import org.entur.ror.permission.BabaUser;
 import org.rutebanken.helper.organisation.RoleAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,43 +42,38 @@ public class UserService {
     }
 
     /**
-     * Return a user from the database, identified by username.
-     * @deprecated use {@link #getUserByAuthenticatedUser(AuthenticatedUser)}
+     * Return details about an authenticated user.
+     * The user can either represent a user account from the Baba database or a machine-to-machine client.
+     * @throws NotFoundException if the authenticated user cannot be found.
      */
-    @Deprecated
-    public User getUserByUsername(String username) {
-        User user = repository.getUserByUsername(username);
-        if (user == null) {
-            throw new NotFoundException("User with user name: [" + username + "] not found");
-        }
-        return user;
-    }
-
-    /**
-     * Return a user from the Baba database, identified by an OAuth2 authenticated user.
-     * Machine-to-machine clients are not supported.
-     * @throws IllegalArgumentException if the authenticated user is a machine-to-machine client.
-     * @throws NotFoundException if the authenticated user cannot be found in the Baba database.
-     */
-    public User getUserByAuthenticatedUser(AuthenticatedUser authenticatedUser) {
+    public BabaUser getUserByAuthenticatedUser(AuthenticatedUser authenticatedUser) {
         if(authenticatedUser.isClient()) {
-            throw new IllegalArgumentException("machine-to-machine tokens are not supported for getUserByAuthenticatedUser: " + authenticatedUser);
+            BabaUser babaUser = new BabaUser();
+            babaUser.isClient = true;
+            if(authenticatedUser.isPartner()) {
+                babaUser.username =enturPartnerM2MRoleAssignmentRepository.getRutebankenOrganisationId(authenticatedUser.organisationId());
+            } else {
+                babaUser.username = "Entur Internal/" + authenticatedUser.subject();
+            }
+            return babaUser;
         } else if(authenticatedUser.isRor()) {
-            return repository.getUserByUsername(authenticatedUser.username());
+            User user = repository.getUserByUsername(authenticatedUser.username());
+            return mapBabaUser(user);
         }
         else {
-            return permissionStoreUser(authenticatedUser);
+            User user = permissionStoreUser(authenticatedUser);
+            return mapBabaUser(user);
         }
     }
 
-    /**
-     * Return the role assignments for a user in the database, identified by userName.
-     * @deprecated use {@link #roleAssignments(AuthenticatedUser)}
-     */
-    @Deprecated
-    public List<RoleAssignment> roleAssignments(String username) {
-        User user = getUserByUsername(username);
-         return toRoleAssignments(user);
+    private static BabaUser mapBabaUser(User user) {
+        BabaUser babaUser = new BabaUser();
+        babaUser.username = user.getUsername();
+        babaUser.contactDetails = new BabaContactDetails();
+        babaUser.contactDetails.firstName = user.getContactDetails().getFirstName();
+        babaUser.contactDetails.lastName = user.getContactDetails().getLastName();
+        babaUser.contactDetails.email = user.getContactDetails().getEmail();
+        return babaUser;
     }
 
     /**

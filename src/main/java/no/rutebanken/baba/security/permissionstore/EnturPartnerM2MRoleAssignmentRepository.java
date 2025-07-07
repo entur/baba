@@ -38,8 +38,13 @@ public class EnturPartnerM2MRoleAssignmentRepository {
     }
 
 
-    public List<RoleAssignment> getRolesAssignments(long organisationId) {
-        String rutebankenOrganisationId = getRutebankenOrganisationId(organisationId);
+    public String getRutebankenOrganisationId(long enturOrganisationId) {
+        return Optional.ofNullable(rutebankenOrganisations.get(enturOrganisationId))
+                .orElseThrow(() -> new IllegalArgumentException("unknown organisation " + enturOrganisationId));
+    }
+
+    public List<RoleAssignment> getRolesAssignments(long enturOrganisationId) {
+        String rutebankenOrganisationId = getRutebankenOrganisationId(enturOrganisationId);
         List<RoleAssignment> roleAssignments = new ArrayList<>();
 
         // Add role to edit data from own organization
@@ -100,10 +105,5 @@ public class EnturPartnerM2MRoleAssignmentRepository {
         }
     }
 
-
-    private String getRutebankenOrganisationId(long enturOrganisationId) {
-        return Optional.ofNullable(rutebankenOrganisations.get(enturOrganisationId))
-                .orElseThrow(() -> new IllegalArgumentException("unknown organisation " + enturOrganisationId));
-    }
 
 }
