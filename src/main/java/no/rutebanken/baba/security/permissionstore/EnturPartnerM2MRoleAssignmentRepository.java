@@ -2,6 +2,7 @@ package no.rutebanken.baba.security.permissionstore;
 
 import org.rutebanken.helper.organisation.AuthorizationConstants;
 import org.rutebanken.helper.organisation.RoleAssignment;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,17 +13,18 @@ import java.util.Optional;
 
 /**
  * Build role assignments for Entur Partner machine-to-machine tokens.
- * Role assignments are built from configuration.
+ * Role assignments are built from configuration (application.properties).
+ * This is a temporary solution before migrating to Permission Store.
+ * TODO Permission Store migration
  */
 public class EnturPartnerM2MRoleAssignmentRepository {
 
-    static final String ORG_RUTEBANKEN = "RB";
+    static final String ORG_ADMIN = "RB";
 
     private final Map<Long, String> rutebankenOrganisations;
     private final boolean administratorAccessActivated;
     private final Map<String, String> authorizedProvidersForNetexBlocksConsumer;
     private final Map<String, String> delegatedNetexDataProviders;
-
 
 
     public EnturPartnerM2MRoleAssignmentRepository(
@@ -73,23 +75,24 @@ public class EnturPartnerM2MRoleAssignmentRepository {
             roleAssignments.add(delegatedRouteDataRoleAssignmentBuilder.build());
         }
 
-       return roleAssignments;
+        return roleAssignments;
 
 
     }
 
     private boolean isEnturUser(String rutebankenOrganisationId) {
-        return ORG_RUTEBANKEN.equals(rutebankenOrganisationId);
+        return ORG_ADMIN.equals(rutebankenOrganisationId);
     }
 
     /**
      * Return the list of codespaces for which the organization can view NeTEx block data.
      */
     private List<String> getNetexBlocksProvidersForConsumer(String rutebankenOrganisationId) {
-        if (authorizedProvidersForNetexBlocksConsumer.get(rutebankenOrganisationId) == null) {
+        String authorizedCodeSpaces = authorizedProvidersForNetexBlocksConsumer.get(rutebankenOrganisationId);
+        if (!StringUtils.hasText(authorizedCodeSpaces)) {
             return Collections.emptyList();
         } else {
-            return Arrays.asList(authorizedProvidersForNetexBlocksConsumer.get(rutebankenOrganisationId).split(","));
+            return Arrays.asList(authorizedCodeSpaces.split(","));
         }
 
     }
@@ -98,10 +101,11 @@ public class EnturPartnerM2MRoleAssignmentRepository {
      * Return the list of codespaces for which the organization can edit NeTEx data.
      */
     private List<String> getDelegatedNetexDataProviders(String rutebankenOrganisationId) {
-        if (delegatedNetexDataProviders.get(rutebankenOrganisationId) == null) {
+        String authorizedCodespaces = delegatedNetexDataProviders.get(rutebankenOrganisationId);
+        if (!StringUtils.hasText(authorizedCodespaces)) {
             return Collections.emptyList();
         } else {
-            return Arrays.asList(delegatedNetexDataProviders.get(rutebankenOrganisationId).split(","));
+            return Arrays.asList(authorizedCodespaces.split(","));
         }
     }
 
