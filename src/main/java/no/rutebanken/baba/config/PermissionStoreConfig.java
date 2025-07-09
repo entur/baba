@@ -16,6 +16,7 @@
 
 package no.rutebanken.baba.config;
 
+import no.rutebanken.baba.security.permissionstore.EnturInternalM2MRoleAssignmentRepository;
 import no.rutebanken.baba.security.permissionstore.EnturPartnerM2MRoleAssignmentRepository;
 import no.rutebanken.baba.security.permissionstore.DefaultPermissionStoreClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
@@ -44,6 +45,12 @@ public class PermissionStoreConfig {
                                                                     @Value("#{${baba.netex.import.delegation.authorization:{}}}") Map<String, String> delegatedNetexDataProviders,
                                                                     @Value("${baba.oauth2.resourceserver.auth0.partner.admin.activated:false}") boolean administratorAccessActivated) {
     return new EnturPartnerM2MRoleAssignmentRepository(rutebankenOrganisations, authorizedProvidersForNetexBlocksConsumer, delegatedNetexDataProviders, administratorAccessActivated);
+  }
+
+  @Bean
+  EnturInternalM2MRoleAssignmentRepository enturInternalM2RoleAssignmentRepository(
+                                                                 @Value("#{${baba.netex.raw.dataset.authorization:{}}}") Map<String, String> authorizedClientForRawNetexFileDownload) {
+    return new EnturInternalM2MRoleAssignmentRepository(authorizedClientForRawNetexFileDownload);
   }
 
   @Bean
