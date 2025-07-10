@@ -70,7 +70,7 @@ data:
     baba.netex.export.block.authorization={FAR:'OST,ATB,INN',CON:'TRO,BRA', DGR:'FIN'}
 
     # Logger
-    logging.level.no.rutebanken.baba.organisation.user.UserService=DEBUG
+    logging.level.no.rutebanken.baba.organisation.user.UserService=INFO
 
     # Actuator
     management.server.port=9001
