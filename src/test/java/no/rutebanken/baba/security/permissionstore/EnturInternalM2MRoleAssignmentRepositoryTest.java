@@ -15,16 +15,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EnturInternalM2MRoleAssignmentRepositoryTest {
 
-    public static final String TEST_CLIENT_ID = "testClientId";
+    private static final String TEST_CLIENT_ID = "testClientId";
+    private static final String TEST_ISSUER = "testIssuer";
     private static final String TEST_CLIENT_SUBJECT = TEST_CLIENT_ID + CLIENT_SUBJECT_SUFFIX;
-    public static final String ORG_AAA = "AAA";
-    public static final String ORG_BBB = "BBB";
+    private static final String ORG_AAA = "AAA";
+    private static final String ORG_BBB = "BBB";
 
     @Test
     void mapEmptyRoleAssignments() {
         EnturInternalM2MRoleAssignmentRepository repository = new EnturInternalM2MRoleAssignmentRepository(Map.of());
         AuthenticatedUser authenticatedUser = new AuthenticatedUser.AuthenticatedUserBuilder()
                 .withSubject(TEST_CLIENT_SUBJECT)
+                .withIssuer(TEST_ISSUER)
                 .build();
         assertTrue(repository.getRolesAssignments(authenticatedUser).isEmpty());
     }
@@ -39,6 +41,7 @@ class EnturInternalM2MRoleAssignmentRepositoryTest {
         );
         AuthenticatedUser authenticatedUser = new AuthenticatedUser.AuthenticatedUserBuilder()
                 .withSubject(TEST_CLIENT_SUBJECT)
+                .withIssuer(TEST_ISSUER)
                 .withPermissions(List.of("a", "b", "c"))
                 .build();
         assertEquals(roleAssignments, repository.getRolesAssignments(authenticatedUser).stream().map(RoleAssignment::toString).toList());
@@ -51,6 +54,7 @@ class EnturInternalM2MRoleAssignmentRepositoryTest {
         ));
         AuthenticatedUser authenticatedUser = new AuthenticatedUser.AuthenticatedUserBuilder()
                 .withSubject(TEST_CLIENT_SUBJECT)
+                .withIssuer(TEST_ISSUER)
                 .build();
 
         List<String> expectedRoleAssignments = List.of(
