@@ -16,6 +16,7 @@
 
 package no.rutebanken.baba.config;
 
+import no.rutebanken.baba.organisation.repository.M2MClientRepository;
 import no.rutebanken.baba.security.permissionstore.EnturInternalM2MRoleAssignmentRepository;
 import no.rutebanken.baba.security.permissionstore.EnturPartnerM2MRoleAssignmentRepository;
 import no.rutebanken.baba.security.permissionstore.DefaultPermissionStoreClient;
@@ -48,9 +49,8 @@ public class PermissionStoreConfig {
   }
 
   @Bean
-  EnturInternalM2MRoleAssignmentRepository enturInternalM2RoleAssignmentRepository(
-                                                                 @Value("#{${baba.netex.raw.dataset.authorization:{}}}") Map<String, String> authorizedClientForRawNetexFileDownload) {
-    return new EnturInternalM2MRoleAssignmentRepository(authorizedClientForRawNetexFileDownload);
+  EnturInternalM2MRoleAssignmentRepository enturInternalM2RoleAssignmentRepository(M2MClientRepository repository) {
+    return new EnturInternalM2MRoleAssignmentRepository(repository);
   }
 
   @Bean

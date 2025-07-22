@@ -88,6 +88,7 @@ public class UserResource extends BaseResource<User, UserDTO> {
 
     @GET
     @Path("{id}")
+    @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
     public UserDTO get(@PathParam("id") String id, @QueryParam("full") boolean fullObject) {
         User entity = getExisting(id);
         return getMapper().toDTO(entity, fullObject);
@@ -165,6 +166,7 @@ public class UserResource extends BaseResource<User, UserDTO> {
     }
 
     @GET
+    @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
     public List<UserDTO> listAll(@QueryParam("full") boolean fullObject) {
         return super.listAllEntities(fullObject);
     }

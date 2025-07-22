@@ -18,6 +18,7 @@ package no.rutebanken.baba.organisation.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
+import jakarta.ws.rs.PathParam;
 import no.rutebanken.baba.organisation.model.organisation.AdministrativeZone;
 import no.rutebanken.baba.organisation.model.organisation.AdministrativeZoneType;
 import no.rutebanken.baba.organisation.repository.AdministrativeZoneRepository;
@@ -34,6 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+
+import java.util.List;
 
 @Component
 @Path("administrative_zones")
@@ -55,6 +58,24 @@ public class AdministrativeZoneResource extends AnnotatedBaseResource<Administra
         this.mapper = mapper;
         this.validator = validator;
     }
+
+
+    @Override
+    @GET
+    @Path("{id}")
+    @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
+    public AdministrativeZoneDTO get(@PathParam("id") String id) {
+        return super.get(id);
+    }
+
+    @Override
+    @GET
+    @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
+    public List<AdministrativeZoneDTO> listAll() {
+        return super.listAll();
+    }
+
+
 
     @Override
     protected VersionedEntityRepository<AdministrativeZone> getRepository() {
