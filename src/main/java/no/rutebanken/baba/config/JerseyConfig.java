@@ -50,6 +50,7 @@ public class JerseyConfig {
             register(OrganisationResource.class);
             register(AdministrativeZoneResource.class);
             register(UserResource.class);
+            register(M2MClientResource.class);
             register(NotificationConfigurationResource.class);
             register(RoleResource.class);
             register(EntityTypeResource.class);

@@ -53,7 +53,7 @@ public class UserService {
             if(authenticatedUser.isPartner()) {
                 babaUser.username =enturPartnerM2MRoleAssignmentRepository.getRutebankenOrganisationId(authenticatedUser.organisationId());
             } else {
-                babaUser.username = "Entur Internal/" + authenticatedUser.subject();
+                babaUser.username = enturInternalM2MRoleAssignmentRepository.getClientName(authenticatedUser);
             }
             return babaUser;
         } else if(authenticatedUser.isRor()) {

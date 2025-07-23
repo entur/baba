@@ -59,12 +59,18 @@ public class EnturPartnerM2MRoleAssignmentRepository {
         routeDataRoleAssignmentBuilder.withOrganisation(rutebankenOrganisationId);
         roleAssignments.add(routeDataRoleAssignmentBuilder.build());
 
-        // Add role to view NeTEx Blocks belonging to other organizations
+        // Add role to view private NeTEx data belonging to other organizations
         for (String authorizedNetexBlocksProviderForConsumer : getNetexBlocksProvidersForConsumer(rutebankenOrganisationId)) {
-            RoleAssignment.Builder netexBlockRoleAssignmentBuilder = RoleAssignment.builder();
-            netexBlockRoleAssignmentBuilder.withRole(AuthorizationConstants.ROLE_NETEX_BLOCKS_DATA_VIEW);
-            netexBlockRoleAssignmentBuilder.withOrganisation(authorizedNetexBlocksProviderForConsumer);
-            roleAssignments.add(netexBlockRoleAssignmentBuilder.build());
+            RoleAssignment viewNetexBlock = RoleAssignment.builder()
+            .withRole(AuthorizationConstants.ROLE_NETEX_BLOCKS_DATA_VIEW)
+            .withOrganisation(authorizedNetexBlocksProviderForConsumer)
+                    .build();
+            roleAssignments.add(viewNetexBlock);
+            RoleAssignment viewPrivateNetexData = RoleAssignment.builder()
+                    .withRole(AuthorizationConstants.ROLE_NETEX_PRIVATE_DATA_VIEW)
+                    .withOrganisation(authorizedNetexBlocksProviderForConsumer)
+                    .build();
+            roleAssignments.add(viewPrivateNetexData);
         }
 
         // Add role to edit data belonging to other organizations

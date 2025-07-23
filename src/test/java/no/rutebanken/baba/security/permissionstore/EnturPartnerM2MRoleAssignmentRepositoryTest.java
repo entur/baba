@@ -54,12 +54,14 @@ class EnturPartnerM2MRoleAssignmentRepositoryTest {
     void rolesForNonAdminOrg() {
         assertEquals(ORG_AAA, repository.getRutebankenOrganisationId(ORG_AAA_ID));
         List<RoleAssignment> roleAssignments = repository.getRolesAssignments(ORG_AAA_ID);
-        assertEquals(4, roleAssignments.size());
+        assertEquals(6, roleAssignments.size());
         Set<String> roleAssignmentsAsString = roleAssignments.stream().map(RoleAssignment::toString).collect(Collectors.toUnmodifiableSet());
         Set<String> expectedRoleAssignmentsAsString = Set.of(
                 RoleAssignment.builder().withRole(AuthorizationConstants.ROLE_ROUTE_DATA_EDIT).withOrganisation(ORG_AAA).build(),
                 RoleAssignment.builder().withRole(AuthorizationConstants.ROLE_NETEX_BLOCKS_DATA_VIEW).withOrganisation(ORG_XXX).build(),
                 RoleAssignment.builder().withRole(AuthorizationConstants.ROLE_NETEX_BLOCKS_DATA_VIEW).withOrganisation(ORG_YYY).build(),
+                RoleAssignment.builder().withRole(AuthorizationConstants.ROLE_NETEX_PRIVATE_DATA_VIEW).withOrganisation(ORG_XXX).build(),
+                RoleAssignment.builder().withRole(AuthorizationConstants.ROLE_NETEX_PRIVATE_DATA_VIEW).withOrganisation(ORG_YYY).build(),
                 RoleAssignment.builder().withRole(AuthorizationConstants.ROLE_ROUTE_DATA_EDIT).withOrganisation(ORG_ZZZ).build()
         ).stream().map(RoleAssignment::toString).collect(Collectors.toUnmodifiableSet());
         assertEquals(expectedRoleAssignmentsAsString, roleAssignmentsAsString);
