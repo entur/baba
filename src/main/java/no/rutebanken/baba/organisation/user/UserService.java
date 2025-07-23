@@ -7,8 +7,8 @@ import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.user.User;
 import no.rutebanken.baba.organisation.repository.UserRepository;
 import no.rutebanken.baba.organisation.util.RoleAssignmentMapper;
-import no.rutebanken.baba.security.permissionstore.EnturInternalM2MRoleAssignmentRepository;
-import no.rutebanken.baba.security.permissionstore.EnturPartnerM2MRoleAssignmentRepository;
+import no.rutebanken.baba.organisation.m2m.EnturInternalM2MRoleAssignmentRepository;
+import no.rutebanken.baba.organisation.m2m.EnturPartnerM2MRoleAssignmentRepository;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreUser;
 import org.entur.ror.permission.AuthenticatedUser;
@@ -87,7 +87,7 @@ public class UserService {
             if(authenticatedUser.isInternal()) {
                 return  enturInternalM2MRoleAssignmentRepository.getRolesAssignments(authenticatedUser);
             } else if(authenticatedUser.isPartner()) {
-                return enturPartnerM2MRoleAssignmentRepository.getRolesAssignments(authenticatedUser.organisationId());
+                return enturPartnerM2MRoleAssignmentRepository.getRolesAssignments(authenticatedUser);
             } else {
                 throw new IllegalArgumentException("Unknown client " + authenticatedUser);
             }

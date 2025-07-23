@@ -17,8 +17,8 @@
 package no.rutebanken.baba.config;
 
 import no.rutebanken.baba.organisation.repository.M2MClientRepository;
-import no.rutebanken.baba.security.permissionstore.EnturInternalM2MRoleAssignmentRepository;
-import no.rutebanken.baba.security.permissionstore.EnturPartnerM2MRoleAssignmentRepository;
+import no.rutebanken.baba.organisation.m2m.EnturInternalM2MRoleAssignmentRepository;
+import no.rutebanken.baba.organisation.m2m.EnturPartnerM2MRoleAssignmentRepository;
 import no.rutebanken.baba.security.permissionstore.DefaultPermissionStoreClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
 import org.entur.oauth2.AuthorizedWebClientBuilder;
@@ -41,16 +41,20 @@ public class PermissionStoreConfig {
 
 
   @Bean
-  EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRepository(@Value("#{${baba.oauth2.resourceserver.auth0.partner.organisations:{}}}") Map<Long, String> rutebankenOrganisations,
+  EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRepository(M2MClientRepository clientRepository,
+                                                                    @Value("#{${baba.oauth2.resourceserver.auth0.partner.organisations:{}}}") Map<Long, String> rutebankenOrganisations,
                                                                     @Value("#{${baba.netex.export.block.authorization:{}}}") Map<String, String> authorizedProvidersForNetexBlocksConsumer,
                                                                     @Value("#{${baba.netex.import.delegation.authorization:{}}}") Map<String, String> delegatedNetexDataProviders,
-                                                                    @Value("${baba.oauth2.resourceserver.auth0.partner.admin.activated:false}") boolean administratorAccessActivated) {
-    return new EnturPartnerM2MRoleAssignmentRepository(rutebankenOrganisations, authorizedProvidersForNetexBlocksConsumer, delegatedNetexDataProviders, administratorAccessActivated);
+                                                                    @Value("${baba.oauth2.resourceserver.auth0.partner.admin.activated:false}") boolean administratorAccessActivated,
+                                                                    @Value("${baba.security.role.assignment.database-only:false}") boolean fromDatabaseOnly) {
+    return new EnturPartnerM2MRoleAssignmentRepository(clientRepository, rutebankenOrganisations, authorizedProvidersForNetexBlocksConsumer, delegatedNetexDataProviders, administratorAccessActivated, fromDatabaseOnly);
   }
 
   @Bean
-  EnturInternalM2MRoleAssignmentRepository enturInternalM2RoleAssignmentRepository(M2MClientRepository repository) {
-    return new EnturInternalM2MRoleAssignmentRepository(repository);
+  EnturInternalM2MRoleAssignmentRepository enturInternalM2RoleAssignmentRepository(
+          M2MClientRepository repository,
+          @Value("${baba.security.role.assignment.database-only:false}") boolean fromDatabaseOnly) {
+    return new EnturInternalM2MRoleAssignmentRepository(repository, fromDatabaseOnly);
   }
 
   @Bean
