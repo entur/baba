@@ -32,7 +32,9 @@ oauth2:
 permissionStore:
   url: https://api.dev.entur.io/permission-store/v1
 
-roleAssignmentExtractor: baba
+roleAssignment:
+  extractor: baba
+  databaseOnly: true
 
 mail:
   newUserFrom: noreply@entur.org

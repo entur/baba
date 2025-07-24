@@ -72,6 +72,9 @@ public class EnturPartnerM2MRoleAssignmentRepository {
 
     }
 
+    /**
+     * TODO Permission Store migration: obsolete, to be removed after migration, role assignments should be extracted only from the database.
+     */
     private Stream<RoleAssignment> getRoleAssignmentsFromConfiguration(AuthenticatedUser authenticatedUser) {
         long enturOrganisationId = authenticatedUser.organisationId();
         String rutebankenOrganisationId = getRutebankenOrganisationId(enturOrganisationId);
