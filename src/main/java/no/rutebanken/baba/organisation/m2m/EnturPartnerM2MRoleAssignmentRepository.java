@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static no.rutebanken.baba.organisation.m2m.support.M2MUtils.validateM2MClient;
 
@@ -65,17 +64,19 @@ public class EnturPartnerM2MRoleAssignmentRepository {
 
     public List<RoleAssignment> getRolesAssignments(AuthenticatedUser authenticatedUser) {
         validateM2MClient(authenticatedUser);
-        LOGGER.info("Returning role assignments for user {} and organisation {}", authenticatedUser.subject(), authenticatedUser.organisationId());
-        Stream<RoleAssignment> rolesFromDatabase = getRoleAssignmentsFromDatabase(authenticatedUser);
-        Stream<RoleAssignment> rolesFromConfiguration = fromDatabaseOnly ? Stream.empty() : getRoleAssignmentsFromConfiguration(authenticatedUser);
-        return Streams.concat(rolesFromDatabase, rolesFromConfiguration).toList();
+        List<RoleAssignment> rolesFromDatabase = getRoleAssignmentsFromDatabase(authenticatedUser);
+        List<RoleAssignment> rolesFromConfiguration = fromDatabaseOnly ? List.of() : getRoleAssignmentsFromConfiguration(authenticatedUser);
+        LOGGER.info("Returning {} role assignments from database and {} role assignments from configuration for client {} and organisation {}",
+                rolesFromDatabase.size(), rolesFromConfiguration.size(), authenticatedUser.subject(), authenticatedUser.organisationId());
+
+        return Streams.concat(rolesFromDatabase.stream(), rolesFromConfiguration.stream()).toList();
 
     }
 
     /**
      * TODO Permission Store migration: obsolete, to be removed after migration, role assignments should be extracted only from the database.
      */
-    private Stream<RoleAssignment> getRoleAssignmentsFromConfiguration(AuthenticatedUser authenticatedUser) {
+    private List<RoleAssignment> getRoleAssignmentsFromConfiguration(AuthenticatedUser authenticatedUser) {
         long enturOrganisationId = authenticatedUser.organisationId();
         String rutebankenOrganisationId = getRutebankenOrganisationId(enturOrganisationId);
         List<RoleAssignment> roleAssignments = new ArrayList<>();
@@ -118,11 +119,11 @@ public class EnturPartnerM2MRoleAssignmentRepository {
             roleAssignments.add(delegatedRouteDataRoleAssignmentBuilder.build());
         }
 
-        return roleAssignments.stream();
+        return roleAssignments;
 
     }
 
-    private Stream<RoleAssignment> getRoleAssignmentsFromDatabase(AuthenticatedUser authenticatedUser) {
+    private List<RoleAssignment> getRoleAssignmentsFromDatabase(AuthenticatedUser authenticatedUser) {
         return M2MUtils.getRoleAssignmentsFromDatabase(authenticatedUser, repository);
     }
 

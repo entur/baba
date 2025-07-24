@@ -8,6 +8,7 @@ import org.entur.ror.permission.AuthenticatedUser;
 import org.rutebanken.helper.organisation.RoleAssignment;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class M2MUtils {
@@ -43,10 +44,10 @@ public class M2MUtils {
     }
 
 
-    public static  Stream<RoleAssignment> getRoleAssignmentsFromDatabase(AuthenticatedUser authenticatedUser, M2MClientRepository repository) {
+    public static List<RoleAssignment> getRoleAssignmentsFromDatabase(AuthenticatedUser authenticatedUser, M2MClientRepository repository) {
         M2MClient client = repository.getOneByPublicIdIfExists(clientId(authenticatedUser.subject()));
         if (client == null) {
-            return Stream.empty();
+            return List.of();
         }
         if (authenticatedUser.organisationId() != client.getEnturOrganisationId()) {
             throw new IllegalArgumentException("Organisation id mismatch: expected " + client.getEnturOrganisationId() + ", but was " + authenticatedUser.organisationId());
@@ -54,6 +55,6 @@ public class M2MUtils {
         if ((authenticatedUser.isInternal() && !client.isInternal()) || (authenticatedUser.isPartner() && !client.isPartner())) {
             throw new IllegalArgumentException("Issuer mismatch: expected " + client.getIssuer());
         }
-        return toRoleAssignments(client);
+        return toRoleAssignments(client).toList();
     }
 }
