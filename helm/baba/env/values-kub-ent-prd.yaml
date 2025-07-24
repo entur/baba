@@ -36,7 +36,9 @@ permissionStore:
   url: https://api.entur.io/permission-store/v1
 
 
-roleAssignmentExtractor: baba
+roleAssignment:
+  extractor: baba
+  databaseOnly: false
 
 mail:
   newUserFrom: noreply@entur.org

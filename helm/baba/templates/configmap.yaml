@@ -57,8 +57,8 @@ data:
 
     # Authorization
     baba.security.authorization-service=token-based
-    baba.security.role.assignment.extractor={{ .Values.roleAssignmentExtractor }}
-    baba.security.role.assignment.database-only=false
+    baba.security.role.assignment.extractor={{ .Values.roleAssignment.extractor }}
+    baba.security.role.assignment.database-only={{ .Values.roleAssignment.databaseOnly }}
 
     # Permission Store
     baba.permissionstore.oauth2.client.audience={{ .Values.oauth2.client.audience }}

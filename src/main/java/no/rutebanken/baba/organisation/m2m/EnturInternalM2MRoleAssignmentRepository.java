@@ -42,6 +42,7 @@ public class EnturInternalM2MRoleAssignmentRepository {
 
     /**
      * Internal clients (from Entur Internal) owned by RoR contain cross-organization roles under the permission claim.
+     * TODO Permission Store migration: obsolete, to be removed after migration, role assignments should be extracted only from the database.
      */
     private static Stream<RoleAssignment> getRoleAssignmentsFromPermissions(AuthenticatedUser authenticatedUser) {
         return authenticatedUser.permissions()

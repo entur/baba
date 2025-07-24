@@ -33,7 +33,9 @@ oauth2:
 permissionStore:
   url: https://api.staging.entur.io/permission-store/v1
 
-roleAssignmentExtractor: baba
+roleAssignment:
+  extractor: baba
+  databaseOnly: false
 
 mail:
   newUserFrom: noreply-staging@entur.org
