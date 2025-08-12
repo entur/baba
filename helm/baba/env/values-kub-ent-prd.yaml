@@ -38,7 +38,7 @@ permissionStore:
 
 roleAssignment:
   extractor: baba
-  databaseOnly: false
+  databaseOnly: true
 
 mail:
   newUserFrom: noreply@entur.org
