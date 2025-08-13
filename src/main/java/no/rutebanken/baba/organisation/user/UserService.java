@@ -7,8 +7,7 @@ import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.user.User;
 import no.rutebanken.baba.organisation.repository.UserRepository;
 import no.rutebanken.baba.organisation.util.RoleAssignmentMapper;
-import no.rutebanken.baba.organisation.m2m.EnturInternalM2MRoleAssignmentRepository;
-import no.rutebanken.baba.organisation.m2m.EnturPartnerM2MRoleAssignmentRepository;
+import no.rutebanken.baba.organisation.m2m.EnturClientM2MRoleAssignmentRepository;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreUser;
 import org.entur.ror.permission.AuthenticatedUser;
@@ -31,14 +30,12 @@ public class UserService {
 
     private final UserRepository repository;
     private final PermissionStoreClient permissionStoreClient;
-    private final EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRoleAssignmentRepository;
-    private final EnturInternalM2MRoleAssignmentRepository enturInternalM2MRoleAssignmentRepository;
+    private final EnturClientM2MRoleAssignmentRepository enturClientM2MRoleAssignmentRepository;
 
-    public UserService(UserRepository repository, PermissionStoreClient permissionStoreClient, EnturPartnerM2MRoleAssignmentRepository enturPartnerM2MRoleAssignmentRepository, EnturInternalM2MRoleAssignmentRepository enturInternalM2MRoleAssignmentRepository) {
+    public UserService(UserRepository repository, PermissionStoreClient permissionStoreClient,  EnturClientM2MRoleAssignmentRepository enturClientM2MRoleAssignmentRepository) {
         this.repository = repository;
         this.permissionStoreClient = permissionStoreClient;
-        this.enturPartnerM2MRoleAssignmentRepository = enturPartnerM2MRoleAssignmentRepository;
-        this.enturInternalM2MRoleAssignmentRepository = enturInternalM2MRoleAssignmentRepository;
+        this.enturClientM2MRoleAssignmentRepository = enturClientM2MRoleAssignmentRepository;
     }
 
     /**
@@ -50,11 +47,7 @@ public class UserService {
         if(authenticatedUser.isClient()) {
             BabaUser babaUser = new BabaUser();
             babaUser.isClient = true;
-            if(authenticatedUser.isPartner()) {
-                babaUser.username =enturPartnerM2MRoleAssignmentRepository.getRutebankenOrganisationId(authenticatedUser.organisationId());
-            } else {
-                babaUser.username = enturInternalM2MRoleAssignmentRepository.getClientName(authenticatedUser);
-            }
+            babaUser.username = enturClientM2MRoleAssignmentRepository.getClientName(authenticatedUser);
             return babaUser;
         } else if(authenticatedUser.isRor()) {
             User user = repository.getUserByUsername(authenticatedUser.username());
@@ -84,10 +77,8 @@ public class UserService {
      */
     public List<RoleAssignment> roleAssignments(AuthenticatedUser authenticatedUser) {
         if(authenticatedUser.isClient()) {
-            if(authenticatedUser.isInternal()) {
-                return  enturInternalM2MRoleAssignmentRepository.getRolesAssignments(authenticatedUser);
-            } else if(authenticatedUser.isPartner()) {
-                return enturPartnerM2MRoleAssignmentRepository.getRolesAssignments(authenticatedUser);
+            if(authenticatedUser.isInternal() || authenticatedUser.isPartner()) {
+                return  enturClientM2MRoleAssignmentRepository.getRolesAssignments(authenticatedUser);
             } else {
                 throw new IllegalArgumentException("Unknown client " + authenticatedUser);
             }

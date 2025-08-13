@@ -15,13 +15,11 @@ import org.rutebanken.helper.organisation.RoleAssignment;
 import java.util.List;
 import java.util.Set;
 
-import static no.rutebanken.baba.organisation.m2m.EnturInternalM2MRoleAssignmentRepository.*;
-import static no.rutebanken.baba.organisation.m2m.support.M2MUtils.CLIENT_SUBJECT_SUFFIX;
-import static no.rutebanken.baba.organisation.m2m.support.M2MUtils.clientId;
+import static no.rutebanken.baba.organisation.m2m.EnturClientM2MRoleAssignmentRepository.CLIENT_SUBJECT_SUFFIX;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class EnturInternalM2MRoleAssignmentRepositoryTest {
+class EnturClientM2MRoleAssignmentRepositoryTest {
 
     private static final String TEST_CLIENT_ID = "testClientId";
     private static final String TEST_CLIENT_NAME = "testClientName";
@@ -36,33 +34,13 @@ class EnturInternalM2MRoleAssignmentRepositoryTest {
         M2MClient client = new M2MClient();
         client.setEnturOrganisationId(TEST_ENTUR_ORGANISATION_ID);
         M2MClientRepository testRepository = new TestM2MClientRepository(client);
-        EnturInternalM2MRoleAssignmentRepository repository = new EnturInternalM2MRoleAssignmentRepository(testRepository, false);
+        EnturClientM2MRoleAssignmentRepository repository = new EnturClientM2MRoleAssignmentRepository(testRepository);
         AuthenticatedUser authenticatedUser = new AuthenticatedUser.AuthenticatedUserBuilder()
                 .withSubject(TEST_CLIENT_SUBJECT)
                 .withIssuer(TEST_ISSUER)
                 .withOrganisationId(TEST_ENTUR_ORGANISATION_ID)
                 .build();
         assertTrue(repository.getRolesAssignments(authenticatedUser).isEmpty());
-    }
-
-    @Test
-    void mapRoleAssignmentsFromPermissions() {
-        M2MClient client = new M2MClient();
-        client.setEnturOrganisationId(TEST_ENTUR_ORGANISATION_ID);
-        M2MClientRepository testRepository = new TestM2MClientRepository(client);
-        EnturInternalM2MRoleAssignmentRepository repository = new EnturInternalM2MRoleAssignmentRepository(testRepository, false);
-        List<String> roleAssignments = List.of(
-                roleAssignment("a").toString(),
-                roleAssignment("b").toString(),
-                roleAssignment("c").toString()
-        );
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser.AuthenticatedUserBuilder()
-                .withSubject(TEST_CLIENT_SUBJECT)
-                .withIssuer(TEST_ISSUER)
-                .withOrganisationId(TEST_ENTUR_ORGANISATION_ID)
-                .withPermissions(List.of("a", "b", "c"))
-                .build();
-        assertEquals(roleAssignments, repository.getRolesAssignments(authenticatedUser).stream().map(RoleAssignment::toString).toList());
     }
 
     @Test
@@ -81,7 +59,7 @@ class EnturInternalM2MRoleAssignmentRepositoryTest {
         client.setResponsibilitySets(Set.of(responsibilitySet));
 
         M2MClientRepository testRepository = new TestM2MClientRepository(client);
-        EnturInternalM2MRoleAssignmentRepository repository = new EnturInternalM2MRoleAssignmentRepository(testRepository,false);
+        EnturClientM2MRoleAssignmentRepository repository = new EnturClientM2MRoleAssignmentRepository(testRepository);
         AuthenticatedUser authenticatedUser = new AuthenticatedUser.AuthenticatedUserBuilder()
                 .withSubject(TEST_CLIENT_SUBJECT)
                 .withIssuer(TEST_ISSUER)
@@ -101,7 +79,7 @@ class EnturInternalM2MRoleAssignmentRepositoryTest {
         M2MClient client = new M2MClient();
         client.setName(TEST_CLIENT_NAME);
         M2MClientRepository testRepository = new TestM2MClientRepository(client);
-        EnturInternalM2MRoleAssignmentRepository repository = new EnturInternalM2MRoleAssignmentRepository(testRepository, false);
+        EnturClientM2MRoleAssignmentRepository repository = new EnturClientM2MRoleAssignmentRepository(testRepository);
         AuthenticatedUser authenticatedUser = new AuthenticatedUser.AuthenticatedUserBuilder()
                 .withSubject(TEST_CLIENT_SUBJECT)
                 .withIssuer(TEST_ISSUER)
@@ -109,23 +87,6 @@ class EnturInternalM2MRoleAssignmentRepositoryTest {
                 .build();
         String clientName = repository.getClientName(authenticatedUser);
         assertEquals(TEST_CLIENT_NAME, clientName);
-    }
-
-    @Test
-    void testClientNameNotInDatabase() {
-        M2MClientRepository testRepository = new TestM2MClientRepository(null);
-        EnturInternalM2MRoleAssignmentRepository repository = new EnturInternalM2MRoleAssignmentRepository(testRepository,false);
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser.AuthenticatedUserBuilder()
-                .withSubject(TEST_CLIENT_SUBJECT)
-                .withIssuer(TEST_ISSUER)
-                .build();
-        String clientName = repository.getClientName(authenticatedUser);
-        assertEquals("Entur Internal/" + clientId(TEST_CLIENT_SUBJECT), clientName);
-    }
-
-
-    private static RoleAssignment roleAssignment(String a) {
-        return RoleAssignment.builder().withOrganisation(DEFAULT_ADMIN_ORG).withRole(a).build();
     }
 
 }

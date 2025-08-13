@@ -22,7 +22,7 @@ class TestM2MClientRepository implements M2MClientRepository {
 
     @Override
     public M2MClient getOneByPublicId(String id) {
-        throw new NotImplementedException();
+        return client;
     }
 
     @Override
