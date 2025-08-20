@@ -1,13 +1,20 @@
 terraform {
   required_version = ">= 0.13.2"
+
+  required_providers {
+    google = {
+      source = "hashicorp/google"
+      version = "~> 6.49.0"
+    }
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+      version = ">= 2.13.1"
+    }
+  }
 }
 
-provider "google" {
-  version = "~> 4.84.0"
-}
-provider "kubernetes" {
-  version = ">= 2.13.1"
-}
+provider "google" {}
+provider "kubernetes" {}
 
 resource "google_sql_database_instance" "db_instance" {
   name             = "baba-db-pg13"
@@ -34,7 +41,7 @@ resource "google_sql_database_instance" "db_instance" {
       hour = 2
     }
     ip_configuration {
-      require_ssl = true
+      ssl_mode = "TRUSTED_CLIENT_CERTIFICATE_REQUIRED"
     }
   }
 }
