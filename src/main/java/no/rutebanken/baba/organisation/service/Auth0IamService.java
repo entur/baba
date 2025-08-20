@@ -153,7 +153,13 @@ public class Auth0IamService implements IamService {
     @Override
     public void removeRole(Role role) {
         logger.info("Removing role in Auth0: {}", role.getId());
-        com.auth0.json.mgmt.roles.Role auth0Role = getAuth0RoleByPrivateCode(role.getPrivateCode());
+        com.auth0.json.mgmt.roles.Role auth0Role;
+        try {
+            auth0Role = getAuth0RoleByPrivateCode(role.getPrivateCode());
+        } catch (OAuth2RoleNotFoundException e) {
+            logger.warn("Ignoring removal of role {} that does not exist in the Auth0 tenant", role.getPrivateCode());
+            return;
+        }
         try {
             getManagementAPI().roles().delete(auth0Role.getId()).execute();
             logger.info("Role {} successfully removed from Auth0", role.getId());
@@ -316,7 +322,7 @@ public class Auth0IamService implements IamService {
                     .stream().filter(r -> privateCode.equals(r.getName())).toList();
             if (matchingRoles.isEmpty()) {
                 logger.warn("Role not found: {}", privateCode);
-                throw new OrganisationException("Role not found: " + privateCode);
+                throw new OAuth2RoleNotFoundException("Role not found: " + privateCode);
             } else if (matchingRoles.size() > 1) {
                 logger.error("More than one role found with private code: {}", privateCode);
                 throw new OrganisationException("More than one role found with private code:" + privateCode);
