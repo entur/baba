@@ -219,8 +219,8 @@ public class UserService {
         auth0User.setFamilyName(user.getContactDetails().getLastName());
         auth0User.setNickname(user.getUsername());
         auth0User.setAppMetadata(Map.of(
-                "organisationId", organisationIdByCodespace.get(user.getOrganisation().getPrivateCode()),
-                "employeeId", ""));
+                "organisationID", organisationIdByCodespace.get(user.getOrganisation().getPrivateCode()),
+                "employeeID", ""));
         return auth0User;
     }
 
