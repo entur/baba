@@ -196,6 +196,13 @@ public class UserResource extends BaseResource<User, UserDTO> {
         return userService.notifySSOUsers();
     }
 
+    @POST
+    @Path("/notifyNonSSOUsers")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String notifyNonSSOUsers() {
+        return userService.notifyNonSSOUsers();
+    }
+
     @GET
     @Path("/listUsers")
     @Produces(MediaType.TEXT_PLAIN)

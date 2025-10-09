@@ -37,10 +37,10 @@
     <i>Your account with Entur in the development environment (DEV) will soon be migrated to a new authentication system.</i>
     <br>
     <p>
-    Om noen dager vil autentiseringsløsningen aktiveres: Logg inn med e-postadressen din (${user.contactDetails.email}).
+    Onsdag 15/10/2025 vil autentiseringsløsningen aktiveres: Logg inn med e-postadressen din (${user.contactDetails.email}).
     Du blir deretter omdirigert til din egen bedrifts autentiseringsportal.
     Du trenger ikke å opprette et nytt passord.<br>
-    <i>In a few days, the new system will be activated: Please log in with your email address (${user.contactDetails.email}). You will then be redirected to your company's authentication portal.
+    <i>On Wednesday 15/10/2025, the new system will be activated: Please log in with your email address (${user.contactDetails.email}). You will then be redirected to your company's authentication portal.
         There is no need to create a new password.</i><br>
     <p>
     Dette gjelder din brukerkonto for:<br>

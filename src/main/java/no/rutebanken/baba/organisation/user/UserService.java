@@ -256,20 +256,30 @@ public class UserService {
     }
 
     public String notifySSOUsers() {
-        return "";
-        /*return repository.findAll().stream()
+        //return "";
+        return repository.findAll().stream()
                 .sorted(Comparator.comparing(User::getUsername))
                 .filter(User::isPersonalAccount)
                 .filter(this::isFederatedUser)
-
                 .map(this::sendEmail).
                 collect(Collectors.joining("\n"));
-*/
+
+    }
+
+    public String notifyNonSSOUsers() {
+        //return "";
+        return repository.findAll().stream()
+                .sorted(Comparator.comparing(User::getUsername))
+                .filter(User::isPersonalAccount)
+                .filter(user -> ! isFederatedUser(user))
+                .map(this::sendEmail).
+                collect(Collectors.joining("\n"));
+
     }
 
     private boolean isFederatedUser(User user) {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

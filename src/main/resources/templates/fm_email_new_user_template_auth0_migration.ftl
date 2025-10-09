@@ -36,11 +36,9 @@
     Kontoen din hos Entur på utviklingsmiljøet (DEV) skal snart overføres til en ny autentiseringsløsning.<br>
     <i>Your account with Entur in the development environment (DEV) will soon be migrated to a new authentication system.</i><br>
     <br>
-    <p>I dag får du en e-post for å bekrefte kontoen din i den nye autentiseringsløsningen.<br>
-    <i>Today, you will receive an email asking you to confirm your account in the new authentication system.</i><br>
     <p>
-    Om noen dager vil autentiseringsløsningen aktiveres: Før du logger inn på våre tjenester første gang, må passordet endres ved å velge "Glemt passord".<br>
-    <i>In a few days, the new system will be activated. Before logging into our services for the first time, you will need to reset your password by selecting "Forgot password."</i><br>
+    Onsdag 15/10/2025 vil autentiseringsløsningen aktiveres: Før du logger inn på våre tjenester første gang, må passordet endres ved å velge "Glemt passord".<br>
+    <i>Wednesday 15/10/2025, the new system will be activated. Before logging into our services for the first time, you will need to reset your password by selecting "Forgot password."</i><br>
     <p>
     Dette gjelder din brukerkonto for:<br>
     <i>This applies to your user account for:</i><br>
