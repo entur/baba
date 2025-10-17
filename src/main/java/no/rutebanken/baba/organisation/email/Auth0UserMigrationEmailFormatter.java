@@ -75,6 +75,5 @@ public class Auth0UserMigrationEmailFormatter implements NewUserEmailFormatter {
         } catch (Exception e) {
              throw new BabaException("Exception occurred while processing email template:" + e.getMessage(), e);
         }
-
     }
 }
