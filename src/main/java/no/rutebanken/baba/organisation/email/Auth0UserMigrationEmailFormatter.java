@@ -73,7 +73,7 @@ public class Auth0UserMigrationEmailFormatter implements NewUserEmailFormatter {
                     //
                     freemarkerConfiguration.getTemplate("fm_email_new_user_template_auth0_migration.ftl"), model);
         } catch (Exception e) {
-            throw new BabaException("Exception occurred while processing email template:" + e.getMessage(), e);
+             throw new BabaException("Exception occurred while processing email template:" + e.getMessage(), e);
         }
 
     }
