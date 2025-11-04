@@ -2,5 +2,15 @@
   "extends": [
     "github>entur/ror-renovate-config"
   ],
-  "separateMinorPatch": true
+  "separateMinorPatch": true,
+  "docker": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["bellsoft/liberica-openjre-alpine"],
+      "versioning": "loose"
+    }
+  ]
 }
