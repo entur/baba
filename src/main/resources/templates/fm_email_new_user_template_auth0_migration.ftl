@@ -33,12 +33,12 @@
 <h4>Hei, ${user.contactDetails.firstName} ${user.contactDetails.lastName}</h4>
 
 <p>
-    Kontoen din hos Entur på utviklingsmiljøet (DEV) skal snart overføres til en ny autentiseringsløsning.<br>
-    <i>Your account with Entur in the development environment (DEV) will soon be migrated to a new authentication system.</i><br>
+    Kontoen din hos Entur på testmiljøet (STAGING) skal snart overføres til en ny autentiseringsløsning.<br>
+    <i>Your account with Entur in the staging environment (STAGING) will soon be migrated to a new authentication system.</i><br>
     <br>
     <p>
-    Onsdag 15/10/2025 vil autentiseringsløsningen aktiveres: Før du logger inn på våre tjenester første gang, må passordet endres ved å velge "Glemt passord".<br>
-    <i>Wednesday 15/10/2025, the new system will be activated. Before logging into our services for the first time, you will need to reset your password by selecting "Forgot password."</i><br>
+    Torsdag 06/11/2025 vil autentiseringsløsningen aktiveres: Før du logger inn på våre tjenester første gang, må passordet endres ved å velge "Glemt passord".<br>
+    <i>Thursday 06/11/2025, the new system will be activated. Before logging into our services for the first time, you will need to reset your password by selecting "Forgot password."</i><br>
     <p>
     Dette gjelder din brukerkonto for:<br>
     <i>This applies to your user account for:</i><br>
