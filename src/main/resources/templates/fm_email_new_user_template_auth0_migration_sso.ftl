@@ -33,14 +33,14 @@
 <h4>Hei, ${user.contactDetails.firstName} ${user.contactDetails.lastName}</h4>
 
 <p>
-    Kontoen din hos Entur på testmiljøet (STAGING) skal snart overføres til en ny autentiseringsløsning.<br>
-    <i>Your account with Entur in the staging environment (STAGING) will soon be migrated to a new authentication system.</i>
+    Kontoen din hos Entur på produksjonsmiljøet (PROD) skal snart overføres til en ny autentiseringsløsning.<br>
+    <i>Your account with Entur in the production environment (PROD) will soon be migrated to a new authentication system.</i>
     <br>
     <p>
-    Torsdag 06/11/2025 vil autentiseringsløsningen aktiveres: Logg inn med e-postadressen din (${user.contactDetails.email}).
+    Torsdag 13/11/2025 vil autentiseringsløsningen aktiveres: Logg inn med e-postadressen din (${user.contactDetails.email}).
     Du blir deretter omdirigert til din egen bedrifts autentiseringsportal.
     Du trenger ikke å opprette et nytt passord.<br>
-    <i>On Thursday 06/11/2025, the new system will be activated: Please log in with your email address (${user.contactDetails.email}). You will then be redirected to your company's authentication portal.
+    <i>On Thursday 13/11/2025, the new system will be activated: Please log in with your email address (${user.contactDetails.email}). You will then be redirected to your company's authentication portal.
         There is no need to create a new password.</i><br>
     <p>
     Dette gjelder din brukerkonto for:<br>

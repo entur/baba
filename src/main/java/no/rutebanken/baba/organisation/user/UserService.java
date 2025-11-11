@@ -261,8 +261,8 @@ public class UserService {
                 .sorted(Comparator.comparing(User::getUsername))
                 .filter(User::isPersonalAccount)
                 .filter(this::isFederatedUser)
-                .map(this::sendEmail).
-                collect(Collectors.joining("\n"));
+                .map(this::sendEmail)
+                .collect(Collectors.joining("\n"));
 
     }
 
