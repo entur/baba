@@ -92,7 +92,7 @@ public class UserService {
         else {
             User user = permissionStoreUser(authenticatedUser);
             List<RoleAssignment> roleAssignments = toRoleAssignments(user);
-            LOGGER.debug("Role assignments for user [{}]: {}", authenticatedUser, user);
+            LOGGER.debug("Role assignments for user [{}]: {}", authenticatedUser, roleAssignments);
             return roleAssignments;
         }
     }
