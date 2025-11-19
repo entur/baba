@@ -91,7 +91,9 @@ public class UserService {
         }
         else {
             User user = permissionStoreUser(authenticatedUser);
-            return toRoleAssignments(user);
+            List<RoleAssignment> roleAssignments = toRoleAssignments(user);
+            LOGGER.debug("Role assignments for user [{}]: {}", authenticatedUser, user);
+            return roleAssignments;
         }
     }
 
