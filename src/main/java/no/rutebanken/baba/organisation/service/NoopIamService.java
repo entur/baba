@@ -24,11 +24,6 @@ public class NoopIamService implements IamService {
   }
 
   @Override
-  public void resetPassword(User user) {
-    logger.info("NOOP IAM service! Ignored resetPassword: {}", user.getUsername());
-  }
-
-  @Override
   public void removeUser(User user) {
     logger.info("NOOP IAM service! Ignored removeUser: {}", user.getUsername());
   }

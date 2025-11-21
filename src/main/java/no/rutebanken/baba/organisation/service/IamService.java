@@ -28,8 +28,6 @@ public interface IamService {
 
   void updateUser(User user);
 
-  void resetPassword(User user);
-
   void removeUser(User user);
 
   void createRole(Role role);

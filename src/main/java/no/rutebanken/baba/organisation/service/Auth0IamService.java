@@ -102,22 +102,6 @@ public class Auth0IamService implements IamService {
   }
 
   @Override
-  public void resetPassword(User user) {
-    logger.info("Resetting password in Auth0 for user {}", user.getUsername());
-    String password = generatePassword();
-    com.auth0.json.mgmt.users.User existingAuth0User = getAuth0UserByUsername(user.getUsername());
-    com.auth0.json.mgmt.users.User updatedAuth0User = new com.auth0.json.mgmt.users.User();
-    updatedAuth0User.setPassword(password.toCharArray());
-    try {
-      getManagementAPI().users().update(existingAuth0User.getId(), updatedAuth0User).execute();
-      logger.info("Successfully reset password in Auth0 for user {}", user.getUsername());
-    } catch (Auth0Exception e) {
-      logger.error("Password reset in Auth0 failed for user {}", user.getUsername(), e);
-      throw new OrganisationException("Password reset in Auth0 failed");
-    }
-  }
-
-  @Override
   public void removeUser(User user) {
     logger.info("Removing user {} from Auth0", user.getUsername());
     com.auth0.json.mgmt.users.User existingAuth0User;
