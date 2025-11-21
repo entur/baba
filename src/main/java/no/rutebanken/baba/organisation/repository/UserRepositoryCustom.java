@@ -16,19 +16,17 @@
 
 package no.rutebanken.baba.organisation.repository;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.user.User;
 
-import javax.annotation.Nullable;
-import java.util.List;
-
 public interface UserRepositoryCustom {
+  List<User> findUsersWithResponsibilitySet(ResponsibilitySet responsibilitySet);
 
-	List<User> findUsersWithResponsibilitySet(ResponsibilitySet responsibilitySet);
-
-	@Nullable
-	/**
-	 * Return the user matching the given email, or null if none exists.
-	 */
-	User getUserByEmail(String email);
+  @Nullable
+  /**
+   * Return the user matching the given email, or null if none exists.
+   */
+  User getUserByEmail(String email);
 }

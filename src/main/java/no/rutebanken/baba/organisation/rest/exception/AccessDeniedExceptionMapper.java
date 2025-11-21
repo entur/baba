@@ -16,22 +16,21 @@
 
 package no.rutebanken.baba.organisation.rest.exception;
 
-import org.springframework.security.access.AccessDeniedException;
-
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
+import org.springframework.security.access.AccessDeniedException;
 
 @Provider
 public class AccessDeniedExceptionMapper implements ExceptionMapper<AccessDeniedException> {
 
-    @Override
-    public Response toResponse(AccessDeniedException e) {
-        return Response
-                       .status(Response.Status.FORBIDDEN)
-                       .type(MediaType.TEXT_PLAIN)
-                       .entity(e.getMessage())
-                       .build();
-    }
+  @Override
+  public Response toResponse(AccessDeniedException e) {
+    return Response
+      .status(Response.Status.FORBIDDEN)
+      .type(MediaType.TEXT_PLAIN)
+      .entity(e.getMessage())
+      .build();
+  }
 }

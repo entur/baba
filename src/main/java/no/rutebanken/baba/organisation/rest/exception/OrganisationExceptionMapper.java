@@ -16,23 +16,22 @@
 
 package no.rutebanken.baba.organisation.rest.exception;
 
-import no.rutebanken.baba.organisation.model.OrganisationException;
-
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
+import no.rutebanken.baba.organisation.model.OrganisationException;
 import org.springframework.http.HttpStatus;
 
 @Provider
 public class OrganisationExceptionMapper implements ExceptionMapper<OrganisationException> {
 
-	@Override
-	public Response toResponse(OrganisationException e) {
-		return Response
-				       .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-				       .type(MediaType.TEXT_PLAIN)
-				       .entity(e.getMessage())
-				       .build();
-	}
+  @Override
+  public Response toResponse(OrganisationException e) {
+    return Response
+      .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+      .type(MediaType.TEXT_PLAIN)
+      .entity(e.getMessage())
+      .build();
+  }
 }

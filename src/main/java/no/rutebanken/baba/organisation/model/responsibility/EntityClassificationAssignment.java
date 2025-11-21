@@ -17,67 +17,81 @@
 package no.rutebanken.baba.organisation.model.responsibility;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class EntityClassificationAssignment {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_classification_assignment_seq")
-    @SequenceGenerator(name = "entity_classification_assignment_seq", sequenceName = "entity_classification_assignment_seq", allocationSize = 1)
-    @JsonIgnore
-    private Long pk;
+  @Id
+  @GeneratedValue(
+    strategy = GenerationType.SEQUENCE,
+    generator = "entity_classification_assignment_seq"
+  )
+  @SequenceGenerator(
+    name = "entity_classification_assignment_seq",
+    sequenceName = "entity_classification_assignment_seq",
+    allocationSize = 1
+  )
+  @JsonIgnore
+  private Long pk;
 
-    @ManyToOne
-    @NotNull
-    private EntityClassification entityClassification;
+  @ManyToOne
+  @NotNull
+  private EntityClassification entityClassification;
 
-    @ManyToOne
-    private ResponsibilityRoleAssignment responsibilityRoleAssignment;
+  @ManyToOne
+  private ResponsibilityRoleAssignment responsibilityRoleAssignment;
 
-    private boolean allow = true;
+  private boolean allow = true;
 
-    public EntityClassificationAssignment() {
-    }
+  public EntityClassificationAssignment() {}
 
-    public EntityClassificationAssignment(EntityClassification entityClassification, ResponsibilityRoleAssignment responsibilityRoleAssignment, boolean allow) {
-        this.entityClassification = entityClassification;
-        this.responsibilityRoleAssignment = responsibilityRoleAssignment;
-        this.allow = allow;
-    }
+  public EntityClassificationAssignment(
+    EntityClassification entityClassification,
+    ResponsibilityRoleAssignment responsibilityRoleAssignment,
+    boolean allow
+  ) {
+    this.entityClassification = entityClassification;
+    this.responsibilityRoleAssignment = responsibilityRoleAssignment;
+    this.allow = allow;
+  }
 
-    public EntityClassification getEntityClassification() {
-        return entityClassification;
-    }
+  public EntityClassification getEntityClassification() {
+    return entityClassification;
+  }
 
-    public void setEntityClassification(EntityClassification entityClassification) {
-        this.entityClassification = entityClassification;
-    }
+  public void setEntityClassification(EntityClassification entityClassification) {
+    this.entityClassification = entityClassification;
+  }
 
-    public boolean isAllow() {
-        return allow;
-    }
+  public boolean isAllow() {
+    return allow;
+  }
 
-    public void setAllow(boolean allow) {
-        this.allow = allow;
-    }
+  public void setAllow(boolean allow) {
+    this.allow = allow;
+  }
 
+  public ResponsibilityRoleAssignment getResponsibilityRoleAssignment() {
+    return responsibilityRoleAssignment;
+  }
 
-    public ResponsibilityRoleAssignment getResponsibilityRoleAssignment() {
-        return responsibilityRoleAssignment;
-    }
+  public void setResponsibilityRoleAssignment(
+    ResponsibilityRoleAssignment responsibilityRoleAssignment
+  ) {
+    this.responsibilityRoleAssignment = responsibilityRoleAssignment;
+  }
 
-    public void setResponsibilityRoleAssignment(ResponsibilityRoleAssignment responsibilityRoleAssignment) {
-        this.responsibilityRoleAssignment = responsibilityRoleAssignment;
-    }
-
-    @Override
-    public String toString() {
-        return "EntityClassificationAssignment{" +
-                       "entityClassification=" + entityClassification +
-                       ", allow=" + allow +
-                       '}';
-    }
+  @Override
+  public String toString() {
+    return (
+      "EntityClassificationAssignment{" +
+      "entityClassification=" +
+      entityClassification +
+      ", allow=" +
+      allow +
+      '}'
+    );
+  }
 }

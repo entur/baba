@@ -16,63 +16,71 @@
 
 package no.rutebanken.baba.organisation.repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.TypedQuery;
+import java.util.List;
 import no.rutebanken.baba.organisation.model.CodeSpaceEntity;
 import no.rutebanken.baba.organisation.model.Id;
 import no.rutebanken.baba.organisation.model.VersionedEntity;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.TypedQuery;
-import java.util.List;
+public class BaseRepositoryImpl<T extends VersionedEntity>
+  extends SimpleJpaRepository<T, Long>
+  implements VersionedEntityRepository<T> {
 
+  private final EntityManager entityManager;
+  private final JpaEntityInformation<T, Long> entityInformation;
 
-public class BaseRepositoryImpl<T extends VersionedEntity> extends SimpleJpaRepository<T, Long> implements VersionedEntityRepository<T> {
+  public BaseRepositoryImpl(
+    JpaEntityInformation<T, Long> entityInformation,
+    EntityManager entityManager
+  ) {
+    super(entityInformation, entityManager);
+    this.entityManager = entityManager;
+    this.entityInformation = entityInformation;
+  }
 
-    private final EntityManager entityManager;
-    private final JpaEntityInformation<T, Long> entityInformation;
+  @Override
+  public T getOneByPublicIdIfExists(String publicId) {
+    Id id = Id.fromString(publicId);
 
-    public BaseRepositoryImpl(JpaEntityInformation<T, Long> entityInformation, EntityManager entityManager) {
-        super(entityInformation, entityManager);
-        this.entityManager = entityManager;
-        this.entityInformation = entityInformation;
+    String jpql =
+      "select e from " + entityInformation.getEntityName() + " e  where e.privateCode=:privateCode";
+    if (CodeSpaceEntity.class.isAssignableFrom(getDomainClass())) {
+      jpql += " and e.codeSpace.xmlns=:codeSpace";
     }
 
-    @Override
-    public T getOneByPublicIdIfExists(String publicId) {
-        Id id = Id.fromString(publicId);
+    TypedQuery<T> query = entityManager.createQuery(jpql, getDomainClass());
+    query.setParameter("privateCode", id.privateCode());
 
-        String jpql = "select e from " + entityInformation.getEntityName() + " e  where e.privateCode=:privateCode";
-        if (CodeSpaceEntity.class.isAssignableFrom(getDomainClass())) {
-            jpql += " and e.codeSpace.xmlns=:codeSpace";
-        }
-
-        TypedQuery<T> query = entityManager.createQuery(jpql, getDomainClass());
-        query.setParameter("privateCode", id.privateCode());
-
-        if (CodeSpaceEntity.class.isAssignableFrom(getDomainClass())) {
-            query.setParameter("codeSpace", id.codeSpace());
-        }
-
-        List<T> results = query.getResultList().stream().filter(r -> id.type() == null || r.getType().equals(id.type())).toList();
-
-        if (results.size() == 1) {
-            return results.getFirst();
-        } else if (results.isEmpty()) {
-            return null;
-        }
-        throw new IllegalArgumentException("Query for one entity returned multiple: " + query);
+    if (CodeSpaceEntity.class.isAssignableFrom(getDomainClass())) {
+      query.setParameter("codeSpace", id.codeSpace());
     }
 
-    @Override
-    public T getOneByPublicId(String publicId) {
-        T entity = getOneByPublicIdIfExists(publicId);
-        if (entity == null) {
-            throw new EntityNotFoundException(entityInformation.getEntityName() + " with id: [" + publicId + "] not found");
-        }
-        return entity;
+    List<T> results = query
+      .getResultList()
+      .stream()
+      .filter(r -> id.type() == null || r.getType().equals(id.type()))
+      .toList();
+
+    if (results.size() == 1) {
+      return results.getFirst();
+    } else if (results.isEmpty()) {
+      return null;
     }
+    throw new IllegalArgumentException("Query for one entity returned multiple: " + query);
+  }
 
-
+  @Override
+  public T getOneByPublicId(String publicId) {
+    T entity = getOneByPublicIdIfExists(publicId);
+    if (entity == null) {
+      throw new EntityNotFoundException(
+        entityInformation.getEntityName() + " with id: [" + publicId + "] not found"
+      );
+    }
+    return entity;
+  }
 }

@@ -16,10 +16,6 @@
 
 package no.rutebanken.baba.organisation.model.responsibility;
 
-import no.rutebanken.baba.organisation.model.CodeSpace;
-import no.rutebanken.baba.organisation.model.CodeSpaceEntity;
-import org.springframework.util.CollectionUtils;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,72 +26,83 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
+import no.rutebanken.baba.organisation.model.CodeSpace;
+import no.rutebanken.baba.organisation.model.CodeSpaceEntity;
+import org.springframework.util.CollectionUtils;
 
 @Entity
-@Table(uniqueConstraints = {
-                                   @UniqueConstraint(name = "responsibility_set_unique_id", columnNames = {"code_space_pk", "privateCode", "entityVersion"})
-})
+@Table(
+  uniqueConstraints = {
+    @UniqueConstraint(
+      name = "responsibility_set_unique_id",
+      columnNames = { "code_space_pk", "privateCode", "entityVersion" }
+    ),
+  }
+)
 public class ResponsibilitySet extends CodeSpaceEntity {
 
-    @NotNull
-    private String name;
+  @NotNull
+  private String name;
 
-    @NotNull
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<ResponsibilityRoleAssignment> roles;
+  @NotNull
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+  private Set<ResponsibilityRoleAssignment> roles;
 
-    public String getName() {
-        return name;
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public Set<ResponsibilityRoleAssignment> getRoles() {
+    if (roles == null) {
+      this.roles = new HashSet<>();
     }
+    return roles;
+  }
 
-    public void setName(String name) {
-        this.name = name;
+  public void setRoles(Set<ResponsibilityRoleAssignment> roles) {
+    if (this.roles == null) {
+      this.roles = roles;
+    } else {
+      this.roles.clear();
+      this.roles.addAll(roles);
     }
+  }
 
-    public Set<ResponsibilityRoleAssignment> getRoles() {
-        if (roles == null) {
-            this.roles = new HashSet<>();
+  public ResponsibilitySet() {}
+
+  public ResponsibilitySet(
+    CodeSpace codeSpace,
+    String privateCode,
+    String name,
+    Set<ResponsibilityRoleAssignment> roles
+  ) {
+    setCodeSpace(codeSpace);
+    setPrivateCode(privateCode);
+    this.name = name;
+    this.roles = roles;
+  }
+
+  public ResponsibilityRoleAssignment getResponsibilityRoleAssignment(String id) {
+    if (id != null && !CollectionUtils.isEmpty(roles)) {
+      for (ResponsibilityRoleAssignment existingRole : roles) {
+        if (id.equals(existingRole.getId())) {
+          return existingRole;
         }
-        return roles;
+      }
     }
+    throw new IllegalArgumentException(
+      getClass().getSimpleName() + " with id: " + id + " not found"
+    );
+  }
 
-    public void setRoles(Set<ResponsibilityRoleAssignment> roles) {
-        if (this.roles == null) {
-            this.roles = roles;
-        } else {
-            this.roles.clear();
-            this.roles.addAll(roles);
-        }
-
+  @PreRemove
+  private void removeResponsibilitySetConnections() {
+    if (roles != null) {
+      roles.clear();
     }
-
-    public ResponsibilitySet() {
-    }
-
-    public ResponsibilitySet(CodeSpace codeSpace, String privateCode, String name, Set<ResponsibilityRoleAssignment> roles) {
-        setCodeSpace(codeSpace);
-        setPrivateCode(privateCode);
-        this.name = name;
-        this.roles = roles;
-    }
-
-    public ResponsibilityRoleAssignment getResponsibilityRoleAssignment(String id) {
-        if (id != null && !CollectionUtils.isEmpty(roles)) {
-            for (ResponsibilityRoleAssignment existingRole : roles) {
-                if (id.equals(existingRole.getId())) {
-                    return existingRole;
-                }
-            }
-        }
-        throw new IllegalArgumentException(getClass().getSimpleName() + " with id: " + id + " not found");
-    }
-
-    @PreRemove
-    private void removeResponsibilitySetConnections() {
-        if (roles != null) {
-            roles.clear();
-        }
-    }
-
-
+  }
 }

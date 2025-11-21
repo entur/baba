@@ -17,24 +17,27 @@
 package no.rutebanken.baba.organisation.rest.dto.m2m;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import no.rutebanken.baba.organisation.rest.dto.BaseDTO;
-import no.rutebanken.baba.organisation.rest.dto.responsibility.ResponsibilitySetDTO;
-
 import java.util.ArrayList;
 import java.util.List;
+import no.rutebanken.baba.organisation.rest.dto.BaseDTO;
+import no.rutebanken.baba.organisation.rest.dto.responsibility.ResponsibilitySetDTO;
 
 @Schema(description = "M2M Client")
 public class M2MClientDTO extends BaseDTO {
 
-    public String name;
+  public String name;
 
-    public Long enturOrganisationId;
+  public Long enturOrganisationId;
 
-    public String issuer;
+  public String issuer;
 
-    @Schema(description = "References to the set of responsibility sets describing the users authorizations")
-    public List<String> responsibilitySetRefs = new ArrayList<>();
+  @Schema(
+    description = "References to the set of responsibility sets describing the users authorizations"
+  )
+  public List<String> responsibilitySetRefs = new ArrayList<>();
 
-    @Schema(description = "Fully mapped object for ease of use. Disregarded in CRUD operations (use reference)")
-    public List<ResponsibilitySetDTO> responsibilitySets;
+  @Schema(
+    description = "Fully mapped object for ease of use. Disregarded in CRUD operations (use reference)"
+  )
+  public List<ResponsibilitySetDTO> responsibilitySets;
 }

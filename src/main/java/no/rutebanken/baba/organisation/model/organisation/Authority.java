@@ -19,5 +19,4 @@ package no.rutebanken.baba.organisation.model.organisation;
 import jakarta.persistence.Entity;
 
 @Entity
-public class Authority extends Organisation {
-}
+public class Authority extends Organisation {}

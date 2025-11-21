@@ -18,7 +18,11 @@ package no.rutebanken.baba.organisation.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import java.util.List;
 import no.rutebanken.baba.organisation.model.organisation.AdministrativeZone;
 import no.rutebanken.baba.organisation.model.organisation.AdministrativeZoneType;
 import no.rutebanken.baba.organisation.repository.AdministrativeZoneRepository;
@@ -32,76 +36,71 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-
-import java.util.List;
-
 @Component
 @Path("administrative_zones")
 @Produces("application/json")
 @Transactional
 @PreAuthorize("@authorizationService.isOrganisationAdmin()")
-@Tags(value = {
-        @Tag(name = "AdministrativeZoneResource", description ="Administrative zone resource")
-})
-public class AdministrativeZoneResource extends AnnotatedBaseResource<AdministrativeZone, AdministrativeZoneDTO> {
+@Tags(
+  value = {
+    @Tag(name = "AdministrativeZoneResource", description = "Administrative zone resource"),
+  }
+)
+public class AdministrativeZoneResource
+  extends AnnotatedBaseResource<AdministrativeZone, AdministrativeZoneDTO> {
 
+  private final AdministrativeZoneRepository repository;
+  private final AdministrativeZoneMapper mapper;
+  private final AdministrativeZoneValidator validator;
 
-    private final AdministrativeZoneRepository repository;
-    private final AdministrativeZoneMapper mapper;
-    private final AdministrativeZoneValidator validator;
+  public AdministrativeZoneResource(
+    AdministrativeZoneRepository repository,
+    AdministrativeZoneMapper mapper,
+    AdministrativeZoneValidator validator
+  ) {
+    this.repository = repository;
+    this.mapper = mapper;
+    this.validator = validator;
+  }
 
-    public AdministrativeZoneResource(AdministrativeZoneRepository repository, AdministrativeZoneMapper mapper, AdministrativeZoneValidator validator) {
-        this.repository = repository;
-        this.mapper = mapper;
-        this.validator = validator;
-    }
+  @Override
+  @GET
+  @Path("{id}")
+  @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
+  public AdministrativeZoneDTO get(@PathParam("id") String id) {
+    return super.get(id);
+  }
 
+  @Override
+  @GET
+  @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
+  public List<AdministrativeZoneDTO> listAll() {
+    return super.listAll();
+  }
 
-    @Override
-    @GET
-    @Path("{id}")
-    @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
-    public AdministrativeZoneDTO get(@PathParam("id") String id) {
-        return super.get(id);
-    }
+  @Override
+  protected VersionedEntityRepository<AdministrativeZone> getRepository() {
+    return repository;
+  }
 
-    @Override
-    @GET
-    @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
-    public List<AdministrativeZoneDTO> listAll() {
-        return super.listAll();
-    }
+  @Override
+  protected DTOMapper<AdministrativeZone, AdministrativeZoneDTO> getMapper() {
+    return mapper;
+  }
 
+  @Override
+  protected Class<AdministrativeZone> getEntityClass() {
+    return AdministrativeZone.class;
+  }
 
+  @Override
+  protected DTOValidator<AdministrativeZone, AdministrativeZoneDTO> getValidator() {
+    return validator;
+  }
 
-    @Override
-    protected VersionedEntityRepository<AdministrativeZone> getRepository() {
-        return repository;
-    }
-
-    @Override
-    protected DTOMapper<AdministrativeZone, AdministrativeZoneDTO> getMapper() {
-        return mapper;
-    }
-
-    @Override
-    protected Class<AdministrativeZone> getEntityClass() {
-        return AdministrativeZone.class;
-    }
-
-    @Override
-    protected DTOValidator<AdministrativeZone, AdministrativeZoneDTO> getValidator() {
-        return validator;
-    }
-
-
-    @GET
-    @Path("types")
-    public AdministrativeZoneType[] getAdministrativeZoneTypes() {
-        return AdministrativeZoneType.values();
-    }
-
+  @GET
+  @Path("types")
+  public AdministrativeZoneType[] getAdministrativeZoneTypes() {
+    return AdministrativeZoneType.values();
+  }
 }

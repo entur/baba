@@ -16,8 +16,8 @@
 
 package no.rutebanken.baba.config;
 
-import no.rutebanken.baba.organisation.repository.M2MClientRepository;
 import no.rutebanken.baba.organisation.m2m.EnturClientM2MRoleAssignmentRepository;
+import no.rutebanken.baba.organisation.repository.M2MClientRepository;
 import no.rutebanken.baba.security.permissionstore.DefaultPermissionStoreClient;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
 import org.entur.oauth2.AuthorizedWebClientBuilder;
@@ -38,7 +38,8 @@ public class PermissionStoreConfig {
 
   @Bean
   EnturClientM2MRoleAssignmentRepository enturInternalM2RoleAssignmentRepository(
-          M2MClientRepository repository) {
+    M2MClientRepository repository
+  ) {
     return new EnturClientM2MRoleAssignmentRepository(repository);
   }
 

@@ -19,31 +19,28 @@ package no.rutebanken.baba.organisation.model;
 import org.springframework.util.StringUtils;
 
 public record Id(String codeSpace, String type, String privateCode) {
+  public static final String SEPARATOR_CHAR = ":";
 
-	public static final String SEPARATOR_CHAR = ":";
+  public static Id fromString(String publicId) {
+    if (!isValid(publicId)) {
+      throw new IllegalArgumentException("Malformed ID: " + publicId);
+    }
+    String[] parts = publicId.split(":");
 
-	public static Id fromString(String publicId) {
-		if (!isValid(publicId)) {
-			throw new IllegalArgumentException("Malformed ID: " + publicId);
-		}
-		String[] parts = publicId.split(":");
+    if (parts.length > 2) {
+      return new Id(parts[0], parts[1], parts[2]);
+    } else if (parts.length == 2) {
+      return new Id(null, parts[0], parts[1]);
+    }
 
-		if (parts.length > 2) {
-			return new Id(parts[0], parts[1], parts[2]);
-		} else if (parts.length == 2) {
-			return new Id(null, parts[0], parts[1]);
-		}
+    return new Id(null, null, publicId);
+  }
 
-		return new Id(null, null, publicId);
-	}
+  private static boolean isValid(String publicId) {
+    return StringUtils.hasText(publicId);
+  }
 
-	private static boolean isValid(String publicId) {
-		return StringUtils.hasText(publicId);
-	}
-
-
-	public String toString() {
-		return String.join(SEPARATOR_CHAR, codeSpace, privateCode);
-	}
-
+  public String toString() {
+    return String.join(SEPARATOR_CHAR, codeSpace, privateCode);
+  }
 }

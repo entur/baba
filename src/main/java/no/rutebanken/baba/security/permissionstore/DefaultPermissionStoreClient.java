@@ -15,16 +15,15 @@
 
 package no.rutebanken.baba.security.permissionstore;
 
+import java.time.Duration;
+import java.util.List;
+import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Client for accessing the Permission Store API.
@@ -43,25 +42,20 @@ public class DefaultPermissionStoreClient implements PermissionStoreClient {
 
   @Override
   @Cacheable("permissionStoreUsers")
-  public  PermissionStoreUser getUser(String subject) {
+  public PermissionStoreUser getUser(String subject) {
     LOGGER.info("Retrieving user {} through Permission Store API", subject);
     List<PermissionStoreUser> users = webClient
-            .get()
-            .uri(uriBuilder ->
-                    uriBuilder
-                            .path("/users")
-                            .queryParam("subject", subject)
-                            .build()
-            )
-            .retrieve()
-            .bodyToFlux(PermissionStoreUser.class)
-            .collectList()
-            .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(1)).filter(is5xx))
-            .block();
+      .get()
+      .uri(uriBuilder -> uriBuilder.path("/users").queryParam("subject", subject).build())
+      .retrieve()
+      .bodyToFlux(PermissionStoreUser.class)
+      .collectList()
+      .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(1)).filter(is5xx))
+      .block();
     if (users == null || users.isEmpty()) {
       throw new IllegalArgumentException("No users found for subject " + subject);
     }
-    if(users.size() > 1) {
+    if (users.size() > 1) {
       throw new IllegalStateException("Multiple users found for subject " + subject);
     }
     return users.getFirst();

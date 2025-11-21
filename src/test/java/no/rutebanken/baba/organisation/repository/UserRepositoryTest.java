@@ -16,6 +16,9 @@
 
 package no.rutebanken.baba.organisation.repository;
 
+import jakarta.persistence.EntityManager;
+import java.util.List;
+import java.util.Set;
 import no.rutebanken.baba.organisation.model.responsibility.ResponsibilityRoleAssignment;
 import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.responsibility.Role;
@@ -25,72 +28,87 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import jakarta.persistence.EntityManager;
-import java.util.List;
-import java.util.Set;
-
-
 class UserRepositoryTest extends BaseIntegrationTest {
 
-    @Autowired
-    private UserRepository userRepository;
+  @Autowired
+  private UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+  @Autowired
+  private RoleRepository roleRepository;
 
-    @Autowired
-    private ResponsibilitySetRepository responsibilitySetRepository;
+  @Autowired
+  private ResponsibilitySetRepository responsibilitySetRepository;
 
-    @Autowired
-    private EntityManager em;
+  @Autowired
+  private EntityManager em;
 
-    @Test
-    void testInsertUser() {
+  @Test
+  void testInsertUser() {
+    User user = User
+      .builder()
+      .withUsername("raffen")
+      .withPrivateCode("2")
+      .withOrganisation(defaultOrganisation)
+      .withContactDetails(minimalContactDetails())
+      .build();
+    User createdUser = userRepository.saveAndFlush(user);
 
-        User user = User.builder().withUsername("raffen").withPrivateCode("2").withOrganisation(defaultOrganisation).withContactDetails(minimalContactDetails()).build();
-        User createdUser = userRepository.saveAndFlush(user);
+    User fetchedUser = userRepository.getReferenceById(createdUser.getPk());
+    Assertions.assertEquals("User:2", fetchedUser.getId());
+  }
 
-        User fetchedUser = userRepository.getReferenceById(createdUser.getPk());
-        Assertions.assertEquals("User:2", fetchedUser.getId());
+  protected ContactDetails minimalContactDetails() {
+    ContactDetails contactDetails = new ContactDetails();
+    contactDetails.setEmail("valid@email.org");
+    return contactDetails;
+  }
 
+  @Test
+  void testFindByResponsibilitySet() {
+    Role role = roleRepository.save(new Role("testCode", "testRole"));
+    ResponsibilityRoleAssignment responsibilityRoleAssignment = ResponsibilityRoleAssignment
+      .builder()
+      .withPrivateCode("pCode")
+      .withResponsibleOrganisation(defaultOrganisation)
+      .withTypeOfResponsibilityRole(role)
+      .withCodeSpace(defaultCodeSpace)
+      .build();
+    ResponsibilitySet responsibilitySet = new ResponsibilitySet(
+      defaultCodeSpace,
+      "pCode",
+      "name",
+      Set.of(responsibilityRoleAssignment)
+    );
 
-    }
+    responsibilitySet = responsibilitySetRepository.save(responsibilitySet);
 
-    protected ContactDetails minimalContactDetails() {
-        ContactDetails contactDetails = new ContactDetails();
-        contactDetails.setEmail("valid@email.org");
-        return contactDetails;
-    }
+    User userWithRespSet = userRepository.saveAndFlush(
+      User
+        .builder()
+        .withUsername("userWithRespSet")
+        .withPrivateCode("userWithRespSet")
+        .withOrganisation(defaultOrganisation)
+        .withResponsibilitySets(Set.of(responsibilitySet))
+        .withContactDetails(minimalContactDetails())
+        .build()
+    );
+    User userWithoutRespSet = userRepository.saveAndFlush(
+      User
+        .builder()
+        .withUsername("userWithoutRespSet")
+        .withPrivateCode("userWithoutRespSet")
+        .withOrganisation(defaultOrganisation)
+        .withContactDetails(minimalContactDetails())
+        .build()
+    );
+    List<User> usersWithRespSet = userRepository.findUsersWithResponsibilitySet(responsibilitySet);
 
+    Assertions.assertEquals(1, usersWithRespSet.size());
+    Assertions.assertTrue(usersWithRespSet.contains(userWithRespSet));
+    Assertions.assertFalse(usersWithRespSet.contains(userWithoutRespSet));
 
-    @Test
-    void testFindByResponsibilitySet() {
-        Role role = roleRepository.save(new Role("testCode", "testRole"));
-        ResponsibilityRoleAssignment responsibilityRoleAssignment =
-                ResponsibilityRoleAssignment.builder().withPrivateCode("pCode").withResponsibleOrganisation(defaultOrganisation)
-                        .withTypeOfResponsibilityRole(role).withCodeSpace(defaultCodeSpace).build();
-        ResponsibilitySet responsibilitySet = new ResponsibilitySet(defaultCodeSpace, "pCode", "name", Set.of(responsibilityRoleAssignment));
+    userRepository.delete(usersWithRespSet.getFirst());
 
-        responsibilitySet = responsibilitySetRepository.save(responsibilitySet);
-
-        User userWithRespSet =
-                userRepository.saveAndFlush(User.builder()
-                                                    .withUsername("userWithRespSet").withPrivateCode("userWithRespSet")
-                                                    .withOrganisation(defaultOrganisation)
-                                                    .withResponsibilitySets(Set.of(responsibilitySet))
-                                                    .withContactDetails(minimalContactDetails())
-                                                    .build());
-        User userWithoutRespSet = userRepository.saveAndFlush(User.builder().withUsername("userWithoutRespSet").withPrivateCode("userWithoutRespSet").withOrganisation(defaultOrganisation).withContactDetails(minimalContactDetails()).build());
-        List<User> usersWithRespSet = userRepository.findUsersWithResponsibilitySet(responsibilitySet);
-
-        Assertions.assertEquals(1, usersWithRespSet.size());
-        Assertions.assertTrue(usersWithRespSet.contains(userWithRespSet));
-        Assertions.assertFalse(usersWithRespSet.contains(userWithoutRespSet));
-
-        userRepository.delete(usersWithRespSet.getFirst());
-
-        em.flush();
-    }
-
+    em.flush();
+  }
 }
-

@@ -24,12 +24,12 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException> {
 
-	@Override
-	public Response toResponse(IllegalArgumentException e) {
-		return Response
-				       .status(Response.Status.BAD_REQUEST)
-				       .type(MediaType.TEXT_PLAIN)
-				       .entity(e.getMessage())
-				       .build();
-	}
+  @Override
+  public Response toResponse(IllegalArgumentException e) {
+    return Response
+      .status(Response.Status.BAD_REQUEST)
+      .type(MediaType.TEXT_PLAIN)
+      .entity(e.getMessage())
+      .build();
+  }
 }

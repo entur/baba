@@ -35,52 +35,50 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = BabaTestApp.class)
+@SpringBootTest(
+  webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+  classes = BabaTestApp.class
+)
 @Transactional
 public abstract class BaseIntegrationTest {
 
+  @TestConfiguration
+  @EnableWebSecurity
+  static class TestWebSecurityConfiguration {
 
-    @TestConfiguration
-    @EnableWebSecurity
-    static class TestWebSecurityConfiguration {
-
-        @Bean
-        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-            http.csrf(AbstractHttpConfigurer::disable)
-                    .authorizeHttpRequests(authz -> authz
-                            .anyRequest().permitAll()
-                    );
-            return http.build();
-        }
-
-        @Bean
-        public PermissionStoreClient permissionStoreClient() {
-            return subject -> null;
-        }
-
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+      http
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+      return http.build();
     }
 
-    @Autowired
-    protected CodeSpaceRepository codeSpaceRepository;
-
-    @Autowired
-    protected OrganisationRepository organisationRepository;
-
-
-    protected Organisation defaultOrganisation;
-
-    protected CodeSpace defaultCodeSpace;
-
-    @BeforeEach
-    void setUp() {
-        CodeSpace codeSpace = new CodeSpace("nsr", "NSR", "http://www.rutebanken.org/ns/nsr");
-        defaultCodeSpace = codeSpaceRepository.saveAndFlush(codeSpace);
-
-        Authority authority = new Authority();
-        authority.setCodeSpace(defaultCodeSpace);
-        authority.setName("Test Org");
-        authority.setPrivateCode("testOrg");
-        defaultOrganisation = organisationRepository.saveAndFlush(authority);
+    @Bean
+    public PermissionStoreClient permissionStoreClient() {
+      return subject -> null;
     }
+  }
 
+  @Autowired
+  protected CodeSpaceRepository codeSpaceRepository;
+
+  @Autowired
+  protected OrganisationRepository organisationRepository;
+
+  protected Organisation defaultOrganisation;
+
+  protected CodeSpace defaultCodeSpace;
+
+  @BeforeEach
+  void setUp() {
+    CodeSpace codeSpace = new CodeSpace("nsr", "NSR", "http://www.rutebanken.org/ns/nsr");
+    defaultCodeSpace = codeSpaceRepository.saveAndFlush(codeSpace);
+
+    Authority authority = new Authority();
+    authority.setCodeSpace(defaultCodeSpace);
+    authority.setName("Test Org");
+    authority.setPrivateCode("testOrg");
+    defaultOrganisation = organisationRepository.saveAndFlush(authority);
+  }
 }

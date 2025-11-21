@@ -25,25 +25,28 @@ import org.springframework.util.Assert;
 @Service
 public class TypeValidator<E extends VersionedEntity> implements DTOValidator<E, TypeDTO> {
 
-    private final ResponsibilitySetRepository responsibilitySetRepository;
+  private final ResponsibilitySetRepository responsibilitySetRepository;
 
-    public TypeValidator(ResponsibilitySetRepository responsibilitySetRepository) {
-        this.responsibilitySetRepository = responsibilitySetRepository;
-    }
+  public TypeValidator(ResponsibilitySetRepository responsibilitySetRepository) {
+    this.responsibilitySetRepository = responsibilitySetRepository;
+  }
 
-    @Override
-    public void validateCreate(TypeDTO dto) {
-        Assert.hasLength(dto.name, "name required");
-        Assert.hasLength(dto.privateCode, "privateCode required");
-    }
+  @Override
+  public void validateCreate(TypeDTO dto) {
+    Assert.hasLength(dto.name, "name required");
+    Assert.hasLength(dto.privateCode, "privateCode required");
+  }
 
-    @Override
-    public void validateUpdate(TypeDTO dto, E entity) {
-        Assert.hasLength(dto.name, "name required");
-    }
+  @Override
+  public void validateUpdate(TypeDTO dto, E entity) {
+    Assert.hasLength(dto.name, "name required");
+  }
 
-    @Override
-    public void validateDelete(E entity) {
-        Assert.isTrue(responsibilitySetRepository.getResponsibilitySetsReferringTo(entity).isEmpty(),"referred to by responsibilitySet");
-    }
+  @Override
+  public void validateDelete(E entity) {
+    Assert.isTrue(
+      responsibilitySetRepository.getResponsibilitySetsReferringTo(entity).isEmpty(),
+      "referred to by responsibilitySet"
+    );
+  }
 }

@@ -24,18 +24,17 @@ import no.rutebanken.baba.organisation.model.user.User;
  * Update the state of a remote IAM service to keep it in sync with the Baba user database.
  */
 public interface IamService {
+  void createUser(User user);
 
-	void createUser(User user);
+  void updateUser(User user);
 
-	void updateUser(User user);
+  void resetPassword(User user);
 
-	void resetPassword(User user);
+  void removeUser(User user);
 
-	void removeUser(User user);
+  void createRole(Role role);
 
-	void createRole(Role role);
+  void removeRole(Role role);
 
-	void removeRole(Role role);
-
-	void updateResponsibilitySet(ResponsibilitySet responsibilitySet);
+  void updateResponsibilitySet(ResponsibilitySet responsibilitySet);
 }

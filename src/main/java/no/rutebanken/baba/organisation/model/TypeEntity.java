@@ -17,8 +17,7 @@
 package no.rutebanken.baba.organisation.model;
 
 public interface TypeEntity {
+  String getName();
 
-	String getName();
-
-	void setName(String name);
+  void setName(String name);
 }

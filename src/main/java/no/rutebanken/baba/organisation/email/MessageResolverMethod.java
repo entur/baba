@@ -19,42 +19,40 @@ package no.rutebanken.baba.organisation.email;
 import freemarker.template.SimpleScalar;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
-import org.springframework.context.MessageSource;
-
 import java.util.List;
 import java.util.Locale;
+import org.springframework.context.MessageSource;
 
 /**
  * For resolving messages from resource bundle from freemarker templates.
  */
 public class MessageResolverMethod implements TemplateMethodModelEx {
 
-    private final MessageSource messageSource;
+  private final MessageSource messageSource;
 
-    private final Locale locale;
+  private final Locale locale;
 
-    public MessageResolverMethod(MessageSource messageSource, Locale locale) {
-        this.locale = locale;
-        this.messageSource = messageSource;
+  public MessageResolverMethod(MessageSource messageSource, Locale locale) {
+    this.locale = locale;
+    this.messageSource = messageSource;
+  }
+
+  @Override
+  public Object exec(List arguments) throws TemplateModelException {
+    if (arguments.isEmpty()) {
+      throw new TemplateModelException("Wrong number of arguments");
+    }
+    SimpleScalar arg = (SimpleScalar) arguments.getFirst();
+    String code = arg.getAsString();
+    if (code == null || code.isEmpty()) {
+      throw new TemplateModelException("Invalid code value '" + code + "'");
     }
 
-
-    @Override
-    public Object exec(List arguments) throws TemplateModelException {
-        if (arguments.isEmpty()) {
-            throw new TemplateModelException("Wrong number of arguments");
-        }
-        SimpleScalar arg = (SimpleScalar) arguments.getFirst();
-        String code = arg.getAsString();
-        if (code == null || code.isEmpty()) {
-            throw new TemplateModelException("Invalid code value '" + code + "'");
-        }
-
-        Object[] argsArray = null;
-        if (arguments.size() > 1) {
-            argsArray = arguments.subList(1, arguments.size()).toArray();
-        }
-
-        return messageSource.getMessage(code, argsArray, code, locale);
+    Object[] argsArray = null;
+    if (arguments.size() > 1) {
+      argsArray = arguments.subList(1, arguments.size()).toArray();
     }
+
+    return messageSource.getMessage(code, argsArray, code, locale);
+  }
 }

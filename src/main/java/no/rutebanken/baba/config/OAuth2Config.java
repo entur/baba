@@ -29,34 +29,33 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 public class OAuth2Config {
 
-    @Bean
-    @Profile("!test")
-    public MultiIssuerAuthenticationManagerResolver multiIssuerAuthenticationManagerResolver(
-            @Value("${baba.oauth2.resourceserver.auth0.entur.internal.jwt.audience:}")
-            String enturInternalAuth0Audience,
-            @Value("${baba.oauth2.resourceserver.auth0.entur.internal.jwt.issuer-uri:}")
-            String enturInternalAuth0Issuer,
-            @Value("${baba.oauth2.resourceserver.auth0.entur.partner.jwt.audience:}")
-            String enturPartnerAuth0Audience,
-            @Value("${baba.oauth2.resourceserver.auth0.entur.partner.jwt.issuer-uri:}")
-            String enturPartnerAuth0Issuer,
-            @Value("${baba.oauth2.resourceserver.auth0.ror.jwt.audience:}")
-            String rorAuth0Audience,
-            @Value("${baba.oauth2.resourceserver.auth0.ror.jwt.issuer-uri:}")
-            String rorAuth0Issuer,
-            @Value("${baba.oauth2.resourceserver.auth0.ror.claim.namespace:}")
-            String rorAuth0ClaimNamespace) {
-
-        return new MultiIssuerAuthenticationManagerResolverBuilder()
-                .withEnturInternalAuth0Issuer(enturInternalAuth0Issuer)
-                .withEnturInternalAuth0Audience(enturInternalAuth0Audience)
-                .withEnturPartnerAuth0Issuer(enturPartnerAuth0Issuer)
-                .withEnturPartnerAuth0Audience(enturPartnerAuth0Audience)
-                .withRorAuth0Issuer(rorAuth0Issuer)
-                .withRorAuth0Audience(rorAuth0Audience)
-                .withRorAuth0ClaimNamespace(rorAuth0ClaimNamespace)
-                .build();
-    }
+  @Bean
+  @Profile("!test")
+  public MultiIssuerAuthenticationManagerResolver multiIssuerAuthenticationManagerResolver(
+    @Value(
+      "${baba.oauth2.resourceserver.auth0.entur.internal.jwt.audience:}"
+    ) String enturInternalAuth0Audience,
+    @Value(
+      "${baba.oauth2.resourceserver.auth0.entur.internal.jwt.issuer-uri:}"
+    ) String enturInternalAuth0Issuer,
+    @Value(
+      "${baba.oauth2.resourceserver.auth0.entur.partner.jwt.audience:}"
+    ) String enturPartnerAuth0Audience,
+    @Value(
+      "${baba.oauth2.resourceserver.auth0.entur.partner.jwt.issuer-uri:}"
+    ) String enturPartnerAuth0Issuer,
+    @Value("${baba.oauth2.resourceserver.auth0.ror.jwt.audience:}") String rorAuth0Audience,
+    @Value("${baba.oauth2.resourceserver.auth0.ror.jwt.issuer-uri:}") String rorAuth0Issuer,
+    @Value("${baba.oauth2.resourceserver.auth0.ror.claim.namespace:}") String rorAuth0ClaimNamespace
+  ) {
+    return new MultiIssuerAuthenticationManagerResolverBuilder()
+      .withEnturInternalAuth0Issuer(enturInternalAuth0Issuer)
+      .withEnturInternalAuth0Audience(enturInternalAuth0Audience)
+      .withEnturPartnerAuth0Issuer(enturPartnerAuth0Issuer)
+      .withEnturPartnerAuth0Audience(enturPartnerAuth0Audience)
+      .withRorAuth0Issuer(rorAuth0Issuer)
+      .withRorAuth0Audience(rorAuth0Audience)
+      .withRorAuth0ClaimNamespace(rorAuth0ClaimNamespace)
+      .build();
+  }
 }
-
-
