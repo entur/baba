@@ -16,43 +16,45 @@
 
 package no.rutebanken.baba.organisation.rest.exception;
 
-import org.springframework.dao.DataIntegrityViolationException;
-
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ValidationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.dao.DataIntegrityViolationException;
 
 public abstract class ExceptionMapperBase {
-	private final Map<Response.Status, Set<Class<?>>> mapping;
 
-	protected ExceptionMapperBase() {
-		mapping = new EnumMap<>(Response.Status.class);
-		mapping.put(Response.Status.BAD_REQUEST,
-				Set.of(ValidationException.class, OptimisticLockException.class, EntityNotFoundException.class, DataIntegrityViolationException.class));
-		mapping.put(Response.Status.CONFLICT, Set.of(EntityExistsException.class));
-	}
+  private final Map<Response.Status, Set<Class<?>>> mapping;
 
-	protected Response buildResponse(Throwable t) {
-		return Response
-				       .status(toStatus(t))
-				       .type(MediaType.TEXT_PLAIN)
-				       .entity(t.getMessage())
-				       .build();
-	}
+  protected ExceptionMapperBase() {
+    mapping = new EnumMap<>(Response.Status.class);
+    mapping.put(
+      Response.Status.BAD_REQUEST,
+      Set.of(
+        ValidationException.class,
+        OptimisticLockException.class,
+        EntityNotFoundException.class,
+        DataIntegrityViolationException.class
+      )
+    );
+    mapping.put(Response.Status.CONFLICT, Set.of(EntityExistsException.class));
+  }
 
-	protected int toStatus(Throwable e) {
-		for (Map.Entry<Response.Status, Set<Class<?>>> entry : mapping.entrySet()) {
-			if (entry.getValue().stream().anyMatch(c -> c.isAssignableFrom(e.getClass()))) {
-				return entry.getKey().getStatusCode();
-			}
-		}
-		return Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
-	}
+  protected Response buildResponse(Throwable t) {
+    return Response.status(toStatus(t)).type(MediaType.TEXT_PLAIN).entity(t.getMessage()).build();
+  }
+
+  protected int toStatus(Throwable e) {
+    for (Map.Entry<Response.Status, Set<Class<?>>> entry : mapping.entrySet()) {
+      if (entry.getValue().stream().anyMatch(c -> c.isAssignableFrom(e.getClass()))) {
+        return entry.getKey().getStatusCode();
+      }
+    }
+    return Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+  }
 }

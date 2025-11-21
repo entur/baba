@@ -21,10 +21,8 @@ import org.junit.jupiter.api.Test;
 
 class CodeSpaceRepositoryTest extends BaseIntegrationTest {
 
-
-	@Test
-	void testFindByPublicId() {
-		Assertions.assertNotNull(codeSpaceRepository.getOneByPublicId(defaultCodeSpace.getId()));
-	}
-
+  @Test
+  void testFindByPublicId() {
+    Assertions.assertNotNull(codeSpaceRepository.getOneByPublicId(defaultCodeSpace.getId()));
+  }
 }

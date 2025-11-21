@@ -16,22 +16,21 @@
 
 package no.rutebanken.baba.organisation.rest.exception;
 
-import org.rutebanken.helper.organisation.NotAuthenticatedException;
-
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
+import org.rutebanken.helper.organisation.NotAuthenticatedException;
 
 @Provider
 public class NotAuthenticatedExceptionMapper implements ExceptionMapper<NotAuthenticatedException> {
 
-    @Override
-    public Response toResponse(NotAuthenticatedException e) {
-        return Response
-                       .status(Response.Status.UNAUTHORIZED)
-                       .type(MediaType.TEXT_PLAIN)
-                       .entity(e.getMessage())
-                       .build();
-    }
+  @Override
+  public Response toResponse(NotAuthenticatedException e) {
+    return Response
+      .status(Response.Status.UNAUTHORIZED)
+      .type(MediaType.TEXT_PLAIN)
+      .entity(e.getMessage())
+      .build();
+  }
 }

@@ -21,7 +21,5 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "Common type for simple entities/code values")
 public class TypeDTO extends BaseDTO {
 
-	public String name;
-
-
+  public String name;
 }

@@ -18,12 +18,11 @@ package no.rutebanken.baba.organisation.model;
 
 public class OrganisationException extends RuntimeException {
 
-    public OrganisationException(String message) {
-        super(message);
-    }
+  public OrganisationException(String message) {
+    super(message);
+  }
 
-    public OrganisationException(String message, Throwable throwable) {
-        super(message, throwable);
-
-    }
+  public OrganisationException(String message, Throwable throwable) {
+    super(message, throwable);
+  }
 }

@@ -24,25 +24,21 @@ import jakarta.validation.constraints.NotNull;
 @MappedSuperclass
 public abstract class CodeSpaceEntity extends VersionedEntity {
 
-	@NotNull
-	@JoinColumn(name = "code_space_pk")
-	@ManyToOne
-	private CodeSpace codeSpace;
+  @NotNull
+  @JoinColumn(name = "code_space_pk")
+  @ManyToOne
+  private CodeSpace codeSpace;
 
+  public CodeSpace getCodeSpace() {
+    return codeSpace;
+  }
 
-	public CodeSpace getCodeSpace() {
-		return codeSpace;
-	}
+  public void setCodeSpace(CodeSpace codeSpace) {
+    this.codeSpace = codeSpace;
+  }
 
-	public void setCodeSpace(CodeSpace codeSpace) {
-		this.codeSpace = codeSpace;
-	}
-
-
-	@Override
-	public String getId() {
-		return String.join(":", codeSpace.getXmlns(), getType(), getPrivateCode());
-	}
-
-
+  @Override
+  public String getId() {
+    return String.join(":", codeSpace.getXmlns(), getType(), getPrivateCode());
+  }
 }

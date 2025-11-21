@@ -17,24 +17,29 @@
 package no.rutebanken.baba.organisation.rest.dto.responsibility;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import no.rutebanken.baba.organisation.rest.dto.BaseDTO;
-
 import java.util.ArrayList;
 import java.util.List;
-@Schema(description = "Reusable authorization grant. Combination of a role with one or more of: organisations, admin zone and list of entity classification assignments. ")
+import no.rutebanken.baba.organisation.rest.dto.BaseDTO;
+
+@Schema(
+  description = "Reusable authorization grant. Combination of a role with one or more of: organisations, admin zone and list of entity classification assignments. "
+)
 public class ResponsibilityRoleAssignmentDTO extends BaseDTO {
 
-	public String typeOfResponsibilityRoleRef;
-	public String responsibleOrganisationRef;
-	public String responsibleAreaRef;
+  public String typeOfResponsibilityRoleRef;
+  public String responsibleOrganisationRef;
+  public String responsibleAreaRef;
 
-	public List<EntityClassificationAssignmentDTO> entityClassificationAssignments = new ArrayList<>();
+  public List<EntityClassificationAssignmentDTO> entityClassificationAssignments =
+    new ArrayList<>();
 
-	public ResponsibilityRoleAssignmentDTO() {
-	}
+  public ResponsibilityRoleAssignmentDTO() {}
 
-	public ResponsibilityRoleAssignmentDTO(String typeOfResponsibilityRoleRef, String responsibleOrganisationRef) {
-		this.typeOfResponsibilityRoleRef = typeOfResponsibilityRoleRef;
-		this.responsibleOrganisationRef = responsibleOrganisationRef;
-	}
+  public ResponsibilityRoleAssignmentDTO(
+    String typeOfResponsibilityRoleRef,
+    String responsibleOrganisationRef
+  ) {
+    this.typeOfResponsibilityRoleRef = typeOfResponsibilityRoleRef;
+    this.responsibleOrganisationRef = responsibleOrganisationRef;
+  }
 }

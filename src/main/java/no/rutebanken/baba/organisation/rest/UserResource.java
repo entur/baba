@@ -31,6 +31,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import java.util.List;
 import no.rutebanken.baba.organisation.email.NewUserEmailSender;
 import no.rutebanken.baba.organisation.model.OrganisationException;
 import no.rutebanken.baba.organisation.model.user.User;
@@ -43,6 +44,7 @@ import no.rutebanken.baba.organisation.rest.validation.DTOValidator;
 import no.rutebanken.baba.organisation.rest.validation.UserValidator;
 import no.rutebanken.baba.organisation.service.IamService;
 import no.rutebanken.baba.organisation.user.UserService;
+import org.entur.ror.permission.AuthenticatedUser;
 import org.entur.ror.permission.BabaUser;
 import org.rutebanken.helper.organisation.RoleAssignment;
 import org.slf4j.Logger;
@@ -51,144 +53,144 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.entur.ror.permission.AuthenticatedUser;
-
-import java.util.List;
 
 @Component
 @Path("users")
 @Produces("application/json")
 @Transactional
 @PreAuthorize("@authorizationService.isOrganisationAdmin()")
-@Tags(value = {
-        @Tag(name = "UserResource", description ="User resource")
-})
+@Tags(value = { @Tag(name = "UserResource", description = "User resource") })
 public class UserResource extends BaseResource<User, UserDTO> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserResource.class);
-    private final UserRepository repository;
-    private final UserMapper mapper;
-    private final UserValidator validator;
-    private final IamService iamService;
-    private final NewUserEmailSender newUserEmailSender;
-    private final UserService userService;
 
-    public UserResource(UserRepository repository,
-                        UserMapper mapper,
-                        UserValidator validator,
-                        UserService userService,
-                        IamService iamService,
-                        NewUserEmailSender newUserEmailSender) {
-        this.repository = repository;
-        this.mapper = mapper;
-        this.validator = validator;
-        this.iamService = iamService;
-        this.newUserEmailSender = newUserEmailSender;
-        this.userService = userService;
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserResource.class);
+  private final UserRepository repository;
+  private final UserMapper mapper;
+  private final UserValidator validator;
+  private final IamService iamService;
+  private final NewUserEmailSender newUserEmailSender;
+  private final UserService userService;
+
+  public UserResource(
+    UserRepository repository,
+    UserMapper mapper,
+    UserValidator validator,
+    UserService userService,
+    IamService iamService,
+    NewUserEmailSender newUserEmailSender
+  ) {
+    this.repository = repository;
+    this.mapper = mapper;
+    this.validator = validator;
+    this.iamService = iamService;
+    this.newUserEmailSender = newUserEmailSender;
+    this.userService = userService;
+  }
+
+  @GET
+  @Path("{id}")
+  @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
+  public UserDTO get(@PathParam("id") String id, @QueryParam("full") boolean fullObject) {
+    User entity = getExisting(id);
+    return getMapper().toDTO(entity, fullObject);
+  }
+
+  @POST
+  @Path("/authenticatedUser")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @PreAuthorize("@authorizationService.canViewRoleAssignments()")
+  public BabaUser getByUsername(AuthenticatedUser.AuthenticatedUserDTO authenticatedUserDTO) {
+    AuthenticatedUser authenticatedUser = AuthenticatedUser.ofDTO(authenticatedUserDTO);
+    return userService.getUserByAuthenticatedUser(authenticatedUser);
+  }
+
+  @POST
+  @Path("/roleAssignments")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @PreAuthorize("@authorizationService.canViewRoleAssignments()")
+  public List<RoleAssignment> getRoleAssignments(
+    AuthenticatedUser.AuthenticatedUserDTO authenticatedUser
+  ) {
+    return userService.roleAssignments(AuthenticatedUser.ofDTO(authenticatedUser));
+  }
+
+  /**
+   * Do not wrap method in a single transaction. Need to commit local storage before creating user in IAM, to avoid having users in IAM that does not exist in local storage.
+   */
+  @Transactional(propagation = Propagation.NEVER)
+  @POST
+  public Response create(UserDTO dto, @Context UriInfo uriInfo) {
+    User user = createEntity(dto);
+    if (user.isPersonalAccount()) {
+      try {
+        iamService.createUser(user);
+      } catch (RuntimeException e) {
+        LOGGER.warn(
+          "Creation of new user in IAM failed. Removing user from local storage. Exception: {}",
+          e.getMessage(),
+          e
+        );
+        deleteEntity(user.getId());
+        throw new OrganisationException("Creation of new user in IAM failed", e);
+      }
+      newUserEmailSender.sendEmail(user);
     }
 
-    @GET
-    @Path("{id}")
-    @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
-    public UserDTO get(@PathParam("id") String id, @QueryParam("full") boolean fullObject) {
-        User entity = getExisting(id);
-        return getMapper().toDTO(entity, fullObject);
+    return buildCreatedResponse(uriInfo, user);
+  }
+
+  @PUT
+  @Path("{id}")
+  public void update(@PathParam("id") String id, UserDTO dto) {
+    User user = updateEntity(id, dto);
+    if (user.isPersonalAccount()) {
+      iamService.updateUser(user);
     }
+  }
 
-    @POST
-    @Path("/authenticatedUser")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @PreAuthorize("@authorizationService.canViewRoleAssignments()")
-    public BabaUser getByUsername(AuthenticatedUser.AuthenticatedUserDTO authenticatedUserDTO) {
-        AuthenticatedUser authenticatedUser = AuthenticatedUser.ofDTO(authenticatedUserDTO);
-        return userService.getUserByAuthenticatedUser(authenticatedUser);
+  @DELETE
+  @Path("{id}")
+  public void delete(@PathParam("id") String id) {
+    User user = deleteEntity(id);
+    if (user.isPersonalAccount()) {
+      iamService.removeUser(user);
     }
+  }
 
-    @POST
-    @Path("/roleAssignments")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @PreAuthorize("@authorizationService.canViewRoleAssignments()")
-    public List<RoleAssignment> getRoleAssignments(AuthenticatedUser.AuthenticatedUserDTO authenticatedUser) {
-        return userService.roleAssignments(AuthenticatedUser.ofDTO(authenticatedUser));
+  @POST
+  @Path("{id}/resetPassword")
+  public void resetPassword(@PathParam("id") String id) {
+    User user = getExisting(id);
+    if (user.isPersonalAccount()) {
+      iamService.resetPassword(user);
+      newUserEmailSender.sendEmail(user);
     }
+  }
 
+  @GET
+  @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
+  public List<UserDTO> listAll(@QueryParam("full") boolean fullObject) {
+    return super.listAllEntities(fullObject);
+  }
 
+  @Override
+  protected VersionedEntityRepository<User> getRepository() {
+    return repository;
+  }
 
-    /**
-     * Do not wrap method in a single transaction. Need to commit local storage before creating user in IAM, to avoid having users in IAM that does not exist in local storage.
-     */
-    @Transactional(propagation = Propagation.NEVER)
-    @POST
-    public Response create(UserDTO dto, @Context UriInfo uriInfo) {
-        User user = createEntity(dto);
-        if(user.isPersonalAccount()) {
-            try {
-                iamService.createUser(user);
-            } catch (RuntimeException e) {
-                LOGGER.warn("Creation of new user in IAM failed. Removing user from local storage. Exception: {}", e.getMessage(), e);
-                deleteEntity(user.getId());
-                throw new OrganisationException("Creation of new user in IAM failed", e);
-            }
-            newUserEmailSender.sendEmail(user);
-        }
+  @Override
+  protected DTOMapper<User, UserDTO> getMapper() {
+    return mapper;
+  }
 
-        return buildCreatedResponse(uriInfo, user);
-    }
+  @Override
+  protected Class<User> getEntityClass() {
+    return User.class;
+  }
 
-    @PUT
-    @Path("{id}")
-    public void update(@PathParam("id") String id, UserDTO dto) {
-        User user = updateEntity(id, dto);
-        if(user.isPersonalAccount()) {
-            iamService.updateUser(user);
-        }
-    }
-
-    @DELETE
-    @Path("{id}")
-    public void delete(@PathParam("id") String id) {
-        User user = deleteEntity(id);
-        if(user.isPersonalAccount()) {
-            iamService.removeUser(user);
-        }
-    }
-
-
-    @POST
-    @Path("{id}/resetPassword")
-    public void resetPassword(@PathParam("id") String id) {
-        User user = getExisting(id);
-        if(user.isPersonalAccount()) {
-            iamService.resetPassword(user);
-            newUserEmailSender.sendEmail(user);
-        }
-    }
-
-    @GET
-    @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
-    public List<UserDTO> listAll(@QueryParam("full") boolean fullObject) {
-        return super.listAllEntities(fullObject);
-    }
-
-    @Override
-    protected VersionedEntityRepository<User> getRepository() {
-        return repository;
-    }
-
-    @Override
-    protected DTOMapper<User, UserDTO> getMapper() {
-        return mapper;
-    }
-
-    @Override
-    protected Class<User> getEntityClass() {
-        return User.class;
-    }
-
-    @Override
-    protected DTOValidator<User, UserDTO> getValidator() {
-        return validator;
-    }
-
+  @Override
+  protected DTOValidator<User, UserDTO> getValidator() {
+    return validator;
+  }
 }

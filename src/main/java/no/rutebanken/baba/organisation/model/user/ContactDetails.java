@@ -17,61 +17,63 @@
 package no.rutebanken.baba.organisation.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.jdo.annotations.Unique;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import javax.jdo.annotations.Unique;
 
 @Entity
 public class ContactDetails {
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "contact_details_seq")
-	@SequenceGenerator(name = "contact_details_seq", sequenceName = "contact_details_seq", allocationSize = 1)
-	@JsonIgnore
-	private Long pk;
 
-	private String firstName;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "contact_details_seq")
+  @SequenceGenerator(
+    name = "contact_details_seq",
+    sequenceName = "contact_details_seq",
+    allocationSize = 1
+  )
+  @JsonIgnore
+  private Long pk;
 
-	private String lastName;
+  private String firstName;
 
-	private String phone;
+  private String lastName;
 
-	// Email address must be unique in Auth0
-	@Unique
-	@NotNull
-	private String email;
+  private String phone;
 
-	public String getFirstName() {
-		return firstName;
-	}
+  // Email address must be unique in Auth0
+  @Unique
+  @NotNull
+  private String email;
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+  public String getFirstName() {
+    return firstName;
+  }
 
-	public String getLastName() {
-		return lastName;
-	}
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+  public String getLastName() {
+    return lastName;
+  }
 
-	public String getPhone() {
-		return phone;
-	}
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
 
-	public void setPhone(String phone) {
-		this.phone = phone;
-	}
+  public String getPhone() {
+    return phone;
+  }
 
-	public String getEmail() {
-		return email;
-	}
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+  public String getEmail() {
+    return email;
+  }
 
+  public void setEmail(String email) {
+    this.email = email;
+  }
 }

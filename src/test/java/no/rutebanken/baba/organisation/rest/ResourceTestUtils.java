@@ -16,6 +16,13 @@
 
 package no.rutebanken.baba.organisation.rest;
 
+import static no.rutebanken.baba.organisation.TestConstantsOrganisation.CODE_SPACE_ID;
+
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import no.rutebanken.baba.organisation.model.organisation.AdministrativeZoneType;
 import no.rutebanken.baba.organisation.rest.dto.TypeDTO;
 import no.rutebanken.baba.organisation.rest.dto.organisation.AdministrativeZoneDTO;
@@ -25,58 +32,70 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.wololo.geojson.Polygon;
 
-import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import static no.rutebanken.baba.organisation.TestConstantsOrganisation.CODE_SPACE_ID;
-
 public class ResourceTestUtils {
 
-    public static void setNotificationConfig(TestRestTemplate restTemplate, String userName, Set<NotificationConfigDTO> config) {
-        restTemplate.put("/services/organisations/users/" + userName + "/notification_configurations", config, String.class);
+  public static void setNotificationConfig(
+    TestRestTemplate restTemplate,
+    String userName,
+    Set<NotificationConfigDTO> config
+  ) {
+    restTemplate.put(
+      "/services/organisations/users/" + userName + "/notification_configurations",
+      config,
+      String.class
+    );
+  }
+
+  public static List<String> addAdminZones(TestRestTemplate restTemplate, String... privateCodes) {
+    List<String> ids = new ArrayList<>();
+    for (String privateCode : privateCodes) {
+      ids.add(addAdminZone(restTemplate, privateCode));
     }
 
+    return ids;
+  }
 
-    public static List<String> addAdminZones(TestRestTemplate restTemplate, String... privateCodes) {
-        List<String> ids = new ArrayList<>();
-        for (String privateCode : privateCodes) {
-            ids.add(addAdminZone(restTemplate, privateCode));
-        }
+  public static String addAdminZone(TestRestTemplate restTemplate, String privateCode) {
+    AdministrativeZoneDTO updateAdministrativeZone = createAdministrativeZone(
+      privateCode,
+      privateCode,
+      validPolygon()
+    );
+    URI uri = restTemplate.postForLocation(
+      "/services/organisations/administrative_zones",
+      updateAdministrativeZone
+    );
+    return new File(uri.getPath()).getName();
+  }
 
-        return ids;
-    }
+  public static void assertType(TypeDTO in, URI uri, TestRestTemplate restTemplate) {
+    Assertions.assertNotNull(uri);
+    ResponseEntity<TypeDTO> rsp = restTemplate.getForEntity(uri, TypeDTO.class);
+    TypeDTO out = rsp.getBody();
+    Assertions.assertEquals(in.name, out.name);
+    Assertions.assertEquals(in.privateCode, out.privateCode);
+  }
 
-    public static String addAdminZone(TestRestTemplate restTemplate, String privateCode) {
-        AdministrativeZoneDTO updateAdministrativeZone = createAdministrativeZone(privateCode, privateCode, validPolygon());
-        URI uri = restTemplate.postForLocation("/services/organisations/administrative_zones", updateAdministrativeZone);
-        return new File(uri.getPath()).getName();
-    }
+  public static AdministrativeZoneDTO createAdministrativeZone(
+    String name,
+    String privateCode,
+    Polygon polygon
+  ) {
+    AdministrativeZoneDTO administrativeZone = new AdministrativeZoneDTO();
+    administrativeZone.name = name;
+    administrativeZone.privateCode = privateCode;
+    administrativeZone.polygon = polygon;
+    administrativeZone.codeSpace = CODE_SPACE_ID;
+    administrativeZone.type = AdministrativeZoneType.CUSTOM;
+    administrativeZone.source = "KVE";
+    return administrativeZone;
+  }
 
-    public static void assertType(TypeDTO in, URI uri, TestRestTemplate restTemplate) {
-        Assertions.assertNotNull(uri);
-        ResponseEntity<TypeDTO> rsp = restTemplate.getForEntity(uri, TypeDTO.class);
-        TypeDTO out = rsp.getBody();
-        Assertions.assertEquals(in.name, out.name);
-        Assertions.assertEquals(in.privateCode, out.privateCode);
-    }
-
-    public static AdministrativeZoneDTO createAdministrativeZone(String name, String privateCode, Polygon polygon) {
-        AdministrativeZoneDTO administrativeZone = new AdministrativeZoneDTO();
-        administrativeZone.name = name;
-        administrativeZone.privateCode = privateCode;
-        administrativeZone.polygon = polygon;
-        administrativeZone.codeSpace = CODE_SPACE_ID;
-        administrativeZone.type = AdministrativeZoneType.CUSTOM;
-        administrativeZone.source = "KVE";
-        return administrativeZone;
-    }
-
-    public static Polygon validPolygon() {
-        double[][][] coordinates = new double[][][]{{{1.0, 1.0}, {1.0, 2.0}, {2.0, 2.0}, {1.0, 1.0}}, {{1.0, 1.0}, {1.0, 2.0}, {2.0, 2.0}, {1.0, 1.0}}};
-        return new Polygon(coordinates);
-    }
-
+  public static Polygon validPolygon() {
+    double[][][] coordinates = new double[][][] {
+      { { 1.0, 1.0 }, { 1.0, 2.0 }, { 2.0, 2.0 }, { 1.0, 1.0 } },
+      { { 1.0, 1.0 }, { 1.0, 2.0 }, { 2.0, 2.0 }, { 1.0, 1.0 } },
+    };
+    return new Polygon(coordinates);
+  }
 }

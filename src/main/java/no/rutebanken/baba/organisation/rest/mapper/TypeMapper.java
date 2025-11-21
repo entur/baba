@@ -26,47 +26,49 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TypeMapper<R extends VersionedEntity & TypeEntity> implements DTOMapper<R, TypeDTO> {
-	protected final CodeSpaceRepository codeSpaceRepository;
 
-	public TypeMapper(CodeSpaceRepository codeSpaceRepository) {
-		this.codeSpaceRepository = codeSpaceRepository;
-	}
+  protected final CodeSpaceRepository codeSpaceRepository;
 
-	public TypeDTO toDTO(R entity, boolean fullDetails) {
-		TypeDTO dto = new TypeDTO();
-		dto.name = entity.getName();
-		dto.id = entity.getId();
-		dto.privateCode = entity.getPrivateCode();
-		if (entity instanceof CodeSpaceEntity codeSpaceEntity) {
-			dto.codeSpace = codeSpaceEntity.getCodeSpace().getId();
-		}
-		return dto;
-	}
+  public TypeMapper(CodeSpaceRepository codeSpaceRepository) {
+    this.codeSpaceRepository = codeSpaceRepository;
+  }
 
-	@Override
-	public R createFromDTO(TypeDTO dto, Class<R> clazz) {
-		R entity = createInstance(clazz);
+  public TypeDTO toDTO(R entity, boolean fullDetails) {
+    TypeDTO dto = new TypeDTO();
+    dto.name = entity.getName();
+    dto.id = entity.getId();
+    dto.privateCode = entity.getPrivateCode();
+    if (entity instanceof CodeSpaceEntity codeSpaceEntity) {
+      dto.codeSpace = codeSpaceEntity.getCodeSpace().getId();
+    }
+    return dto;
+  }
 
-		entity.setPrivateCode(dto.privateCode);
-		if (entity instanceof CodeSpaceEntity codeSpaceEntity) {
-			codeSpaceEntity.setCodeSpace(codeSpaceRepository.getOneByPublicId(dto.codeSpace));
-		}
+  @Override
+  public R createFromDTO(TypeDTO dto, Class<R> clazz) {
+    R entity = createInstance(clazz);
 
-		return updateFromDTO(dto, entity);
-	}
+    entity.setPrivateCode(dto.privateCode);
+    if (entity instanceof CodeSpaceEntity codeSpaceEntity) {
+      codeSpaceEntity.setCodeSpace(codeSpaceRepository.getOneByPublicId(dto.codeSpace));
+    }
 
-	private R createInstance(Class<R> clazz) {
-		try {
-			return  clazz.getDeclaredConstructor().newInstance();
-		} catch (Exception e) {
-			throw new BabaException("Failed to create instance of class: " + clazz + " : " + e.getMessage());
-		}
-	}
+    return updateFromDTO(dto, entity);
+  }
 
-	@Override
-	public R updateFromDTO(TypeDTO dto, R entity) {
-		entity.setName(dto.name);
-		return entity;
-	}
+  private R createInstance(Class<R> clazz) {
+    try {
+      return clazz.getDeclaredConstructor().newInstance();
+    } catch (Exception e) {
+      throw new BabaException(
+        "Failed to create instance of class: " + clazz + " : " + e.getMessage()
+      );
+    }
+  }
 
+  @Override
+  public R updateFromDTO(TypeDTO dto, R entity) {
+    entity.setName(dto.name);
+    return entity;
+  }
 }

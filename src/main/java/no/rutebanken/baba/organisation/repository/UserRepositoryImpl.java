@@ -16,49 +16,50 @@
 
 package no.rutebanken.baba.organisation.repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import java.util.List;
 import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.user.User;
 import org.springframework.stereotype.Repository;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import java.util.List;
-
 @Repository
 public class UserRepositoryImpl implements UserRepositoryCustom {
 
-    private final EntityManager entityManager;
+  private final EntityManager entityManager;
 
-    public UserRepositoryImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
+  public UserRepositoryImpl(EntityManager entityManager) {
+    this.entityManager = entityManager;
+  }
+
+  @Override
+  public List<User> findUsersWithResponsibilitySet(ResponsibilitySet responsibilitySet) {
+    TypedQuery<User> query = entityManager.createQuery(
+      "select u from User u where :respSet member of u.responsibilitySets",
+      User.class
+    );
+
+    query.setParameter("respSet", responsibilitySet);
+
+    return query.getResultList();
+  }
+
+  @Override
+  public User getUserByEmail(String email) {
+    TypedQuery<User> query = entityManager.createQuery(
+      "select u from User u where u.contactDetails.email = :email",
+      User.class
+    );
+
+    query.setParameter("email", email);
+
+    List<User> resultList = query.getResultList();
+    if (resultList.isEmpty()) {
+      return null;
     }
-
-    @Override
-    public List<User> findUsersWithResponsibilitySet(ResponsibilitySet responsibilitySet) {
-
-        TypedQuery<User> query = entityManager.createQuery("select u from User u where :respSet member of u.responsibilitySets", User.class);
-
-        query.setParameter("respSet", responsibilitySet);
-
-        return query.getResultList();
+    if (resultList.size() > 1) {
+      throw new IllegalStateException("More than one user found for email " + email);
     }
-
-    @Override
-    public User getUserByEmail(String email) {
-
-        TypedQuery<User> query = entityManager.createQuery("select u from User u where u.contactDetails.email = :email", User.class);
-
-        query.setParameter("email", email);
-
-        List<User> resultList = query.getResultList();
-        if (resultList.isEmpty()) {
-            return null;
-        }
-        if(resultList.size() > 1) {
-            throw new IllegalStateException("More than one user found for email " + email);
-        }
-        return resultList.getFirst();
-    }
-
-
+    return resultList.getFirst();
+  }
 }

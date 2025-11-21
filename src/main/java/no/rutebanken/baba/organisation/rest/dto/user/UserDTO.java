@@ -17,35 +17,43 @@
 package no.rutebanken.baba.organisation.rest.dto.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import no.rutebanken.baba.organisation.rest.dto.BaseDTO;
-import no.rutebanken.baba.organisation.rest.dto.organisation.OrganisationDTO;
-import no.rutebanken.baba.organisation.rest.dto.responsibility.ResponsibilitySetDTO;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import no.rutebanken.baba.organisation.rest.dto.BaseDTO;
+import no.rutebanken.baba.organisation.rest.dto.organisation.OrganisationDTO;
+import no.rutebanken.baba.organisation.rest.dto.responsibility.ResponsibilitySetDTO;
 
 @Schema(description = "User")
 public class UserDTO extends BaseDTO {
 
-    public String username;
+  public String username;
 
-    public boolean personalAccount;
+  public boolean personalAccount;
 
-    @Schema(description = "Id of the organisation the user belongs to")
-    public String organisationRef;
+  @Schema(description = "Id of the organisation the user belongs to")
+  public String organisationRef;
 
-    @Schema(description = "References to the set of responsibility sets describing the users authorizations")
-    public List<String> responsibilitySetRefs = new ArrayList<>();
+  @Schema(
+    description = "References to the set of responsibility sets describing the users authorizations"
+  )
+  public List<String> responsibilitySetRefs = new ArrayList<>();
 
+  public ContactDetailsDTO contactDetails;
 
-    public ContactDetailsDTO contactDetails;
+  @Schema(
+    description = "Fully mapped object for ease of use. Disregarded in CRUD operations (use reference)"
+  )
+  public Set<NotificationConfigDTO> notifications = new HashSet<>();
 
-    @Schema(description = "Fully mapped object for ease of use. Disregarded in CRUD operations (use reference)")
-    public Set<NotificationConfigDTO> notifications = new HashSet<>();
-    @Schema(description = "Fully mapped object for ease of use. Disregarded in CRUD operations (use reference)")
-    public OrganisationDTO organisation;
-    @Schema(description = "Fully mapped object for ease of use. Disregarded in CRUD operations (use reference)")
-    public List<ResponsibilitySetDTO> responsibilitySets;
+  @Schema(
+    description = "Fully mapped object for ease of use. Disregarded in CRUD operations (use reference)"
+  )
+  public OrganisationDTO organisation;
+
+  @Schema(
+    description = "Fully mapped object for ease of use. Disregarded in CRUD operations (use reference)"
+  )
+  public List<ResponsibilitySetDTO> responsibilitySets;
 }

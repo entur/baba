@@ -16,6 +16,10 @@
 
 package no.rutebanken.baba.organisation.rest;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import no.rutebanken.baba.organisation.TestConstantsOrganisation;
 import no.rutebanken.baba.organisation.repository.BaseIntegrationTest;
 import no.rutebanken.baba.organisation.rest.dto.responsibility.EntityClassificationAssignmentDTO;
@@ -29,172 +33,251 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
-
 class ResponsibilitySetResourceIntegrationTest extends BaseIntegrationTest {
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+  @Autowired
+  private TestRestTemplate restTemplate;
 
-    private static final String PATH = "/services/organisations/responsibility_sets";
+  private static final String PATH = "/services/organisations/responsibility_sets";
 
-    @Test
-    void responsibilitySetNotFound() {
-        ResponseEntity<ResponsibilitySetDTO> entity = restTemplate.getForEntity(PATH + "/unknownResponsibilitySet",
-                ResponsibilitySetDTO.class);
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
+  @Test
+  void responsibilitySetNotFound() {
+    ResponseEntity<ResponsibilitySetDTO> entity = restTemplate.getForEntity(
+      PATH + "/unknownResponsibilitySet",
+      ResponsibilitySetDTO.class
+    );
+    Assertions.assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
+  }
+
+  @Test
+  void crudResponsibilitySet() {
+    ResponsibilitySetDTO createResponsibilitySet = createResponsibilitySet(
+      "RspSet",
+      "RspSet name",
+      new ResponsibilityRoleAssignmentDTO(
+        TestConstantsOrganisation.ROLE_ID,
+        TestConstantsOrganisation.ORGANISATION_ID
+      )
+    );
+
+    URI uri = restTemplate.postForLocation(PATH, createResponsibilitySet);
+    assertResponsibilitySet(createResponsibilitySet, uri);
+
+    ResponsibilityRoleAssignmentDTO role1 = new ResponsibilityRoleAssignmentDTO(
+      TestConstantsOrganisation.ROLE_ID,
+      TestConstantsOrganisation.ORGANISATION_ID
+    );
+
+    ResponsibilitySetDTO updateResponsibilitySet = createResponsibilitySet(
+      createResponsibilitySet.privateCode,
+      "RspSet new name",
+      role1
+    );
+    restTemplate.put(uri, updateResponsibilitySet);
+    assertResponsibilitySet(updateResponsibilitySet, uri);
+
+    ResponsibilitySetDTO[] allResponsibilitySets = restTemplate.getForObject(
+      PATH,
+      ResponsibilitySetDTO[].class
+    );
+    assertResponsibilitySetInArray(updateResponsibilitySet, allResponsibilitySets);
+
+    restTemplate.delete(uri);
+
+    ResponseEntity<ResponsibilitySetDTO> entity = restTemplate.getForEntity(
+      uri,
+      ResponsibilitySetDTO.class
+    );
+    Assertions.assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
+  }
+
+  @Test
+  void updateResponsibilitySetRoles() {
+    ResponsibilityRoleAssignmentDTO role1 = new ResponsibilityRoleAssignmentDTO(
+      TestConstantsOrganisation.ROLE_ID,
+      TestConstantsOrganisation.ORGANISATION_ID
+    );
+    role1.responsibleOrganisationRef = TestConstantsOrganisation.ORGANISATION_ID;
+    role1.typeOfResponsibilityRoleRef = TestConstantsOrganisation.ROLE_ID;
+    role1.responsibleAreaRef = ResourceTestUtils.addAdminZone(restTemplate, "respArea1");
+
+    ResponsibilityRoleAssignmentDTO role2 = new ResponsibilityRoleAssignmentDTO(
+      TestConstantsOrganisation.ROLE_ID,
+      TestConstantsOrganisation.ORGANISATION_ID
+    );
+    role2.entityClassificationAssignments =
+      Collections.singletonList(
+        new EntityClassificationAssignmentDTO(
+          TestConstantsOrganisation.ENTITY_CLASSIFICATION_ID,
+          true
+        )
+      );
+
+    ResponsibilitySetDTO responsibilitySet = createResponsibilitySet(
+      "RspSetUpdate",
+      "RspSet name",
+      role1,
+      role2
+    );
+    URI uri = restTemplate.postForLocation(PATH, responsibilitySet);
+    assertResponsibilitySet(responsibilitySet, uri);
+
+    role1.responsibleAreaRef = null;
+    role2.entityClassificationAssignments =
+      Arrays.asList(
+        new EntityClassificationAssignmentDTO(
+          TestConstantsOrganisation.ENTITY_CLASSIFICATION_ID,
+          false
+        ),
+        new EntityClassificationAssignmentDTO(
+          TestConstantsOrganisation.ENTITY_CLASSIFICATION_ID_2,
+          true
+        )
+      );
+
+    restTemplate.put(uri, responsibilitySet);
+    assertResponsibilitySet(responsibilitySet, uri);
+    responsibilitySet.roles.remove(role2);
+
+    ResponsibilityRoleAssignmentDTO role3 = new ResponsibilityRoleAssignmentDTO(
+      TestConstantsOrganisation.ROLE_ID,
+      TestConstantsOrganisation.ORGANISATION_ID
+    );
+    responsibilitySet.roles.add(role3);
+    role1.entityClassificationAssignments =
+      Collections.singletonList(
+        new EntityClassificationAssignmentDTO(
+          TestConstantsOrganisation.ENTITY_CLASSIFICATION_ID_2,
+          true
+        )
+      );
+    role2.entityClassificationAssignments = null;
+
+    restTemplate.put(uri, responsibilitySet);
+    assertResponsibilitySet(responsibilitySet, uri);
+
+    responsibilitySet.roles.removeFirst();
+    restTemplate.put(uri, responsibilitySet);
+    assertResponsibilitySet(responsibilitySet, uri);
+  }
+
+  private void assertResponsibilitySetInArray(
+    ResponsibilitySetDTO responsibilitySet,
+    ResponsibilitySetDTO[] array
+  ) {
+    Assertions.assertNotNull(array);
+    Assertions.assertTrue(
+      Arrays.stream(array).anyMatch(r -> r.privateCode.equals(responsibilitySet.privateCode))
+    );
+  }
+
+  protected ResponsibilitySetDTO createResponsibilitySet(
+    String privateCode,
+    String name,
+    ResponsibilityRoleAssignmentDTO... roles
+  ) {
+    ResponsibilitySetDTO responsibilitySet = new ResponsibilitySetDTO();
+    responsibilitySet.codeSpace = TestConstantsOrganisation.CODE_SPACE_ID;
+    responsibilitySet.privateCode = privateCode;
+    responsibilitySet.name = name;
+    if (roles != null) {
+      responsibilitySet.roles = new ArrayList<>(Arrays.asList(roles));
     }
 
-    @Test
-    void crudResponsibilitySet() {
+    return responsibilitySet;
+  }
 
-        ResponsibilitySetDTO createResponsibilitySet = createResponsibilitySet("RspSet", "RspSet name",
-                new ResponsibilityRoleAssignmentDTO(TestConstantsOrganisation.ROLE_ID, TestConstantsOrganisation.ORGANISATION_ID));
+  protected void assertResponsibilitySet(ResponsibilitySetDTO inResponsibilitySet, URI uri) {
+    Assertions.assertNotNull(uri);
+    ResponseEntity<ResponsibilitySetDTO> rsp = restTemplate.getForEntity(
+      uri,
+      ResponsibilitySetDTO.class
+    );
+    ResponsibilitySetDTO outResponsibilitySet = rsp.getBody();
+    Assertions.assertEquals(inResponsibilitySet.name, outResponsibilitySet.name);
+    Assertions.assertEquals(inResponsibilitySet.privateCode, outResponsibilitySet.privateCode);
+    Assertions.assertEquals(inResponsibilitySet.codeSpace, outResponsibilitySet.codeSpace);
 
-        URI uri = restTemplate.postForLocation(PATH, createResponsibilitySet);
-        assertResponsibilitySet(createResponsibilitySet, uri);
+    if (CollectionUtils.isEmpty(inResponsibilitySet.roles)) {
+      Assertions.assertTrue(CollectionUtils.isEmpty(outResponsibilitySet.roles));
+    } else {
+      Assertions.assertEquals(inResponsibilitySet.roles.size(), outResponsibilitySet.roles.size());
+      for (ResponsibilityRoleAssignmentDTO in : inResponsibilitySet.roles) {
+        Assertions.assertTrue(
+          outResponsibilitySet.roles.stream().anyMatch(out -> isEqual(in, out))
+        );
+      }
+    }
+  }
 
-        ResponsibilityRoleAssignmentDTO role1 = new ResponsibilityRoleAssignmentDTO(TestConstantsOrganisation.ROLE_ID, TestConstantsOrganisation.ORGANISATION_ID);
-
-        ResponsibilitySetDTO updateResponsibilitySet = createResponsibilitySet(createResponsibilitySet.privateCode, "RspSet new name", role1);
-        restTemplate.put(uri, updateResponsibilitySet);
-        assertResponsibilitySet(updateResponsibilitySet, uri);
-
-        ResponsibilitySetDTO[] allResponsibilitySets =
-                restTemplate.getForObject(PATH, ResponsibilitySetDTO[].class);
-        assertResponsibilitySetInArray(updateResponsibilitySet, allResponsibilitySets);
-
-        restTemplate.delete(uri);
-
-        ResponseEntity<ResponsibilitySetDTO> entity = restTemplate.getForEntity(uri,
-                ResponsibilitySetDTO.class);
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
-
+  private boolean isEqual(ResponsibilityRoleAssignmentDTO in, ResponsibilityRoleAssignmentDTO out) {
+    if (!in.typeOfResponsibilityRoleRef.equals(out.typeOfResponsibilityRoleRef)) {
+      return false;
+    }
+    if (!in.responsibleOrganisationRef.equals(out.responsibleOrganisationRef)) {
+      return false;
+    }
+    if (in.responsibleAreaRef == null) {
+      if (out.responsibleAreaRef != null) {
+        return false;
+      }
+    } else if (!in.responsibleAreaRef.equals(out.responsibleAreaRef)) {
+      return false;
     }
 
-    @Test
-    void updateResponsibilitySetRoles() {
-        ResponsibilityRoleAssignmentDTO role1 = new ResponsibilityRoleAssignmentDTO(TestConstantsOrganisation.ROLE_ID, TestConstantsOrganisation.ORGANISATION_ID);
-        role1.responsibleOrganisationRef = TestConstantsOrganisation.ORGANISATION_ID;
-        role1.typeOfResponsibilityRoleRef = TestConstantsOrganisation.ROLE_ID;
-        role1.responsibleAreaRef = ResourceTestUtils.addAdminZone(restTemplate, "respArea1");
-
-        ResponsibilityRoleAssignmentDTO role2 = new ResponsibilityRoleAssignmentDTO(TestConstantsOrganisation.ROLE_ID, TestConstantsOrganisation.ORGANISATION_ID);
-        role2.entityClassificationAssignments = Collections.singletonList(new EntityClassificationAssignmentDTO(TestConstantsOrganisation.ENTITY_CLASSIFICATION_ID, true));
-
-        ResponsibilitySetDTO responsibilitySet = createResponsibilitySet("RspSetUpdate", "RspSet name", role1, role2);
-        URI uri = restTemplate.postForLocation(PATH, responsibilitySet);
-        assertResponsibilitySet(responsibilitySet, uri);
-
-        role1.responsibleAreaRef = null;
-        role2.entityClassificationAssignments = Arrays.asList(new EntityClassificationAssignmentDTO(TestConstantsOrganisation.ENTITY_CLASSIFICATION_ID, false),
-                new EntityClassificationAssignmentDTO(TestConstantsOrganisation.ENTITY_CLASSIFICATION_ID_2, true));
-
-        restTemplate.put(uri, responsibilitySet);
-        assertResponsibilitySet(responsibilitySet, uri);
-        responsibilitySet.roles.remove(role2);
-
-        ResponsibilityRoleAssignmentDTO role3 = new ResponsibilityRoleAssignmentDTO(TestConstantsOrganisation.ROLE_ID, TestConstantsOrganisation.ORGANISATION_ID);
-        responsibilitySet.roles.add(role3);
-        role1.entityClassificationAssignments = Collections.singletonList(new EntityClassificationAssignmentDTO(TestConstantsOrganisation.ENTITY_CLASSIFICATION_ID_2, true));
-        role2.entityClassificationAssignments = null;
-
-        restTemplate.put(uri, responsibilitySet);
-        assertResponsibilitySet(responsibilitySet, uri);
-
-        responsibilitySet.roles.removeFirst();
-        restTemplate.put(uri, responsibilitySet);
-        assertResponsibilitySet(responsibilitySet, uri);
+    if (CollectionUtils.isEmpty(in.entityClassificationAssignments)) {
+      return CollectionUtils.isEmpty(out.entityClassificationAssignments);
+    } else if (out.entityClassificationAssignments == null) {
+      return false;
     }
 
-
-    private void assertResponsibilitySetInArray(ResponsibilitySetDTO responsibilitySet, ResponsibilitySetDTO[] array) {
-        Assertions.assertNotNull(array);
-        Assertions.assertTrue(Arrays.stream(array).anyMatch(r -> r.privateCode.equals(responsibilitySet.privateCode)));
+    if (in.entityClassificationAssignments.size() != out.entityClassificationAssignments.size()) {
+      return false;
     }
+    return in.entityClassificationAssignments.containsAll(out.entityClassificationAssignments);
+  }
 
-    protected ResponsibilitySetDTO createResponsibilitySet(String privateCode, String name, ResponsibilityRoleAssignmentDTO... roles) {
-        ResponsibilitySetDTO responsibilitySet = new ResponsibilitySetDTO();
-        responsibilitySet.codeSpace = TestConstantsOrganisation.CODE_SPACE_ID;
-        responsibilitySet.privateCode = privateCode;
-        responsibilitySet.name = name;
-        if (roles != null) {
-            responsibilitySet.roles = new ArrayList<>(Arrays.asList(roles));
-        }
+  @Test
+  void createInvalidResponsibilitySetWithMissingRoles() {
+    ResponsibilityRoleAssignmentDTO roleWithoutName = new ResponsibilityRoleAssignmentDTO();
+    ResponsibilitySetDTO inResponsibilitySet = createResponsibilitySet(
+      "privateCode",
+      "responsibilitySet name",
+      roleWithoutName
+    );
+    ResponseEntity<String> rsp = restTemplate.postForEntity(
+      PATH,
+      inResponsibilitySet,
+      String.class
+    );
 
-        return responsibilitySet;
-    }
+    Assertions.assertEquals(HttpStatus.BAD_REQUEST, rsp.getStatusCode());
+  }
 
+  @Test
+  void createOrgWithExistingPrivateCode() {
+    ResponsibilitySetDTO inResponsibilitySet = createResponsibilitySet(
+      "OrgPrivateCode",
+      "responsibilitySet name",
+      new ResponsibilityRoleAssignmentDTO(
+        TestConstantsOrganisation.ROLE_ID,
+        TestConstantsOrganisation.ORGANISATION_ID
+      )
+    );
 
-    protected void assertResponsibilitySet(ResponsibilitySetDTO inResponsibilitySet, URI uri) {
-        Assertions.assertNotNull(uri);
-        ResponseEntity<ResponsibilitySetDTO> rsp = restTemplate.getForEntity(uri, ResponsibilitySetDTO.class);
-        ResponsibilitySetDTO outResponsibilitySet = rsp.getBody();
-        Assertions.assertEquals(inResponsibilitySet.name, outResponsibilitySet.name);
-        Assertions.assertEquals(inResponsibilitySet.privateCode, outResponsibilitySet.privateCode);
-        Assertions.assertEquals(inResponsibilitySet.codeSpace, outResponsibilitySet.codeSpace);
+    ResponseEntity<String> firstRsp = restTemplate.postForEntity(
+      PATH,
+      inResponsibilitySet,
+      String.class
+    );
 
-        if (CollectionUtils.isEmpty(inResponsibilitySet.roles)) {
-            Assertions.assertTrue(CollectionUtils.isEmpty(outResponsibilitySet.roles));
-        } else {
-            Assertions.assertEquals(inResponsibilitySet.roles.size(), outResponsibilitySet.roles.size());
-            for (ResponsibilityRoleAssignmentDTO in : inResponsibilitySet.roles) {
-                Assertions.assertTrue(outResponsibilitySet.roles.stream().anyMatch(out -> isEqual(in, out)));
-            }
-        }
+    Assertions.assertEquals(HttpStatus.CREATED, firstRsp.getStatusCode());
 
-    }
-
-    private boolean isEqual(ResponsibilityRoleAssignmentDTO in, ResponsibilityRoleAssignmentDTO out) {
-        if (!in.typeOfResponsibilityRoleRef.equals(out.typeOfResponsibilityRoleRef)) {
-            return false;
-        }
-        if (!in.responsibleOrganisationRef.equals(out.responsibleOrganisationRef)) {
-            return false;
-        }
-        if (in.responsibleAreaRef == null) {
-            if (out.responsibleAreaRef != null) {
-                return false;
-            }
-        } else if (!in.responsibleAreaRef.equals(out.responsibleAreaRef)) {
-            return false;
-        }
-
-        if (CollectionUtils.isEmpty(in.entityClassificationAssignments)) {
-            return CollectionUtils.isEmpty(out.entityClassificationAssignments);
-        } else if (out.entityClassificationAssignments == null) {
-            return false;
-        }
-
-        if (in.entityClassificationAssignments.size() != out.entityClassificationAssignments.size()) {
-            return false;
-        }
-        return in.entityClassificationAssignments.containsAll(out.entityClassificationAssignments);
-    }
-
-    @Test
-    void createInvalidResponsibilitySetWithMissingRoles() {
-        ResponsibilityRoleAssignmentDTO roleWithoutName = new ResponsibilityRoleAssignmentDTO();
-        ResponsibilitySetDTO inResponsibilitySet = createResponsibilitySet("privateCode", "responsibilitySet name", roleWithoutName);
-        ResponseEntity<String> rsp = restTemplate.postForEntity(PATH, inResponsibilitySet, String.class);
-
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, rsp.getStatusCode());
-    }
-
-    @Test
-    void createOrgWithExistingPrivateCode() {
-        ResponsibilitySetDTO inResponsibilitySet = createResponsibilitySet("OrgPrivateCode", "responsibilitySet name",
-                new ResponsibilityRoleAssignmentDTO(TestConstantsOrganisation.ROLE_ID, TestConstantsOrganisation.ORGANISATION_ID));
-
-        ResponseEntity<String> firstRsp = restTemplate.postForEntity(PATH, inResponsibilitySet, String.class);
-
-        Assertions.assertEquals(HttpStatus.CREATED, firstRsp.getStatusCode());
-
-        ResponseEntity<String> secondRsp = restTemplate.postForEntity(PATH, inResponsibilitySet, String.class);
-        Assertions.assertEquals(HttpStatus.CONFLICT, secondRsp.getStatusCode());
-    }
+    ResponseEntity<String> secondRsp = restTemplate.postForEntity(
+      PATH,
+      inResponsibilitySet,
+      String.class
+    );
+    Assertions.assertEquals(HttpStatus.CONFLICT, secondRsp.getStatusCode());
+  }
 }

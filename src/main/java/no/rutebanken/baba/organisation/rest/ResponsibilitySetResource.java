@@ -18,6 +18,10 @@ package no.rutebanken.baba.organisation.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.repository.ResponsibilitySetRepository;
 import no.rutebanken.baba.organisation.repository.VersionedEntityRepository;
@@ -31,64 +35,62 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-
 @Component
 @Path("responsibility_sets")
 @Produces("application/json")
 @Transactional
 @PreAuthorize("@authorizationService.isOrganisationAdmin()")
-@Tags(value = {
-		@Tag(name = "ResponsibilitySetResource", description ="Responsibility set resource")
-})
-public class ResponsibilitySetResource extends AnnotatedBaseResource<ResponsibilitySet, ResponsibilitySetDTO> {
+@Tags(
+  value = { @Tag(name = "ResponsibilitySetResource", description = "Responsibility set resource") }
+)
+public class ResponsibilitySetResource
+  extends AnnotatedBaseResource<ResponsibilitySet, ResponsibilitySetDTO> {
 
-	private final ResponsibilitySetRepository repository;
+  private final ResponsibilitySetRepository repository;
 
-	private final ResponsibilitySetMapper mapper;
+  private final ResponsibilitySetMapper mapper;
 
-	private final ResponsibilitySetValidator validator;
+  private final ResponsibilitySetValidator validator;
 
-	private final IamService iamService;
+  private final IamService iamService;
 
-	public ResponsibilitySetResource(ResponsibilitySetRepository repository, ResponsibilitySetMapper mapper, ResponsibilitySetValidator validator, IamService iamService) {
-		this.repository = repository;
-		this.mapper = mapper;
-		this.validator = validator;
-		this.iamService = iamService;
-	}
+  public ResponsibilitySetResource(
+    ResponsibilitySetRepository repository,
+    ResponsibilitySetMapper mapper,
+    ResponsibilitySetValidator validator,
+    IamService iamService
+  ) {
+    this.repository = repository;
+    this.mapper = mapper;
+    this.validator = validator;
+    this.iamService = iamService;
+  }
 
+  @Override
+  @PUT
+  @Path("{id}")
+  public void update(@PathParam("id") String id, ResponsibilitySetDTO dto) {
+    ResponsibilitySet entity = updateEntity(id, dto);
+    iamService.updateResponsibilitySet(entity);
+  }
 
-	@Override
-	@PUT
-	@Path("{id}")
-	public void update(@PathParam("id") String id, ResponsibilitySetDTO dto) {
-		ResponsibilitySet entity = updateEntity(id,dto);
-		iamService.updateResponsibilitySet(entity);
-	}
+  @Override
+  protected Class<ResponsibilitySet> getEntityClass() {
+    return ResponsibilitySet.class;
+  }
 
+  @Override
+  protected VersionedEntityRepository<ResponsibilitySet> getRepository() {
+    return repository;
+  }
 
-	@Override
-	protected Class<ResponsibilitySet> getEntityClass() {
-		return ResponsibilitySet.class;
-	}
+  @Override
+  protected DTOMapper<ResponsibilitySet, ResponsibilitySetDTO> getMapper() {
+    return mapper;
+  }
 
-	@Override
-	protected VersionedEntityRepository<ResponsibilitySet> getRepository() {
-		return repository;
-	}
-
-	@Override
-	protected DTOMapper<ResponsibilitySet, ResponsibilitySetDTO> getMapper() {
-		return mapper;
-	}
-
-	@Override
-	protected DTOValidator<ResponsibilitySet, ResponsibilitySetDTO> getValidator() {
-		return validator;
-	}
-
+  @Override
+  protected DTOValidator<ResponsibilitySet, ResponsibilitySetDTO> getValidator() {
+    return validator;
+  }
 }

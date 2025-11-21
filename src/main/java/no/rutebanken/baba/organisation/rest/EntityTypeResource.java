@@ -18,6 +18,8 @@ package no.rutebanken.baba.organisation.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import no.rutebanken.baba.organisation.model.responsibility.EntityType;
 import no.rutebanken.baba.organisation.repository.EntityTypeRepository;
 import no.rutebanken.baba.organisation.repository.VersionedEntityRepository;
@@ -30,46 +32,45 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-
 @Component
 @Path("entity_types")
 @Produces("application/json")
 @Transactional
 @PreAuthorize("@authorizationService.isOrganisationAdmin()")
-@Tags(value = {
-		@Tag(name = "EntityTypeResource", description ="Entity type resource")
-})
+@Tags(value = { @Tag(name = "EntityTypeResource", description = "Entity type resource") })
 public class EntityTypeResource extends AnnotatedBaseResource<EntityType, EntityTypeDTO> {
 
-	private final EntityTypeRepository repository;
-	private final EntityTypeMapper mapper;
-	private final EntityTypeValidator validator;
+  private final EntityTypeRepository repository;
+  private final EntityTypeMapper mapper;
+  private final EntityTypeValidator validator;
 
-	public EntityTypeResource(EntityTypeRepository repository, EntityTypeMapper mapper, EntityTypeValidator validator) {
-		this.repository = repository;
-		this.mapper = mapper;
-		this.validator = validator;
-	}
+  public EntityTypeResource(
+    EntityTypeRepository repository,
+    EntityTypeMapper mapper,
+    EntityTypeValidator validator
+  ) {
+    this.repository = repository;
+    this.mapper = mapper;
+    this.validator = validator;
+  }
 
-	@Override
-	protected Class<EntityType> getEntityClass() {
-		return EntityType.class;
-	}
+  @Override
+  protected Class<EntityType> getEntityClass() {
+    return EntityType.class;
+  }
 
-	@Override
-	protected VersionedEntityRepository<EntityType> getRepository() {
-		return repository;
-	}
+  @Override
+  protected VersionedEntityRepository<EntityType> getRepository() {
+    return repository;
+  }
 
-	@Override
-	protected DTOMapper<EntityType, EntityTypeDTO> getMapper() {
-		return mapper;
-	}
+  @Override
+  protected DTOMapper<EntityType, EntityTypeDTO> getMapper() {
+    return mapper;
+  }
 
-	@Override
-	protected DTOValidator<EntityType, EntityTypeDTO> getValidator() {
-		return validator;
-	}
+  @Override
+  protected DTOValidator<EntityType, EntityTypeDTO> getValidator() {
+    return validator;
+  }
 }

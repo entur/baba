@@ -29,43 +29,43 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JerseyConfig {
 
-    @Bean
-    public ServletRegistrationBean<ServletContainer> organisationsAPIJerseyConfig() {
-        ServletRegistrationBean<ServletContainer> publicJersey
-                = new ServletRegistrationBean<>(new ServletContainer(new OrganisationsAPIConfig()));
-        publicJersey.addUrlMappings("/services/organisations/*");
-        publicJersey.setName("OrganisationAPI");
-        publicJersey.setLoadOnStartup(0);
-        publicJersey.getInitParameters().put("swagger.scanner.id", "organisations-scanner");
-        publicJersey.getInitParameters().put("swagger.config.id", "organisations-swagger-doc");
-        return publicJersey;
+  @Bean
+  public ServletRegistrationBean<ServletContainer> organisationsAPIJerseyConfig() {
+    ServletRegistrationBean<ServletContainer> publicJersey = new ServletRegistrationBean<>(
+      new ServletContainer(new OrganisationsAPIConfig())
+    );
+    publicJersey.addUrlMappings("/services/organisations/*");
+    publicJersey.setName("OrganisationAPI");
+    publicJersey.setLoadOnStartup(0);
+    publicJersey.getInitParameters().put("swagger.scanner.id", "organisations-scanner");
+    publicJersey.getInitParameters().put("swagger.config.id", "organisations-swagger-doc");
+    return publicJersey;
+  }
+
+  private static class OrganisationsAPIConfig extends ResourceConfig {
+
+    public OrganisationsAPIConfig() {
+      register(CorsResponseFilter.class);
+
+      register(CodeSpaceResource.class);
+      register(OrganisationResource.class);
+      register(AdministrativeZoneResource.class);
+      register(UserResource.class);
+      register(M2MClientResource.class);
+      register(NotificationConfigurationResource.class);
+      register(RoleResource.class);
+      register(EntityTypeResource.class);
+      register(EntityClassificationResource.class);
+      register(ResponsibilitySetResource.class);
+
+      register(NotAuthenticatedExceptionMapper.class);
+      register(PersistenceExceptionMapper.class);
+      register(SpringExceptionMapper.class);
+      register(IllegalArgumentExceptionMapper.class);
+      register(AccessDeniedExceptionMapper.class);
+      register(OrganisationExceptionMapper.class);
+
+      register(OpenApiResource.class);
     }
-
-    private static class OrganisationsAPIConfig extends ResourceConfig {
-
-        public OrganisationsAPIConfig() {
-            register(CorsResponseFilter.class);
-
-            register(CodeSpaceResource.class);
-            register(OrganisationResource.class);
-            register(AdministrativeZoneResource.class);
-            register(UserResource.class);
-            register(M2MClientResource.class);
-            register(NotificationConfigurationResource.class);
-            register(RoleResource.class);
-            register(EntityTypeResource.class);
-            register(EntityClassificationResource.class);
-            register(ResponsibilitySetResource.class);
-
-            register(NotAuthenticatedExceptionMapper.class);
-            register(PersistenceExceptionMapper.class);
-            register(SpringExceptionMapper.class);
-            register(IllegalArgumentExceptionMapper.class);
-            register(AccessDeniedExceptionMapper.class);
-            register(OrganisationExceptionMapper.class);
-
-            register(OpenApiResource.class);
-        }
-
-    }
+  }
 }

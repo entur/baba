@@ -23,85 +23,95 @@ import org.junit.jupiter.api.Test;
 
 class UserValidatorTest {
 
-    private final UserValidator userValidator = new UserValidator();
+  private final UserValidator userValidator = new UserValidator();
 
+  @Test
+  void validateCreateMinimalOk() {
+    userValidator.validateCreate(minimalUser());
+  }
 
-    @Test
-    void validateCreateMinimalOk() {
-        userValidator.validateCreate(minimalUser());
-    }
+  @Test
+  void validateCreateWithCapitalAndNumberAllowed() {
+    UserDTO user = minimalUser();
+    user.username = "userNo1";
+    userValidator.validateCreate(user);
+  }
 
+  @Test
+  void validateCreateWithDotAllowed() {
+    UserDTO user = minimalUser();
+    user.username = "user.No1";
+    userValidator.validateCreate(user);
+  }
 
-    @Test
-    void validateCreateWithCapitalAndNumberAllowed() {
-        UserDTO user = minimalUser();
-        user.username = "userNo1";
-        userValidator.validateCreate(user);
-    }
+  @Test
+  void validateCreateWithInvalidUsernameFails() {
+    UserDTO user = minimalUser();
+    user.username = "user 1";
+    Assertions.assertThrows(
+      IllegalArgumentException.class,
+      () -> userValidator.validateCreate(user)
+    );
+  }
 
+  @Test
+  void validateCreateWithoutOrganisationFails() {
+    UserDTO user = minimalUser();
+    user.organisationRef = null;
+    Assertions.assertThrows(
+      IllegalArgumentException.class,
+      () -> userValidator.validateCreate(user)
+    );
+  }
 
-    @Test
-    void validateCreateWithDotAllowed() {
-        UserDTO user = minimalUser();
-        user.username = "user.No1";
-        userValidator.validateCreate(user);
-    }
+  @Test
+  void validateCreateWithoutContactDetailsFails() {
+    UserDTO user = minimalUser();
+    user.contactDetails = null;
+    Assertions.assertThrows(
+      IllegalArgumentException.class,
+      () -> userValidator.validateCreate(user)
+    );
+  }
 
-    @Test
-    void validateCreateWithInvalidUsernameFails() {
-        UserDTO user = minimalUser();
-        user.username = "user 1";
-        Assertions.assertThrows(IllegalArgumentException.class, () ->  userValidator.validateCreate(user));
-    }
+  @Test
+  void validateCreateWithoutEmailFails() {
+    UserDTO user = minimalUser();
+    user.contactDetails.email = null;
+    Assertions.assertThrows(
+      IllegalArgumentException.class,
+      () -> userValidator.validateCreate(user)
+    );
+  }
 
+  @Test
+  void validateUpdateMinimalUserOK() {
+    userValidator.validateUpdate(minimalUser(), null);
+  }
 
-    @Test
-    void validateCreateWithoutOrganisationFails() {
-        UserDTO user = minimalUser();
-        user.organisationRef = null;
-        Assertions.assertThrows(IllegalArgumentException.class, () ->  userValidator.validateCreate(user));
-    }
+  @Test
+  void validateInvalidEmailFails() {
+    UserDTO user = minimalUser();
+    user.contactDetails = new ContactDetailsDTO("first", "last", "34234", "illegalEmail");
+    Assertions.assertThrows(
+      IllegalArgumentException.class,
+      () -> userValidator.validateCreate(user)
+    );
+  }
 
-    @Test
-    void validateCreateWithoutContactDetailsFails() {
-        UserDTO user = minimalUser();
-        user.contactDetails = null;
-        Assertions.assertThrows(IllegalArgumentException.class, () ->  userValidator.validateCreate(user));
-    }
+  @Test
+  void validateValidEmailOK() {
+    UserDTO user = minimalUser();
+    user.contactDetails = new ContactDetailsDTO("first", "last", "34234", "legal@email.com");
+    userValidator.validateCreate(user);
+  }
 
-    @Test
-    void validateCreateWithoutEmailFails() {
-        UserDTO user = minimalUser();
-        user.contactDetails.email = null;
-        Assertions.assertThrows(IllegalArgumentException.class, () ->  userValidator.validateCreate(user));
-    }
+  protected UserDTO minimalUser() {
+    UserDTO userDTO = new UserDTO();
+    userDTO.username = "username";
+    userDTO.organisationRef = "organisation";
+    userDTO.contactDetails = new ContactDetailsDTO(null, null, null, "valid@email.org");
 
-    @Test
-    void validateUpdateMinimalUserOK() {
-        userValidator.validateUpdate(minimalUser(), null);
-    }
-
-    @Test
-    void validateInvalidEmailFails() {
-        UserDTO user = minimalUser();
-        user.contactDetails = new ContactDetailsDTO("first", "last", "34234", "illegalEmail");
-        Assertions.assertThrows(IllegalArgumentException.class, () ->  userValidator.validateCreate(user));
-    }
-
-    @Test
-    void validateValidEmailOK() {
-        UserDTO user = minimalUser();
-        user.contactDetails = new ContactDetailsDTO("first", "last", "34234", "legal@email.com");
-        userValidator.validateCreate(user);
-    }
-
-    protected UserDTO minimalUser() {
-        UserDTO userDTO = new UserDTO();
-        userDTO.username = "username";
-        userDTO.organisationRef = "organisation";
-        userDTO.contactDetails = new ContactDetailsDTO(null, null, null, "valid@email.org");
-
-        return userDTO;
-    }
-
+    return userDTO;
+  }
 }

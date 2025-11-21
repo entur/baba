@@ -16,13 +16,14 @@
 
 package no.rutebanken.baba.config;
 
-import no.rutebanken.baba.organisation.user.UserService;
 import com.auth0.client.auth.AuthAPI;
+import java.util.List;
 import no.rutebanken.baba.organisation.repository.RoleRepository;
 import no.rutebanken.baba.organisation.repository.UserRepository;
 import no.rutebanken.baba.organisation.service.Auth0IamService;
 import no.rutebanken.baba.organisation.service.IamService;
 import no.rutebanken.baba.organisation.service.NoopIamService;
+import no.rutebanken.baba.organisation.user.UserService;
 import org.entur.oauth2.JwtRoleAssignmentExtractor;
 import org.rutebanken.helper.organisation.RoleAssignmentExtractor;
 import org.rutebanken.helper.organisation.authorization.AuthorizationService;
@@ -35,71 +36,57 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import java.util.List;
-
 /**
  * Configure authorization.
  */
 @Configuration
 public class AuthorizationConfig {
 
-    @ConditionalOnProperty(
-            value = "baba.security.role.assignment.extractor",
-            havingValue = "jwt",
-            matchIfMissing = true
-    )
-    @Bean
-    public RoleAssignmentExtractor jwtRoleAssignmentExtractor() {
-        return new JwtRoleAssignmentExtractor();
-    }
+  @ConditionalOnProperty(
+    value = "baba.security.role.assignment.extractor",
+    havingValue = "jwt",
+    matchIfMissing = true
+  )
+  @Bean
+  public RoleAssignmentExtractor jwtRoleAssignmentExtractor() {
+    return new JwtRoleAssignmentExtractor();
+  }
 
-    @ConditionalOnProperty(
-            value = "baba.security.role.assignment.extractor",
-            havingValue = "baba"
-    )
-    @Bean
-    public RoleAssignmentExtractor babaRoleAssignmentExtractor(UserService userService) {
-        return new LocalBabaRoleAssignmentExtractor(userService);
-    }
+  @ConditionalOnProperty(value = "baba.security.role.assignment.extractor", havingValue = "baba")
+  @Bean
+  public RoleAssignmentExtractor babaRoleAssignmentExtractor(UserService userService) {
+    return new LocalBabaRoleAssignmentExtractor(userService);
+  }
 
-    @ConditionalOnProperty(
-            value = "baba.security.authorization-service",
-            havingValue = "token-based"
-    )
-    @Bean("authorizationService")
-    public AuthorizationService<Long> tokenBasedAuthorizationService(RoleAssignmentExtractor roleAssignmentExtractor) {
-        return new DefaultAuthorizationService<>(roleAssignmentExtractor);
-    }
+  @ConditionalOnProperty(value = "baba.security.authorization-service", havingValue = "token-based")
+  @Bean("authorizationService")
+  public AuthorizationService<Long> tokenBasedAuthorizationService(
+    RoleAssignmentExtractor roleAssignmentExtractor
+  ) {
+    return new DefaultAuthorizationService<>(roleAssignmentExtractor);
+  }
 
-    @ConditionalOnProperty(
-            value = "baba.security.authorization-service",
-            havingValue = "full-access"
-    )
-    @Bean("authorizationService")
-    public AuthorizationService<Long> fullAccessAuthorizationService() {
-        return new FullAccessAuthorizationService();
-    }
+  @ConditionalOnProperty(value = "baba.security.authorization-service", havingValue = "full-access")
+  @Bean("authorizationService")
+  public AuthorizationService<Long> fullAccessAuthorizationService() {
+    return new FullAccessAuthorizationService();
+  }
 
+  @Profile("auth0")
+  @Bean("iamService")
+  public IamService auth0IamService(
+    UserRepository userRepository,
+    RoleRepository roleRepository,
+    AuthAPI authAPI,
+    @Value("#{'${iam.auth0.default.roles:rutebanken}'.split(',')}") List<String> defaultRoles,
+    @Value("${iam.auth0.admin.domain}") String domain
+  ) {
+    return new Auth0IamService(userRepository, roleRepository, authAPI, defaultRoles, domain);
+  }
 
-    @Profile("auth0")
-    @Bean("iamService")
-    public IamService auth0IamService(UserRepository userRepository,
-                                      RoleRepository roleRepository,
-                                      AuthAPI authAPI,
-                                      @Value("#{'${iam.auth0.default.roles:rutebanken}'.split(',')}") List<String> defaultRoles,
-                                      @Value("${iam.auth0.admin.domain}") String domain){
-        return new Auth0IamService(userRepository, roleRepository, authAPI, defaultRoles, domain);
-    }
-
-    @ConditionalOnMissingBean(
-            value = IamService.class,
-            ignored = NoopIamService.class
-    )
-    @Bean("iamService")
-    public IamService noopIamService(){
-        return new NoopIamService();
-    }
-
+  @ConditionalOnMissingBean(value = IamService.class, ignored = NoopIamService.class)
+  @Bean("iamService")
+  public IamService noopIamService() {
+    return new NoopIamService();
+  }
 }
-
-

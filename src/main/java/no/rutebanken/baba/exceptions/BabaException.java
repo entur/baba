@@ -18,16 +18,15 @@ package no.rutebanken.baba.exceptions;
 
 public class BabaException extends RuntimeException {
 
+  public BabaException(String message) {
+    super(message);
+  }
 
-    public BabaException(String message) {
-        super(message);
-    }
+  public BabaException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public BabaException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public BabaException(Throwable cause) {
-        super(cause);
-    }
+  public BabaException(Throwable cause) {
+    super(cause);
+  }
 }

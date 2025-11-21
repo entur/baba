@@ -24,40 +24,45 @@ import org.junit.jupiter.api.Test;
 
 class ResponsibilitySetValidatorTest {
 
+  private final ResponsibilitySetValidator responsibilitySetValidator =
+    new ResponsibilitySetValidator(null);
 
-    private final ResponsibilitySetValidator responsibilitySetValidator = new ResponsibilitySetValidator(null);
+  @Test
+  void validateCreateMinimalOk() {
+    responsibilitySetValidator.validateCreate(minimalRespSet());
+  }
 
+  @Test
+  void validateCreateWithDuplicateEventClassificationRefFails() {
+    ResponsibilitySetDTO respSet = minimalRespSet();
 
-    @Test
-    void validateCreateMinimalOk() {
-        responsibilitySetValidator.validateCreate(minimalRespSet());
-    }
+    ResponsibilityRoleAssignmentDTO roleAssignment = respSet.roles.getFirst();
+    String ref = "commonRef";
+    roleAssignment.entityClassificationAssignments.add(
+      new EntityClassificationAssignmentDTO(ref, true)
+    );
+    roleAssignment.entityClassificationAssignments.add(
+      new EntityClassificationAssignmentDTO(ref, false)
+    );
+    Assertions.assertThrows(
+      IllegalArgumentException.class,
+      () -> responsibilitySetValidator.validateCreate(respSet)
+    );
+  }
 
-    @Test
-    void validateCreateWithDuplicateEventClassificationRefFails() {
-        ResponsibilitySetDTO respSet = minimalRespSet();
+  private ResponsibilitySetDTO minimalRespSet() {
+    ResponsibilitySetDTO responsibilitySet = new ResponsibilitySetDTO();
+    responsibilitySet.codeSpace = "testCodeSpace";
+    responsibilitySet.privateCode = "testPrivateCode";
+    responsibilitySet.name = "testSet";
 
-        ResponsibilityRoleAssignmentDTO roleAssignment = respSet.roles.getFirst();
-        String ref = "commonRef";
-        roleAssignment.entityClassificationAssignments.add(new EntityClassificationAssignmentDTO(ref, true));
-        roleAssignment.entityClassificationAssignments.add(new EntityClassificationAssignmentDTO(ref, false));
-        Assertions.assertThrows(IllegalArgumentException.class, () ->  responsibilitySetValidator.validateCreate(respSet));
-    }
+    ResponsibilityRoleAssignmentDTO roleAssignment = new ResponsibilityRoleAssignmentDTO();
 
+    roleAssignment.typeOfResponsibilityRoleRef = "testRole";
+    roleAssignment.responsibleOrganisationRef = "testOrg";
 
-    private ResponsibilitySetDTO minimalRespSet() {
-        ResponsibilitySetDTO responsibilitySet = new ResponsibilitySetDTO();
-        responsibilitySet.codeSpace = "testCodeSpace";
-        responsibilitySet.privateCode = "testPrivateCode";
-        responsibilitySet.name = "testSet";
+    responsibilitySet.roles.add(roleAssignment);
 
-        ResponsibilityRoleAssignmentDTO roleAssignment = new ResponsibilityRoleAssignmentDTO();
-
-        roleAssignment.typeOfResponsibilityRoleRef = "testRole";
-        roleAssignment.responsibleOrganisationRef = "testOrg";
-
-        responsibilitySet.roles.add(roleAssignment);
-
-        return responsibilitySet;
-    }
+    return responsibilitySet;
+  }
 }

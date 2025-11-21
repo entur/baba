@@ -16,25 +16,25 @@
 
 package no.rutebanken.baba.organisation.rest.exception;
 
+import jakarta.validation.ValidationException;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.TransactionSystemException;
 
-import jakarta.validation.ValidationException;
-import jakarta.ws.rs.core.Response;
-
 class SpringExceptionMapperTest {
 
+  @Test
+  void testMapValidationExceptionToBadRequest() {
+    Response rsp = new SpringExceptionMapper()
+      .toResponse(new TransactionSystemException("", new ValidationException()));
+    Assertions.assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), rsp.getStatus());
+  }
 
-	@Test
-	void testMapValidationExceptionToBadRequest() {
-		Response rsp = new SpringExceptionMapper().toResponse(new TransactionSystemException("", new ValidationException()));
-		Assertions.assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), rsp.getStatus());
-	}
-
-	@Test
-	void testMapUnknownExceptionToInternalServerError() {
-		Response rsp = new SpringExceptionMapper().toResponse(new TransactionSystemException("", new RuntimeException()));
-		Assertions.assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), rsp.getStatus());
-	}
+  @Test
+  void testMapUnknownExceptionToInternalServerError() {
+    Response rsp = new SpringExceptionMapper()
+      .toResponse(new TransactionSystemException("", new RuntimeException()));
+    Assertions.assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), rsp.getStatus());
+  }
 }

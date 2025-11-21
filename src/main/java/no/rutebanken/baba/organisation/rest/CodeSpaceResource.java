@@ -18,6 +18,8 @@ package no.rutebanken.baba.organisation.rest;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import no.rutebanken.baba.organisation.model.CodeSpace;
 import no.rutebanken.baba.organisation.repository.CodeSpaceRepository;
 import no.rutebanken.baba.organisation.repository.VersionedEntityRepository;
@@ -30,50 +32,47 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-
 @Component
 @Produces("application/json")
 @Path("code_spaces")
 @Transactional
 @PreAuthorize("@authorizationService.isOrganisationAdmin()")
-@Tags(value = {
-		@Tag(name = "CodeSpaceResource", description = "Code space resource")
-})
+@Tags(value = { @Tag(name = "CodeSpaceResource", description = "Code space resource") })
 public class CodeSpaceResource extends AnnotatedBaseResource<CodeSpace, CodeSpaceDTO> {
 
+  private final CodeSpaceRepository repository;
 
-	private final CodeSpaceRepository repository;
+  private final CodeSpaceValidator validator;
 
-	private final CodeSpaceValidator validator;
+  private final CodeSpaceMapper mapper;
 
-	private final CodeSpaceMapper mapper;
+  public CodeSpaceResource(
+    CodeSpaceRepository repository,
+    CodeSpaceValidator validator,
+    CodeSpaceMapper mapper
+  ) {
+    this.repository = repository;
+    this.validator = validator;
+    this.mapper = mapper;
+  }
 
-	public CodeSpaceResource(CodeSpaceRepository repository, CodeSpaceValidator validator, CodeSpaceMapper mapper) {
-		this.repository = repository;
-		this.validator = validator;
-		this.mapper = mapper;
-	}
+  @Override
+  protected VersionedEntityRepository<CodeSpace> getRepository() {
+    return repository;
+  }
 
+  @Override
+  protected DTOMapper<CodeSpace, CodeSpaceDTO> getMapper() {
+    return mapper;
+  }
 
-	@Override
-	protected VersionedEntityRepository<CodeSpace> getRepository() {
-		return repository;
-	}
+  @Override
+  protected Class<CodeSpace> getEntityClass() {
+    return CodeSpace.class;
+  }
 
-	@Override
-	protected DTOMapper<CodeSpace, CodeSpaceDTO> getMapper() {
-		return mapper;
-	}
-
-	@Override
-	protected Class<CodeSpace> getEntityClass() {
-		return CodeSpace.class;
-	}
-
-	@Override
-	protected DTOValidator<CodeSpace, CodeSpaceDTO> getValidator() {
-		return validator;
-	}
+  @Override
+  protected DTOValidator<CodeSpace, CodeSpaceDTO> getValidator() {
+    return validator;
+  }
 }

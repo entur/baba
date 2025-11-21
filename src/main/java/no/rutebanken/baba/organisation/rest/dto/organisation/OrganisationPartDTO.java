@@ -16,14 +16,13 @@
 
 package no.rutebanken.baba.organisation.rest.dto.organisation;
 
-import no.rutebanken.baba.organisation.rest.dto.BaseDTO;
-
 import java.util.ArrayList;
 import java.util.List;
+import no.rutebanken.baba.organisation.rest.dto.BaseDTO;
 
 public class OrganisationPartDTO extends BaseDTO {
 
-	public String name;
+  public String name;
 
-	public List<String> administrativeZoneRefs = new ArrayList<>();
+  public List<String> administrativeZoneRefs = new ArrayList<>();
 }
