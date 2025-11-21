@@ -52,9 +52,6 @@ public class UserService {
       babaUser.isClient = true;
       babaUser.username = enturClientM2MRoleAssignmentRepository.getClientName(authenticatedUser);
       return babaUser;
-    } else if (authenticatedUser.isRor()) {
-      User user = repository.getUserByUsername(authenticatedUser.username());
-      return mapBabaUser(user);
     } else {
       User user = permissionStoreUser(authenticatedUser);
       return mapBabaUser(user);
@@ -84,14 +81,6 @@ public class UserService {
       } else {
         throw new IllegalArgumentException("Unknown client " + authenticatedUser);
       }
-    } else if (authenticatedUser.isRor()) {
-      User user = repository.getUserByUsername(authenticatedUser.username());
-      if (user == null) {
-        throw new NotFoundException(
-          "User with user name: [" + authenticatedUser.subject() + "] not found"
-        );
-      }
-      return toRoleAssignments(user);
     } else {
       User user = permissionStoreUser(authenticatedUser);
       List<RoleAssignment> roleAssignments = toRoleAssignments(user);

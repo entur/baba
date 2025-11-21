@@ -16,6 +16,7 @@
 
 package no.rutebanken.baba.config;
 
+import java.util.Arrays;
 import org.entur.oauth2.multiissuer.MultiIssuerAuthenticationManagerResolver;
 import org.entur.oauth2.multiissuer.MultiIssuerAuthenticationManagerResolverBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,18 +45,15 @@ public class OAuth2Config {
     @Value(
       "${baba.oauth2.resourceserver.auth0.entur.partner.jwt.issuer-uri:}"
     ) String enturPartnerAuth0Issuer,
-    @Value("${baba.oauth2.resourceserver.auth0.ror.jwt.audience:}") String rorAuth0Audience,
-    @Value("${baba.oauth2.resourceserver.auth0.ror.jwt.issuer-uri:}") String rorAuth0Issuer,
-    @Value("${baba.oauth2.resourceserver.auth0.ror.claim.namespace:}") String rorAuth0ClaimNamespace
+    @Value("${baba.oauth2.resourceserver.auth0.ror.jwt.audience:}") String rorAuth0Audience
   ) {
     return new MultiIssuerAuthenticationManagerResolverBuilder()
       .withEnturInternalAuth0Issuer(enturInternalAuth0Issuer)
-      .withEnturInternalAuth0Audience(enturInternalAuth0Audience)
+      .withEnturInternalAuth0Audiences(
+        Arrays.stream(enturInternalAuth0Audience.split(",")).toList()
+      )
       .withEnturPartnerAuth0Issuer(enturPartnerAuth0Issuer)
-      .withEnturPartnerAuth0Audience(enturPartnerAuth0Audience)
-      .withRorAuth0Issuer(rorAuth0Issuer)
-      .withRorAuth0Audience(rorAuth0Audience)
-      .withRorAuth0ClaimNamespace(rorAuth0ClaimNamespace)
+      .withEnturPartnerAuth0Audiences(Arrays.stream(enturPartnerAuth0Audience.split(",")).toList())
       .build();
   }
 }
