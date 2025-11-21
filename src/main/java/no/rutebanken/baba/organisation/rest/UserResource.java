@@ -158,16 +158,6 @@ public class UserResource extends BaseResource<User, UserDTO> {
     }
   }
 
-  @POST
-  @Path("{id}/resetPassword")
-  public void resetPassword(@PathParam("id") String id) {
-    User user = getExisting(id);
-    if (user.isPersonalAccount()) {
-      iamService.resetPassword(user);
-      newUserEmailSender.sendEmail(user);
-    }
-  }
-
   @GET
   @PreAuthorize("@authorizationService.canViewAllOrganisationData()")
   public List<UserDTO> listAll(@QueryParam("full") boolean fullObject) {

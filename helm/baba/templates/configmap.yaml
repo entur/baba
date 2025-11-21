@@ -1,7 +1,7 @@
 apiVersion: v1
 data:
   application.properties: |+
-    spring.profiles.active=auth0
+    spring.profiles.active=permission-store
 
     # Database
     spring.datasource.driverClassName=org.postgresql.Driver

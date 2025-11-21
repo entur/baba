@@ -84,6 +84,15 @@ public class AuthorizationConfig {
     return new Auth0IamService(userRepository, roleRepository, authAPI, defaultRoles, domain);
   }
 
+  @Profile("permission-store")
+  @Bean("iamService")
+  /**
+   * TODO permission store migration: for now permissions are not forwarded to permission store
+   */
+  public IamService permissionStoreIamService() {
+    return new NoopIamService();
+  }
+
   @ConditionalOnMissingBean(value = IamService.class, ignored = NoopIamService.class)
   @Bean("iamService")
   public IamService noopIamService() {
