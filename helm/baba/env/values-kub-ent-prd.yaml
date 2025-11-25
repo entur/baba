@@ -13,14 +13,13 @@ ingress:
   providers:
     name: timetable-admin-v1-providers-gcp2
 auth0:
-  ror:
-    url: https://auth2.entur.org/
-    audience: https://ror.api.entur.io
   entur:
     internal:
       url: https://internal.entur.org/
+      audience: https://api.entur.io,https://ror.api.entur.io
     partner:
       url: https://partner.entur.org/
+      audience: https://api.entur.io,https://ror.api.entur.io
   admin:
     client:
       id: GLBqcAUgBKVLby3ur9KTqvqraTUmnXvD
