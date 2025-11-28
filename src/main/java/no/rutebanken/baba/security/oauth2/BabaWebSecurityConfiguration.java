@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -62,15 +62,21 @@ public class BabaWebSecurityConfiguration {
       .csrf(AbstractHttpConfigurer::disable)
       .authorizeHttpRequests(authz ->
         authz
-          .requestMatchers(AntPathRequestMatcher.antMatcher("/services/organisations/openapi.json"))
+          .requestMatchers(
+            PathPatternRequestMatcher.withDefaults().matcher("/services/organisations/openapi.json")
+          )
           .permitAll()
-          .requestMatchers(AntPathRequestMatcher.antMatcher("/actuator/prometheus"))
+          .requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/actuator/prometheus"))
           .permitAll()
-          .requestMatchers(AntPathRequestMatcher.antMatcher("/actuator/health"))
+          .requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/actuator/health"))
           .permitAll()
-          .requestMatchers(AntPathRequestMatcher.antMatcher("/actuator/health/liveness"))
+          .requestMatchers(
+            PathPatternRequestMatcher.withDefaults().matcher("/actuator/health/liveness")
+          )
           .permitAll()
-          .requestMatchers(AntPathRequestMatcher.antMatcher("/actuator/health/readiness"))
+          .requestMatchers(
+            PathPatternRequestMatcher.withDefaults().matcher("/actuator/health/readiness")
+          )
           .permitAll()
           .anyRequest()
           .authenticated()

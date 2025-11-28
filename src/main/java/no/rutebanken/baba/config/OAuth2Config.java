@@ -44,8 +44,7 @@ public class OAuth2Config {
     ) String enturPartnerAuth0Audience,
     @Value(
       "${baba.oauth2.resourceserver.auth0.entur.partner.jwt.issuer-uri:}"
-    ) String enturPartnerAuth0Issuer,
-    @Value("${baba.oauth2.resourceserver.auth0.ror.jwt.audience:}") String rorAuth0Audience
+    ) String enturPartnerAuth0Issuer
   ) {
     return new MultiIssuerAuthenticationManagerResolverBuilder()
       .withEnturInternalAuth0Issuer(enturInternalAuth0Issuer)
