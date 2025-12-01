@@ -53,7 +53,7 @@ public class UserService {
       babaUser.username = enturClientM2MRoleAssignmentRepository.getClientName(authenticatedUser);
       return babaUser;
     } else {
-      User user = permissionStoreUser(authenticatedUser);
+      User user = resolveUser(authenticatedUser);
       return mapBabaUser(user);
     }
   }
@@ -82,10 +82,28 @@ public class UserService {
         throw new IllegalArgumentException("Unknown client " + authenticatedUser);
       }
     } else {
-      User user = permissionStoreUser(authenticatedUser);
+      User user = resolveUser(authenticatedUser);
       List<RoleAssignment> roleAssignments = toRoleAssignments(user);
       LOGGER.debug("Role assignments for user [{}]: {}", authenticatedUser, roleAssignments);
       return roleAssignments;
+    }
+  }
+
+  private User resolveUser(AuthenticatedUser authenticatedUser) {
+    try {
+      return permissionStoreUser(authenticatedUser);
+    } catch (NotFoundException e) {
+      throw e;
+    } catch (Exception e) {
+      LOGGER.warn("Error while calling permission store API, falling back to Baba database", e);
+      String subject = authenticatedUser.subject();
+      User user = repository.getUserByPrivateCode(subject);
+      if (user == null) {
+        LOGGER.debug("No user found in Baba database with subject '{}'", subject);
+        throw new NotFoundException("User with subject: [" + authenticatedUser + "] not found");
+      }
+      LOGGER.debug("User found in Baba database with subject '{}'", subject);
+      return user;
     }
   }
 
@@ -128,6 +146,11 @@ public class UserService {
       normalizedEmail,
       user.getUsername()
     );
+
+    if (!permissionStoreUser.subject.equals(user.getPrivateCode())) {
+      user.setPrivateCode(permissionStoreUser.subject);
+    }
+
     return user;
   }
 
