@@ -54,7 +54,7 @@ class EnturClientM2MRoleAssignmentRepositoryTest {
       .builder()
       .withCodeSpace(new CodeSpace("RB", null, null))
       .withTypeOfResponsibilityRole(
-        new Role(AuthorizationConstants.ROLE_NETEX_BLOCKS_DATA_VIEW, "view Blocks")
+        new Role(AuthorizationConstants.ROLE_NETEX_PRIVATE_DATA_VIEW, "view Blocks")
       )
       .withResponsibleOrganisation(orgAAA)
       .build();
@@ -74,7 +74,7 @@ class EnturClientM2MRoleAssignmentRepositoryTest {
     List<String> expectedRoleAssignments = List.of(
       RoleAssignment
         .builder()
-        .withRole(AuthorizationConstants.ROLE_NETEX_BLOCKS_DATA_VIEW)
+        .withRole(AuthorizationConstants.ROLE_NETEX_PRIVATE_DATA_VIEW)
         .withOrganisation(ORG_AAA)
         .build()
         .toString()
