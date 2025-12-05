@@ -56,6 +56,10 @@
         <prettier-maven-plugin.version>0.22</prettier-maven-plugin.version>
         <plugin.prettier.goal>write</plugin.prettier.goal>
 
+        <permission-client.version>3.10.3</permission-client.version>
+        <oidc-auth.version>4.6.0</oidc-auth.version>
+
+
         <!-- empty argLine property, the value is set up by Jacoco during unit tests execution -->
         <argLine/>
 
@@ -93,6 +97,31 @@
             <groupId>org.entur.ror.helpers</groupId>
             <artifactId>permission-store-proxy</artifactId>
             <version>${entur.helpers.version}</version>
+        </dependency>
+
+        <!-- Permission Store-->
+        <dependency>
+            <groupId>org.entur.auth</groupId>
+            <artifactId>oauth2-rs-spring-boot-3</artifactId>
+            <version>${oidc-auth.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.entur.auth</groupId>
+            <artifactId>oidc-auth-client-spring-boot-starter</artifactId>
+            <version>${oidc-auth.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.entur.auth</groupId>
+            <artifactId>permission-client</artifactId>
+            <version>${permission-client.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
         </dependency>
 
         <!-- Spring Boot -->
