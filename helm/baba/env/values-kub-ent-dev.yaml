@@ -17,10 +17,6 @@ auth0:
     partner:
       url: https://partner.dev.entur.org/
       audience: https://api.dev.entur.io,https://ror.api.dev.entur.io
-  admin:
-    client:
-      id: dXrBh0VYvPEbz3tCTQzSudyde5hK93mL
-    domain: ror-entur-dev.eu.auth0.com
 
 oauth2:
   client:

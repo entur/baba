@@ -20,10 +20,6 @@ auth0:
     partner:
       url: https://partner.entur.org/
       audience: https://api.entur.io,https://ror.api.entur.io
-  admin:
-    client:
-      id: GLBqcAUgBKVLby3ur9KTqvqraTUmnXvD
-    domain: ror-entur.eu.auth0.com
 
 oauth2:
   client:
