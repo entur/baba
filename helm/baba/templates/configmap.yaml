@@ -31,10 +31,6 @@ data:
     new.user.email.enabled=true
     new.user.email.from={{ .Values.mail.newUserFrom}}
 
-    # Auth0
-    iam.auth0.admin.domain={{ .Values.auth0.admin.domain }}
-    iam.auth0.admin.client.id={{ .Values.auth0.admin.client.id }}
-
     # OAuth2 Resource Server for Entur Partner tenant
     baba.oauth2.resourceserver.auth0.entur.partner.jwt.issuer-uri={{ .Values.auth0.entur.partner.url }}
     baba.oauth2.resourceserver.auth0.entur.partner.jwt.audience={{ .Values.auth0.entur.partner.audience }}
