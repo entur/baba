@@ -46,7 +46,7 @@
         <wololo.version>0.18.1</wololo.version>
         <javax.jdo.jdo-api.version>3.2.1</javax.jdo.jdo-api.version>
         <commons-io.version>2.21.0</commons-io.version>
-        <spring-cloud-gcp-dependencies.version>7.4.4</spring-cloud-gcp-dependencies.version>
+        <spring-cloud-gcp-dependencies.version>7.4.5</spring-cloud-gcp-dependencies.version>
 
         <rest-assured.version>6.0.0</rest-assured.version>
 
