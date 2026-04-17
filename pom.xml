@@ -45,7 +45,6 @@
         <swagger-jersey2.version>2.2.46</swagger-jersey2.version>
         <wololo.version>0.18.1</wololo.version>
         <javax.jdo.jdo-api.version>3.2.1</javax.jdo.jdo-api.version>
-        <commons-io.version>2.21.0</commons-io.version>
         <spring-cloud-gcp-dependencies.version>7.4.6</spring-cloud-gcp-dependencies.version>
 
         <rest-assured.version>6.0.0</rest-assured.version>
@@ -231,11 +230,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
