@@ -29,7 +29,10 @@ public class CorsResponseFilter implements ContainerResponseFilter {
     response.getHeaders().add("Access-Control-Allow-Origin", "*");
     response
       .getHeaders()
-      .add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization");
+      .add(
+        "Access-Control-Allow-Headers",
+        "origin, content-type, accept, authorization, x-correlation-id, et-client-name, baggage, sentry-trace"
+      );
     response.getHeaders().add("Access-Control-Allow-Credentials", "true");
     response
       .getHeaders()
