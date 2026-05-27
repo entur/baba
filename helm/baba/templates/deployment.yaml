@@ -34,8 +34,6 @@ spec:
           env:
             - name: JDK_JAVA_OPTIONS
               value: -Xmx800m -Dspring.config.location=/etc/application-config/application.properties
-                  {{- if .Values.monitoringEnabled }} -Dcom.sun.management.jmxremote.port=9999  -Dcom.sun.management.jmxremote.rmi.port=9998 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=127.0.0.1
-            {{- end }}
             - name: TZ
               value: Europe/Oslo
           envFrom:

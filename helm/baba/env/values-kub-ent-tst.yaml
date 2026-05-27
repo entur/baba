@@ -37,5 +37,3 @@ mail:
     routeDB: https://rutedb.staging.entur.org/
     stopPlace: https://stoppested.staging.entur.org/
     operator: https://operator-stage.rutebanken.org/
-
-monitoringEnabled: true

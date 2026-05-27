@@ -36,5 +36,3 @@ mail:
     routeDB: https://rutedb.dev.entur.org/
     stopPlace: https://stoppested.dev.entur.org/
     operator: https://operator-test.rutebanken.org/
-
-monitoringEnabled: true
