@@ -18,6 +18,7 @@ package no.rutebanken.baba.organisation.rest.mapper;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import no.rutebanken.baba.organisation.model.CodeSpaceEntity;
@@ -34,11 +35,17 @@ import no.rutebanken.baba.organisation.rest.dto.responsibility.EntityClassificat
 import no.rutebanken.baba.organisation.rest.dto.responsibility.EntityTypeDTO;
 import no.rutebanken.baba.organisation.rest.dto.user.EventFilterDTO;
 import no.rutebanken.baba.organisation.rest.dto.user.NotificationConfigDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 @Service
 public class NotificationConfigurationMapper {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(
+    NotificationConfigurationMapper.class
+  );
 
   private final EntityClassificationRepository entityClassificationRepository;
 
@@ -70,13 +77,17 @@ public class NotificationConfigurationMapper {
 
     return entity
       .stream()
-      .map(n ->
-        new NotificationConfigDTO(
-          n.getNotificationType(),
-          n.isEnabled(),
-          toDTO(n.getEventFilter(), fullDetails)
-        )
-      )
+      .map(n -> {
+        EventFilterDTO eventFilter = toDTO(n.getEventFilter(), fullDetails);
+        if (eventFilter == null) {
+          // Event filter scoped to a retired/unknown job domain (e.g. GEOCODER after
+          // geocoder v1 was decommissioned). Omit the configuration so reads don't fail;
+          // it is pruned on the user's next save via orphanRemoval.
+          return null;
+        }
+        return new NotificationConfigDTO(n.getNotificationType(), n.isEnabled(), eventFilter);
+      })
+      .filter(Objects::nonNull)
       .collect(Collectors.toSet());
   }
 
@@ -91,10 +102,20 @@ public class NotificationConfigurationMapper {
     EventFilterDTO dto = new EventFilterDTO();
 
     if (eventFilter instanceof JobEventFilter jobEventFilter) {
+      EventFilterDTO.JobDomain jobDomain = parseJobDomain(jobEventFilter.getJobDomain());
+      if (jobDomain == null) {
+        // Stored job domain is no longer a known value (e.g. the retired GEOCODER).
+        // Signal to the caller that this configuration should be omitted.
+        LOGGER.info(
+          "Omitting notification configuration with unknown job domain '{}'",
+          jobEventFilter.getJobDomain()
+        );
+        return null;
+      }
       dto.type = EventFilterDTO.EventFilterType.JOB;
       dto.states = jobEventFilter.getStates();
       dto.actions = jobEventFilter.getActions();
-      dto.jobDomain = EventFilterDTO.JobDomain.valueOf(jobEventFilter.getJobDomain());
+      dto.jobDomain = jobDomain;
     } else if (eventFilter instanceof CrudEventFilter crudEventFilter) {
       dto.type = EventFilterDTO.EventFilterType.CRUD;
       dto.entityClassificationRefs =
@@ -127,6 +148,17 @@ public class NotificationConfigurationMapper {
       }
     }
     return dto;
+  }
+
+  private static EventFilterDTO.JobDomain parseJobDomain(String jobDomain) {
+    if (jobDomain == null) {
+      return null;
+    }
+    try {
+      return EventFilterDTO.JobDomain.valueOf(jobDomain);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 
   private EntityClassificationDTO toDTO(EntityClassification entity) {

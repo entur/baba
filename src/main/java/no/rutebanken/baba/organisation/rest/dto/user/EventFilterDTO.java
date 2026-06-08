@@ -31,7 +31,6 @@ public class EventFilterDTO {
 
   public enum JobDomain {
     TIMETABLE,
-    GEOCODER,
     GRAPH,
     TIAMAT,
     TIMETABLE_PUBLISH,
