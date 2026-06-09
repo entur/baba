@@ -133,7 +133,9 @@ class NotificationConfigurationValidatorTest {
 
     EventFilterDTO eventFilter = new EventFilterDTO(EventFilterDTO.EventFilterType.JOB);
     eventFilter.actions = Set.of("BUILD");
-    eventFilter.jobDomain = EventFilterDTO.JobDomain.GEOCODER;
+    // Any valid JobDomain works here - this exercises generic JOB-filter validation,
+    // not domain-specific behaviour (GRAPH replaced the retired GEOCODER).
+    eventFilter.jobDomain = EventFilterDTO.JobDomain.GRAPH;
     eventFilter.states = Set.of(JobState.FAILED);
     configDTO.eventFilter = eventFilter;
 
