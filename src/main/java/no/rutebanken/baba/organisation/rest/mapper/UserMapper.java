@@ -134,7 +134,7 @@ public class UserMapper implements DTOMapper<User, UserDTO> {
     ContactDetails entity = new ContactDetails();
     entity.setFirstName(dto.firstName);
     entity.setLastName(dto.lastName);
-    entity.setEmail(dto.email);
+    entity.setEmail(dto.email == null ? null : dto.email.toLowerCase());
     entity.setPhone(dto.phone);
     return entity;
   }

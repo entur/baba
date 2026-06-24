@@ -250,6 +250,44 @@ class UserResourceIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  void createUserNormalizesEmailToLowerCase() {
+    ContactDetailsDTO createContactDetails = new ContactDetailsDTO(
+      "first",
+      "last",
+      "phone",
+      "Mixed.Case@Entur.org"
+    );
+    UserDTO createUser = createUser(
+      "mixedCaseEmailUser",
+      TestConstantsOrganisation.ORGANISATION_ID,
+      createContactDetails
+    );
+    URI uri = restTemplate.postForLocation(PATH, createUser);
+    Assertions.assertNotNull(uri);
+
+    UserDTO outUser = restTemplate.getForEntity(uri, UserDTO.class).getBody();
+    Assertions.assertNotNull(outUser);
+    Assertions.assertEquals("mixed.case@entur.org", outUser.contactDetails.email);
+
+    ContactDetailsDTO updateContactDetails = new ContactDetailsDTO(
+      "first",
+      "last",
+      "phone",
+      "Other.Mixed@Entur.NO"
+    );
+    UserDTO updateUser = createUser(
+      createUser.username,
+      createUser.organisationRef,
+      updateContactDetails
+    );
+    restTemplate.put(uri, updateUser);
+
+    UserDTO updatedOutUser = restTemplate.getForEntity(uri, UserDTO.class).getBody();
+    Assertions.assertNotNull(updatedOutUser);
+    Assertions.assertEquals("other.mixed@entur.no", updatedOutUser.contactDetails.email);
+  }
+
+  @Test
   void createInvalidUser() {
     UserDTO inUser = createUser("user name", "privateCode", null);
     ResponseEntity<String> rsp = restTemplate.postForEntity(PATH, inUser, String.class);
