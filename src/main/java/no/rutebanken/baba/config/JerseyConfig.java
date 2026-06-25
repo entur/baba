@@ -25,14 +25,39 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
 public class JerseyConfig {
 
   @Bean
-  public ServletRegistrationBean<ServletContainer> organisationsAPIJerseyConfig() {
+  public ServletRegistrationBean<ServletContainer> organisationsAPIJerseyConfig(
+    @Lazy CodeSpaceResource codeSpaceResource,
+    @Lazy OrganisationResource organisationResource,
+    @Lazy AdministrativeZoneResource administrativeZoneResource,
+    @Lazy UserResource userResource,
+    @Lazy M2MClientResource m2MClientResource,
+    @Lazy NotificationConfigurationResource notificationConfigurationResource,
+    @Lazy RoleResource roleResource,
+    @Lazy EntityTypeResource entityTypeResource,
+    @Lazy EntityClassificationResource entityClassificationResource,
+    @Lazy ResponsibilitySetResource responsibilitySetResource
+  ) {
     ServletRegistrationBean<ServletContainer> publicJersey = new ServletRegistrationBean<>(
-      new ServletContainer(new OrganisationsAPIConfig())
+      new ServletContainer(
+        new OrganisationsAPIConfig(
+          codeSpaceResource,
+          organisationResource,
+          administrativeZoneResource,
+          userResource,
+          m2MClientResource,
+          notificationConfigurationResource,
+          roleResource,
+          entityTypeResource,
+          entityClassificationResource,
+          responsibilitySetResource
+        )
+      )
     );
     publicJersey.addUrlMappings("/services/organisations/*");
     publicJersey.setName("OrganisationAPI");
@@ -44,19 +69,33 @@ public class JerseyConfig {
 
   private static class OrganisationsAPIConfig extends ResourceConfig {
 
-    public OrganisationsAPIConfig() {
+    public OrganisationsAPIConfig(
+      CodeSpaceResource codeSpaceResource,
+      OrganisationResource organisationResource,
+      AdministrativeZoneResource administrativeZoneResource,
+      UserResource userResource,
+      M2MClientResource m2MClientResource,
+      NotificationConfigurationResource notificationConfigurationResource,
+      RoleResource roleResource,
+      EntityTypeResource entityTypeResource,
+      EntityClassificationResource entityClassificationResource,
+      ResponsibilitySetResource responsibilitySetResource
+    ) {
       register(CorsResponseFilter.class);
 
-      register(CodeSpaceResource.class);
-      register(OrganisationResource.class);
-      register(AdministrativeZoneResource.class);
-      register(UserResource.class);
-      register(M2MClientResource.class);
-      register(NotificationConfigurationResource.class);
-      register(RoleResource.class);
-      register(EntityTypeResource.class);
-      register(EntityClassificationResource.class);
-      register(ResponsibilitySetResource.class);
+      // Register the Spring-managed bean instances (not the classes) so they are fully
+      // initialised by Spring (incl. @PreAuthorize proxying). The Jersey/Spring bridge in
+      // Boot 4.0 no longer runs @PostConstruct / @PreAuthorize on resources registered by class.
+      register(codeSpaceResource);
+      register(organisationResource);
+      register(administrativeZoneResource);
+      register(userResource);
+      register(m2MClientResource);
+      register(notificationConfigurationResource);
+      register(roleResource);
+      register(entityTypeResource);
+      register(entityClassificationResource);
+      register(responsibilitySetResource);
 
       register(NotAuthenticatedExceptionMapper.class);
       register(PersistenceExceptionMapper.class);

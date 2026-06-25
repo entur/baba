@@ -24,6 +24,7 @@ import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
   classes = BabaTestApp.class
 )
+@AutoConfigureTestRestTemplate
 @Transactional
 public abstract class BaseIntegrationTest {
 

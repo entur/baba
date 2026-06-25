@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -62,21 +61,15 @@ public class BabaWebSecurityConfiguration {
       .csrf(AbstractHttpConfigurer::disable)
       .authorizeHttpRequests(authz ->
         authz
-          .requestMatchers(
-            PathPatternRequestMatcher.withDefaults().matcher("/services/organisations/openapi.json")
-          )
+          .requestMatchers("/services/organisations/openapi.json")
           .permitAll()
-          .requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/actuator/prometheus"))
+          .requestMatchers("/actuator/prometheus")
           .permitAll()
-          .requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/actuator/health"))
+          .requestMatchers("/actuator/health")
           .permitAll()
-          .requestMatchers(
-            PathPatternRequestMatcher.withDefaults().matcher("/actuator/health/liveness")
-          )
+          .requestMatchers("/actuator/health/liveness")
           .permitAll()
-          .requestMatchers(
-            PathPatternRequestMatcher.withDefaults().matcher("/actuator/health/readiness")
-          )
+          .requestMatchers("/actuator/health/readiness")
           .permitAll()
           .anyRequest()
           .authenticated()
