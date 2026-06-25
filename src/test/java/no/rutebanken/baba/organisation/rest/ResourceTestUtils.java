@@ -28,7 +28,7 @@ import no.rutebanken.baba.organisation.rest.dto.TypeDTO;
 import no.rutebanken.baba.organisation.rest.dto.organisation.AdministrativeZoneDTO;
 import no.rutebanken.baba.organisation.rest.dto.user.NotificationConfigDTO;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.wololo.geojson.Polygon;
 
