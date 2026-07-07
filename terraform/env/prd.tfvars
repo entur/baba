@@ -1,5 +1,5 @@
 gcp_resources_project = "ent-baba-prd"
-db_availability="REGIONAL"
+db_availability       = "REGIONAL"
 labels = {
   manager     = "terraform"
   team        = "ror"
