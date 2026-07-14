@@ -47,7 +47,7 @@
         <javax.jdo.jdo-api.version>3.2.1</javax.jdo.jdo-api.version>
         <spring-cloud-gcp-dependencies.version>7.4.6</spring-cloud-gcp-dependencies.version>
 
-        <rest-assured.version>6.0.0</rest-assured.version>
+        <rest-assured.version>6.0.1</rest-assured.version>
 
         <prettier-java.version>2.1.0</prettier-java.version>
         <prettier-maven-plugin.version>0.22</prettier-maven-plugin.version>
