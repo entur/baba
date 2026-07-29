@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.context.MessageSourceProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -33,6 +34,9 @@ class NewUserEmailFormatterTest {
 
   @Autowired
   private NewUserEmailFormatter emailFormatter;
+
+  @Autowired
+  private MessageSourceProperties messageSourceProperties;
 
   @Test
   void testFormatNewUserEmail() {
@@ -51,6 +55,15 @@ class NewUserEmailFormatterTest {
     Assertions.assertTrue(msg.contains(user.getUsername()));
 
     System.out.println(msg);
+  }
+
+  /**
+   * Guards the setting host-independently: the subject assertion below only detects a regression
+   * on a host whose locale happens to have a bundle.
+   */
+  @Test
+  void messageResolutionIgnoresTheHostLocale() {
+    Assertions.assertFalse(messageSourceProperties.isFallbackToSystemLocale());
   }
 
   @Test
