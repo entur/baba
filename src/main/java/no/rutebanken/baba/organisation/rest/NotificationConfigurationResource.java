@@ -26,6 +26,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import java.util.Locale;
 import java.util.Set;
 import no.rutebanken.baba.organisation.model.user.User;
 import no.rutebanken.baba.organisation.repository.UserRepository;
@@ -83,7 +84,7 @@ public class NotificationConfigurationResource {
     Set<NotificationConfigDTO> config
   ) {
     validator.validate(userName, config);
-    User user = getUser(userName.toLowerCase());
+    User user = getUser(userName.toLowerCase(Locale.ROOT));
     user.setNotificationConfigurations(mapper.fromDTO(config));
     repository.save(user);
   }
