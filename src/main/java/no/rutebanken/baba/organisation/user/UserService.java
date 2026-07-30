@@ -5,6 +5,7 @@ import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import no.rutebanken.baba.organisation.m2m.EnturClientM2MRoleAssignmentRepository;
 import no.rutebanken.baba.organisation.model.responsibility.ResponsibilitySet;
 import no.rutebanken.baba.organisation.model.user.User;
@@ -130,7 +131,7 @@ public class UserService {
         Response.Status.INTERNAL_SERVER_ERROR
       );
     }
-    String normalizedEmail = permissionStoreUser.email.toLowerCase();
+    String normalizedEmail = permissionStoreUser.email.toLowerCase(Locale.ROOT);
     LOGGER.debug("Retrieving user with email '{}' in Baba database", normalizedEmail);
     User user = repository.getUserByEmail(normalizedEmail);
     if (user == null) {

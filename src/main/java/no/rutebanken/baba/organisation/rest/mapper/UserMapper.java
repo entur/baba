@@ -18,6 +18,7 @@ package no.rutebanken.baba.organisation.rest.mapper;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -88,7 +89,7 @@ public class UserMapper implements DTOMapper<User, UserDTO> {
   public User createFromDTO(UserDTO dto, Class<User> clazz) {
     User entity = new User();
     entity.setPrivateCode(UUID.randomUUID().toString());
-    entity.setUsername(dto.username.toLowerCase());
+    entity.setUsername(dto.username.toLowerCase(Locale.ROOT));
 
     return updateFromDTO(dto, entity);
   }
@@ -134,7 +135,7 @@ public class UserMapper implements DTOMapper<User, UserDTO> {
     ContactDetails entity = new ContactDetails();
     entity.setFirstName(dto.firstName);
     entity.setLastName(dto.lastName);
-    entity.setEmail(dto.email == null ? null : dto.email.toLowerCase());
+    entity.setEmail(dto.email == null ? null : dto.email.toLowerCase(Locale.ROOT));
     entity.setPhone(dto.phone);
     return entity;
   }

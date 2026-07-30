@@ -30,6 +30,9 @@ data:
     spring.mail.properties.mail.smtp.connecttimeout=5000
     new.user.email.enabled=true
     new.user.email.from={{ .Values.mail.newUserFrom}}
+    # Resolve messages_no.properties/messages.properties from the requested locale only,
+    # not from the host's locale
+    spring.messages.fallback-to-system-locale=false
 
     # OAuth2 Resource Server for Entur Partner tenant
     baba.oauth2.resourceserver.auth0.entur.partner.jwt.issuer-uri={{ .Values.auth0.entur.partner.url }}
@@ -59,10 +62,10 @@ data:
     # Actuator
     management.server.port=9001
     management.endpoints.access.default=none
-    management.endpoint.info.enabled=true
-    management.endpoint.health.enabled=true
+    management.endpoint.info.access=unrestricted
+    management.endpoint.health.access=unrestricted
     management.endpoint.health.group.readiness.include=readinessState,db
-    management.endpoint.prometheus.enabled=true
+    management.endpoint.prometheus.access=unrestricted
     management.endpoints.web.exposure.include=info,health,prometheus
 
 kind: ConfigMap
