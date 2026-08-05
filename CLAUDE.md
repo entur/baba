@@ -14,7 +14,7 @@ parent POM is Entur's `org.entur.ror:superpom`.
 
 ## Build, test, run
 
-Java 21. Maven build. The project inherits a **Prettier (prettier-java)** plugin bound to the
+Java 25. Maven build. The project inherits a **Prettier (prettier-java)** plugin bound to the
 `validate` phase that reformats (or in CI, checks) all Java — printWidth 100, 2-space indent.
 
 - **Build:** `mvn clean install`
