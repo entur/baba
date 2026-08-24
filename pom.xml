@@ -41,7 +41,7 @@
     <properties>
         <entur.helpers.version>7.2.0</entur.helpers.version>
         <postgis-jdbc.version>2025.1.1</postgis-jdbc.version>
-        <swagger-jersey2.version>2.2.53</swagger-jersey2.version>
+        <swagger-jersey2.version>2.2.54</swagger-jersey2.version>
         <wololo.version>0.18.1</wololo.version>
         <javax.jdo.jdo-api.version>3.2.1</javax.jdo.jdo-api.version>
         <spring-cloud-gcp-dependencies.version>8.1.0</spring-cloud-gcp-dependencies.version>
