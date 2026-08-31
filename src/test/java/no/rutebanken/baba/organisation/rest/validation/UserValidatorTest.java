@@ -16,9 +16,11 @@
 
 package no.rutebanken.baba.organisation.rest.validation;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import no.rutebanken.baba.organisation.rest.dto.user.ContactDetailsDTO;
 import no.rutebanken.baba.organisation.rest.dto.user.UserDTO;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class UserValidatorTest {
@@ -48,40 +50,66 @@ class UserValidatorTest {
   void validateCreateWithInvalidUsernameFails() {
     UserDTO user = minimalUser();
     user.username = "user 1";
-    Assertions.assertThrows(
+    assertThrows(IllegalArgumentException.class, () -> userValidator.validateCreate(user));
+  }
+
+  @Test
+  void validateCreateWithTooLongUsernameFailsWithDescriptiveMessage() {
+    UserDTO user = minimalUser();
+    user.username = "a".repeat(31);
+    IllegalArgumentException e = assertThrows(
       IllegalArgumentException.class,
       () -> userValidator.validateCreate(user)
     );
+    assertTrue(e.getMessage().contains("31 characters"), e.getMessage());
+  }
+
+  @Test
+  void validateCreateReportsCharacterCountNotUtf16Units() {
+    UserDTO user = minimalUser();
+    user.username = "ab\uD83D\uDE00";
+    IllegalArgumentException e = assertThrows(
+      IllegalArgumentException.class,
+      () -> userValidator.validateCreate(user)
+    );
+    assertTrue(e.getMessage().contains("(3 characters)"), e.getMessage());
+  }
+
+  @Test
+  void validateCreateWithUsernameAtLengthBoundariesOk() {
+    UserDTO user = minimalUser();
+    user.username = "abc";
+    userValidator.validateCreate(user);
+    user.username = "a".repeat(30);
+    userValidator.validateCreate(user);
+  }
+
+  @Test
+  void validateCreateWithTooShortUsernameFails() {
+    UserDTO user = minimalUser();
+    user.username = "ab";
+    assertThrows(IllegalArgumentException.class, () -> userValidator.validateCreate(user));
   }
 
   @Test
   void validateCreateWithoutOrganisationFails() {
     UserDTO user = minimalUser();
     user.organisationRef = null;
-    Assertions.assertThrows(
-      IllegalArgumentException.class,
-      () -> userValidator.validateCreate(user)
-    );
+    assertThrows(IllegalArgumentException.class, () -> userValidator.validateCreate(user));
   }
 
   @Test
   void validateCreateWithoutContactDetailsFails() {
     UserDTO user = minimalUser();
     user.contactDetails = null;
-    Assertions.assertThrows(
-      IllegalArgumentException.class,
-      () -> userValidator.validateCreate(user)
-    );
+    assertThrows(IllegalArgumentException.class, () -> userValidator.validateCreate(user));
   }
 
   @Test
   void validateCreateWithoutEmailFails() {
     UserDTO user = minimalUser();
     user.contactDetails.email = null;
-    Assertions.assertThrows(
-      IllegalArgumentException.class,
-      () -> userValidator.validateCreate(user)
-    );
+    assertThrows(IllegalArgumentException.class, () -> userValidator.validateCreate(user));
   }
 
   @Test
@@ -93,10 +121,7 @@ class UserValidatorTest {
   void validateInvalidEmailFails() {
     UserDTO user = minimalUser();
     user.contactDetails = new ContactDetailsDTO("first", "last", "34234", "illegalEmail");
-    Assertions.assertThrows(
-      IllegalArgumentException.class,
-      () -> userValidator.validateCreate(user)
-    );
+    assertThrows(IllegalArgumentException.class, () -> userValidator.validateCreate(user));
   }
 
   @Test
