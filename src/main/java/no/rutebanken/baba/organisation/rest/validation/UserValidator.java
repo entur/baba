@@ -20,22 +20,29 @@ import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import no.rutebanken.baba.organisation.model.user.User;
 import no.rutebanken.baba.organisation.rest.dto.user.UserDTO;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 @Service
 public class UserValidator implements DTOValidator<User, UserDTO> {
 
-  private static final String DEFAULT_PATTERN = "^[a-zA-Z0-9_-[.]]{3,30}$";
-
-  @Value("${username.pattern:" + DEFAULT_PATTERN + "}")
-  private final String usernamePattern = DEFAULT_PATTERN;
+  // mirrored in ninkasi/src/utils/usernameValidation.ts
+  private static final String USERNAME_PATTERN = "^[a-zA-Z0-9_-[.]]{3,30}$";
+  private static final String USERNAME_RULE =
+    "3-30 characters using only letters, digits, underscore, hyphen and dot";
 
   @Override
   public void validateCreate(UserDTO dto) {
     Assert.hasLength(dto.username, "username required");
-    Assert.isTrue(dto.username.matches(usernamePattern), "username must be alphanumeric");
+    Assert.isTrue(
+      dto.username.matches(USERNAME_PATTERN),
+      () ->
+        "username '%s' (%d characters) must be %s".formatted(
+            dto.username,
+            dto.username.codePointCount(0, dto.username.length()),
+            USERNAME_RULE
+          )
+    );
     Assert.hasLength(dto.organisationRef, "organisationRef required");
     assertCommon(dto);
   }
