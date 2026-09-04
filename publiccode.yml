@@ -1,0 +1,54 @@
+publiccodeYmlVersion: "0.5.0"
+
+name: Baba
+url: https://github.com/entur/baba
+landingURL: https://github.com/entur/baba
+
+platforms:
+  - linux
+  - web
+
+categories:
+  - identity-management
+  - contact-management
+
+developmentStatus: stable
+softwareType: standalone/backend
+
+organisation:
+  name: Entur AS
+  uri: https://entur.no
+
+usedBy:
+  - Norway (nationwide), Entur
+
+description:
+  en:
+    localisedName: Baba
+    shortDescription: Organisation and user registry for the timetable data pipeline.
+    longDescription: >
+      Baba holds the organisations that deliver data, their users, and the roles and responsibility sets that
+      decide who may do what. Other pipeline services query it to resolve permissions. Integrates with an OAuth2
+      identity provider.
+    documentation: https://github.com/entur/baba/blob/master/README.md
+    features:
+      - Registry of organisations, users and administrative zones
+      - Role and responsibility model for authorisation
+      - REST API used to resolve permissions
+      - OAuth2 identity provider integration
+
+legal:
+  license: EUPL-1.2
+  mainCopyrightOwner: Entur AS
+
+maintenance:
+  type: internal
+  contacts:
+    - name: Entur Open Data and Journey Planning
+      email: kollektivdata@entur.org
+      affiliation: Entur AS
+
+localisation:
+  localisationReady: false
+  availableLanguages:
+    - en
