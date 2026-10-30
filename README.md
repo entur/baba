@@ -55,8 +55,10 @@ spring.datasource.initializationFailFast=false
 * Building
 `mvn clean install`
 
-* Building docker image (using profile h2 for in-memory DB)
-`mvn -Pf8-build,h2`
+* Building docker image (distroless runtime, see `Dockerfile`)
+`mvn verify && docker build -t baba:latest .`
+
+The runtime image is distroless: no shell or package manager. For a shell, build with the `debug-nonroot` tag of the same base image.
 
 * Running
 `mvn spring-boot:run -Ph2 -Dspring.config.location=/path/to/application.properties`
