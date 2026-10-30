@@ -110,6 +110,12 @@ The `no.entur.uttu.ext.entur.security` package is currently empty (placeholder d
 
 ## Deployment
 
-Containerized via the multi-stage `Dockerfile` (Spring Boot layered jar on Liberica JRE 21) and
-deployed with the Helm chart under `helm/baba`. CI is GitHub Actions (`.github/workflows/push.yml`):
-Maven verify with `prettierCheck`, SonarCloud scan, then Docker build/push on `master`.
+Containerized via the multi-stage `Dockerfile`: a Liberica JRE builder stage extracts the Spring
+Boot layered jar, and the runtime stage is `gcr.io/distroless/java25-debian13:nonroot` (Temurin
+JRE, no shell, no package manager, uid 65532). JVM flags are passed with `JDK_JAVA_OPTIONS`, which
+the `java` launcher reads itself; the runtime config file is mounted at
+`/etc/application-config/application.properties`, matching the Helm chart under `helm/baba`.
+There is no shell in the image: to inspect it, temporarily build with the `debug-nonroot` tag of
+the same base image, or use `kubectl debug` with an ephemeral container in the cluster.
+CI is GitHub Actions (`.github/workflows/push.yml`): Maven verify with `prettierCheck`, SonarCloud
+scan, a Docker smoke run of the built image, then Docker build/push on `master`.
