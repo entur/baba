@@ -12,6 +12,7 @@ import no.rutebanken.baba.organisation.model.user.User;
 import no.rutebanken.baba.organisation.repository.UserRepository;
 import no.rutebanken.baba.organisation.util.RoleAssignmentMapper;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreClient;
+import no.rutebanken.baba.security.permissionstore.PermissionStoreUnavailableException;
 import no.rutebanken.baba.security.permissionstore.PermissionStoreUser;
 import org.entur.ror.permission.AuthenticatedUser;
 import org.entur.ror.permission.BabaContactDetails;
@@ -90,29 +91,37 @@ public class UserService {
     }
   }
 
+  /**
+   * Resolve the user through the permission store, or the Baba database if it is unavailable.
+   */
   private User resolveUser(AuthenticatedUser authenticatedUser) {
+    String subject = authenticatedUser.subject();
+    LOGGER.debug("Retrieving user {} in Entur Partner", subject);
+    PermissionStoreUser permissionStoreUser;
     try {
-      return permissionStoreUser(authenticatedUser);
-    } catch (NotFoundException e) {
-      throw e;
-    } catch (Exception e) {
+      permissionStoreUser = permissionStoreClient.getUser(subject);
+    } catch (PermissionStoreUnavailableException e) {
       LOGGER.warn("Error while calling permission store API, falling back to Baba database", e);
-      String subject = authenticatedUser.subject();
-      User user = repository.getUserByPrivateCode(subject);
-      if (user == null) {
-        LOGGER.debug("No user found in Baba database with subject '{}'", subject);
-        throw new NotFoundException("User with subject: [" + authenticatedUser + "] not found");
-      }
-      LOGGER.debug("User found in Baba database with subject '{}'", subject);
-      return user;
+      return babaDatabaseUserBySubject(authenticatedUser);
     }
+    return babaDatabaseUserByEmail(authenticatedUser, permissionStoreUser);
   }
 
-  private User permissionStoreUser(AuthenticatedUser authenticatedUser) {
-    LOGGER.debug("Retrieving user {} in Entur Partner", authenticatedUser.subject());
-    PermissionStoreUser permissionStoreUser = permissionStoreClient.getUser(
-      authenticatedUser.subject()
-    );
+  private User babaDatabaseUserBySubject(AuthenticatedUser authenticatedUser) {
+    String subject = authenticatedUser.subject();
+    User user = repository.getUserByPrivateCode(subject);
+    if (user == null) {
+      LOGGER.debug("No user found in Baba database with subject '{}'", subject);
+      throw new NotFoundException("User with subject: [" + authenticatedUser + "] not found");
+    }
+    LOGGER.debug("User found in Baba database with subject '{}'", subject);
+    return user;
+  }
+
+  private User babaDatabaseUserByEmail(
+    AuthenticatedUser authenticatedUser,
+    PermissionStoreUser permissionStoreUser
+  ) {
     if (permissionStoreUser == null) {
       LOGGER.debug("User not found in Entur Partner: {}", authenticatedUser.subject());
       throw new NotFoundException(
