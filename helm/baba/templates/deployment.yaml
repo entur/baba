@@ -40,8 +40,6 @@ spec:
               value: Europe/Oslo
           envFrom:
             - secretRef:
-                name: auth-credentials
-            - secretRef:
                 name: auth-internal-credentials
             - secretRef:
                 name: smtp-credentials

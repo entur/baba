@@ -14,5 +14,3 @@ secrets:
   smtp-credentials:
     - SPRING_MAIL_USERNAME
     - SPRING_MAIL_PASSWORD
-  auth-credentials:
-    - IAM_AUTH0_ADMIN_CLIENT_SECRET
