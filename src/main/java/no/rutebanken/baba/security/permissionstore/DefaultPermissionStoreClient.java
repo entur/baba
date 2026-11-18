@@ -41,19 +41,33 @@ public class DefaultPermissionStoreClient implements PermissionStoreClient {
   }
 
   @Override
-  @Cacheable("permissionStoreUsers")
+  @Cacheable(value = "permissionStoreUsers", unless = "#result == null")
   public PermissionStoreUser getUser(String subject) {
     LOGGER.info("Retrieving user {} through Permission Store API", subject);
-    List<PermissionStoreUser> users = webClient
-      .get()
-      .uri(uriBuilder -> uriBuilder.path("/users").queryParam("subject", subject).build())
-      .retrieve()
-      .bodyToFlux(PermissionStoreUser.class)
-      .collectList()
-      .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(1)).filter(is5xx))
-      .block();
+    List<PermissionStoreUser> users;
+    try {
+      users =
+        webClient
+          .get()
+          // A URI variable is fully encoded: a literal "+" would be read as a space.
+          .uri(uriBuilder ->
+            uriBuilder.path("/users").queryParam("subject", "{subject}").build(subject)
+          )
+          .retrieve()
+          .bodyToFlux(PermissionStoreUser.class)
+          .collectList()
+          .retryWhen(Retry.backoff(MAX_RETRY_ATTEMPTS, Duration.ofSeconds(1)).filter(is5xx))
+          .block();
+    } catch (RuntimeException e) {
+      // An unknown subject yields an empty list, so a 404 means a wrong URL.
+      throw new PermissionStoreUnavailableException(
+        "Permission store unavailable while retrieving subject " + subject,
+        e
+      );
+    }
     if (users == null || users.isEmpty()) {
-      throw new IllegalArgumentException("No users found for subject " + subject);
+      LOGGER.info("No user found for subject {} in Permission Store", subject);
+      return null;
     }
     if (users.size() > 1) {
       throw new IllegalStateException("Multiple users found for subject " + subject);
